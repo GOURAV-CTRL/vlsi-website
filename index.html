@@ -21,6 +21,23 @@
 
     html { scroll-behavior: smooth; }
 
+    /* ── SCROLL REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .reveal.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.08s; }
+    .reveal-delay-2 { transition-delay: 0.16s; }
+    .reveal-delay-3 { transition-delay: 0.24s; }
+    .reveal-delay-4 { transition-delay: 0.32s; }
+    .reveal-delay-5 { transition-delay: 0.40s; }
+    .reveal-delay-6 { transition-delay: 0.48s; }
+
     body {
       font-family: 'DM Sans', sans-serif;
       color: var(--gray-text);
@@ -94,6 +111,13 @@
       background: rgba(255,255,255,0.08);
     }
 
+    /* Scroll-spy active link */
+    .nav-links > li > a.nav-active {
+      color: var(--accent);
+      background: rgba(245,158,11,0.1);
+      border-bottom: 2px solid var(--accent);
+    }
+
     .nav-links > li > a .arrow {
       font-size: 0.65rem;
       opacity: 0.7;
@@ -142,21 +166,57 @@
     }
     .nav-search:hover { color: var(--white); }
 
+    /* Hamburger toggle (hidden on desktop) */
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 32px;
+      height: 32px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin-left: 0.75rem;
+      padding: 0;
+      z-index: 1100;
+    }
+
+    .nav-toggle span {
+      display: block;
+      width: 100%;
+      height: 2px;
+      background: var(--white);
+      border-radius: 2px;
+      transition: transform 0.25s, opacity 0.25s;
+    }
+
+    .nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-toggle.open span:nth-child(2) { opacity: 0; }
+    .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
     /* ── HERO ── */
     .hero {
       position: relative;
-      min-height: 340px;
+      min-height: 480px;
       display: flex;
       align-items: center;
       overflow: hidden;
-      background: linear-gradient(135deg, var(--teal-dark) 0%, var(--teal-mid) 55%, var(--teal-light) 100%);
+      background:
+        radial-gradient(circle at 88% 18%, rgba(245,158,11,0.20) 0%, transparent 45%),
+        linear-gradient(135deg, #082c35 0%, var(--teal-dark) 38%, var(--teal-mid) 75%, var(--teal-light) 100%);
     }
 
+    /* circuit-style dot/line grid backdrop */
     .hero-bg-img {
       position: absolute;
       inset: 0;
-      background: url('https://images.unsplash.com/photo-1518770660439-4636190af475?w=1600&q=80') center/cover no-repeat;
-      opacity: 0.18;
+      opacity: 0.5;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: radial-gradient(ellipse 90% 80% at 70% 40%, black 10%, transparent 75%);
     }
 
     /* decorative curved cutout bottom-right */
@@ -174,56 +234,143 @@
     .hero-content {
       position: relative;
       z-index: 2;
-      padding: 3.5rem 3rem;
+      padding: 4rem 3rem 3.5rem;
+      max-width: 760px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: var(--white);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      padding: 0.4rem 0.9rem;
+      border-radius: 100px;
+      backdrop-filter: blur(4px);
+      animation: fadeUp 0.7s ease both;
+    }
+
+    .hero-badge .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 0 rgba(245,158,11,0.7);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(245,158,11,0.55); }
+      70%  { box-shadow: 0 0 0 7px rgba(245,158,11,0); }
+      100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
     }
 
     .hero-content h1 {
       font-family: 'Syne', sans-serif;
-      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-size: clamp(2.4rem, 5.5vw, 4.2rem);
       font-weight: 800;
       color: var(--white);
-      line-height: 1.1;
-      letter-spacing: -0.01em;
-      animation: fadeUp 0.7s ease both;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      margin-top: 1.1rem;
+      animation: fadeUp 0.7s 0.1s ease both;
+    }
+
+    .hero-content h1 span {
+      color: var(--accent);
+    }
+
+    .typewriter-cursor {
+      color: var(--accent);
+      animation: blink 0.75s step-end infinite;
+      font-weight: 800;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
     }
 
     .hero-content p {
-      color: rgba(255,255,255,0.78);
-      font-size: 1.05rem;
-      margin-top: 0.8rem;
-      max-width: 480px;
-      animation: fadeUp 0.7s 0.15s ease both;
+      color: rgba(255,255,255,0.8);
+      font-size: 1.1rem;
+      margin-top: 0.9rem;
+      max-width: 520px;
+      animation: fadeUp 0.7s 0.2s ease both;
     }
 
     .hero-btns {
       display: flex;
+      flex-wrap: wrap;
       gap: 1rem;
-      margin-top: 1.8rem;
+      margin-top: 2rem;
       animation: fadeUp 0.7s 0.3s ease both;
     }
 
     .btn {
-      display: inline-block;
-      padding: 0.7rem 1.6rem;
-      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0.75rem 1.7rem;
+      border-radius: 6px;
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       cursor: pointer;
       text-decoration: none;
       transition: transform 0.15s, box-shadow 0.15s;
     }
 
-    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.2); }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(0,0,0,0.25); }
 
     .btn-primary {
       background: var(--accent);
       color: #1a1a1a;
     }
 
+    .btn-youtube {
+      background: #ff0000;
+      color: var(--white);
+    }
+
     .btn-outline {
       background: transparent;
       color: var(--white);
       border: 2px solid rgba(255,255,255,0.6);
+    }
+
+    /* ── HERO STATS STRIP ── */
+    .hero-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2.2rem;
+      margin-top: 2.6rem;
+      padding-top: 1.6rem;
+      border-top: 1px solid rgba(255,255,255,0.18);
+      animation: fadeUp 0.7s 0.4s ease both;
+    }
+
+    .hero-stat strong {
+      display: block;
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    .hero-stat span {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.65);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    @media (max-width: 768px) {
+      .hero-stats { gap: 1.6rem; }
     }
 
     /* ── TUTORIALS SECTION ── */
@@ -282,6 +429,410 @@
       flex-shrink: 0;
     }
 
+    /* ── DAILY TRACKER ── */
+    .tracker-section {
+      background: var(--white);
+      padding: 0 2rem;
+      margin-top: -2.2rem;
+      position: relative;
+      z-index: 5;
+    }
+
+    .tracker-card {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, var(--teal-dark), var(--teal-mid));
+      border-radius: 16px;
+      box-shadow: 0 14px 38px rgba(13,79,92,0.28);
+      padding: 1.8rem 2rem;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 1.8rem;
+      color: var(--white);
+    }
+
+    .tracker-streak {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding-right: 1.8rem;
+      border-right: 1px solid rgba(255,255,255,0.18);
+      min-width: 110px;
+    }
+
+    .tracker-streak .flame { font-size: 1.6rem; line-height: 1; }
+    .tracker-streak .count {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 2.1rem;
+      line-height: 1.1;
+      margin-top: 0.2rem;
+    }
+    .tracker-streak .label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(255,255,255,0.7);
+    }
+
+    .streak-dots {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .streak-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.62rem;
+    }
+
+    .streak-dot.today { border-color: var(--accent); }
+    .streak-dot.done {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #1a1a1a;
+    }
+
+    /* Mode selector */
+    .tracker-modes {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .tmode-btn {
+      flex: 1;
+      min-width: 180px;
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid rgba(255,255,255,0.2);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      color: var(--white);
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    }
+
+    .tmode-btn:hover {
+      background: rgba(255,255,255,0.15);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .tmode-icon { font-size: 1.3rem; margin-bottom: 2px; }
+    .tmode-label { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; }
+    .tmode-sub   { font-size: 0.74rem; color: rgba(255,255,255,0.6); line-height: 1.35; }
+
+    /* Path badge */
+    .tracker-path-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 100px;
+      padding: 0.2rem 0.7rem;
+      font-size: 0.73rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      margin-bottom: 0.15rem;
+    }
+
+    /* Two-step checklist */
+    .tracker-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .tracker-step {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      user-select: none;
+      padding: 0.55rem 0.75rem;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: background 0.2s;
+    }
+
+    .tracker-step:hover { background: rgba(255,255,255,0.11); }
+
+    .tracker-step input[type="checkbox"] { display: none; }
+
+    .tracker-step-box {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      font-weight: 700;
+      transition: background 0.25s, border-color 0.25s;
+      position: relative;
+    }
+
+    .tracker-step-box .step-tick { display: none; }
+    .tracker-step-box .step-num  { display: block; }
+
+    .tracker-step.checked .tracker-step-box {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #1a1a1a;
+    }
+    .tracker-step.checked .tracker-step-box .step-tick { display: block; }
+    .tracker-step.checked .tracker-step-box .step-num  { display: none; }
+
+    .tracker-step.locked {
+      opacity: 0.45;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .tracker-step-text {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      font-size: 0.83rem;
+    }
+    .tracker-step-text strong { font-weight: 600; color: var(--white); }
+    .tracker-step-text span   { font-size: 0.74rem; color: rgba(255,255,255,0.6); }
+
+    .tracker-step.checked .tracker-step-text strong {
+      text-decoration: line-through;
+      opacity: 0.7;
+    }
+
+    .tracker-done-msg {
+      margin-top: 0.8rem;
+      background: rgba(245,158,11,0.15);
+      border: 1px solid rgba(245,158,11,0.4);
+      border-radius: 8px;
+      padding: 0.6rem 0.9rem;
+      font-size: 0.82rem;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* Right action panel */
+    .tracker-action {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.7rem;
+      min-width: 190px;
+    }
+
+    .tracker-watch-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: #ff0000;
+      color: var(--white);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      transition: opacity 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+    .tracker-watch-btn:hover { opacity: 0.85; }
+
+    .tracker-change-path {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.65);
+      font-size: 0.76rem;
+      padding: 0.45rem 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+      text-align: center;
+    }
+    .tracker-change-path:hover { color: var(--white); border-color: rgba(255,255,255,0.5); }
+
+    @media (max-width: 768px) {
+      .tracker-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .tracker-streak {
+        border-right: none;
+        border-bottom: 1px solid rgba(255,255,255,0.18);
+        padding-right: 0;
+        padding-bottom: 1rem;
+      }
+      .streak-dots { justify-content: center; }
+      .tracker-action { align-items: center; }
+      .tracker-modes { flex-direction: column; }
+      .tmode-btn { min-width: 0; }
+      .tracker-step { text-align: left; }
+    }
+
+    /* ── YOUTUBE SHOWCASE ── */
+    .youtube-showcase {
+      background: linear-gradient(160deg, var(--nav-bg) 0%, #0a2d38 100%);
+      padding: 4.5rem 2rem;
+    }
+
+    .yt-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .yt-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .yt-kicker {
+      display: inline-block;
+      color: var(--teal-light);
+      font-weight: 600;
+      font-size: 0.82rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+    }
+
+    .yt-header h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: var(--white);
+    }
+
+    .yt-header p {
+      color: rgba(255,255,255,0.65);
+      margin-top: 0.4rem;
+      font-size: 0.95rem;
+    }
+
+    .yt-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.6rem;
+    }
+
+    .yt-card {
+      display: block;
+      text-decoration: none;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .yt-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,0.22);
+    }
+
+    .yt-thumb {
+      position: relative;
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .yt-thumb-1 { background: linear-gradient(135deg, #0e7490, #082c35); }
+    .yt-thumb-2 { background: linear-gradient(135deg, #065f46, #082c35); }
+    .yt-thumb-3 { background: linear-gradient(135deg, #92400e, #082c35); }
+
+    /* Shimmer overlay on YT thumbnails */
+    .yt-thumb::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        105deg,
+        transparent 30%,
+        rgba(255,255,255,0.12) 50%,
+        transparent 70%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 2.2s infinite;
+    }
+    /* Stop shimmer once the card is hovered (content loaded feel) */
+    .yt-card:hover .yt-thumb::after { animation-play-state: paused; opacity: 0; transition: opacity 0.3s; }
+
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .yt-play {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: rgba(255,0,0,0.9);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      transition: transform 0.2s;
+    }
+
+    .yt-card:hover .yt-play { transform: scale(1.1); }
+
+    .yt-duration {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.7);
+      color: var(--white);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+    }
+
+    .yt-card-body {
+      padding: 1.1rem 1.2rem 1.3rem;
+    }
+
+    .yt-card-body h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.4;
+    }
+
+    .yt-meta {
+      display: block;
+      margin-top: 0.5rem;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.55);
+    }
+
     /* ── TOPICS CARDS ── */
     .topics {
       background: var(--gray-light);
@@ -310,14 +861,14 @@
       border-radius: 10px;
       padding: 1.6rem 1.4rem;
       box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-      transition: transform 0.2s, box-shadow 0.2s;
-      border-top: 3px solid var(--teal-mid);
+      transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+      border-top: 3px solid var(--card-color, var(--teal-mid));
       cursor: pointer;
     }
 
     .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 28px rgba(14,116,144,0.15);
+      transform: translateY(-5px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.09), 0 0 0 2px var(--card-color, var(--teal-mid));
     }
 
     .card-icon {
@@ -481,174 +1032,237 @@
     .wbtn-free { background: #059669; color: white; }
     .wbtn-paid { background: var(--teal-mid); color: white; }
 
-    /* ── ROADMAP ── */
-    .roadmap {
-      padding: 4rem 2rem;
-      background: var(--gray-light);
-    }
-
-    .roadmap h2 {
-      font-family: 'Syne', sans-serif;
-      font-size: 1.8rem;
-      font-weight: 800;
-      text-align: center;
-      color: #111;
-    }
-
-    .roadmap-track {
-      max-width: 760px;
-      margin: 3rem auto 0;
-      position: relative;
-      padding-left: 2.2rem;
-      border-left: 3px solid var(--teal-light);
-    }
-
-    .road-stage {
-      position: relative;
-      margin-bottom: 2.4rem;
-    }
-
-    .road-stage:last-child { margin-bottom: 0; }
-
-    .road-stage::before {
-      content: '';
-      position: absolute;
-      left: -2.55rem;
-      top: 0.25rem;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: var(--accent);
-      border: 3px solid var(--teal-dark);
-    }
-
-    .road-stage h3 {
-      font-family: 'Syne', sans-serif;
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #111;
-      margin-bottom: 0.3rem;
-    }
-
-    .road-stage p {
-      font-size: 0.85rem;
-      color: #666;
-      line-height: 1.5;
-      margin-bottom: 0.7rem;
-    }
-
-    .road-links {
-      display: flex;
-      gap: 0.6rem;
-      flex-wrap: wrap;
-    }
-
-    .road-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 0.4rem 0.9rem;
-      border-radius: 20px;
-      font-size: 0.76rem;
-      font-weight: 700;
-      text-decoration: none;
-      transition: opacity 0.15s, transform 0.15s;
-    }
-
-    .road-link:hover { opacity: 0.8; transform: translateY(-1px); }
-
-    .road-link.design { background: #fef3c7; color: #92400e; }
-    .road-link.verify { background: #d1fae5; color: #065f46; }
-
-    /* ── DAILY TRACKER ── */
-    .tracker {
-      padding: 4rem 2rem;
-      background: var(--white);
-    }
-
-    .tracker h2 {
-      font-family: 'Syne', sans-serif;
-      font-size: 1.8rem;
-      font-weight: 800;
-      text-align: center;
-      color: #111;
-    }
-
-    .tracker-card {
-      max-width: 560px;
-      margin: 2.5rem auto 0;
-      background: var(--gray-light);
-      border-radius: 14px;
-      padding: 1.8rem 2rem;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-
-    .tracker-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-      margin-bottom: 1.2rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .streak-badge {
-      background: var(--accent);
-      color: #1a1a1a;
-      padding: 0.35rem 0.9rem;
-      border-radius: 20px;
-      font-weight: 700;
-      font-size: 0.85rem;
-    }
-
-    .tracker-total {
-      font-size: 0.8rem;
-      color: #888;
-    }
-
-    .tracker-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 0.65rem 0;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .tracker-item:last-of-type { border-bottom: none; }
-
-    .tracker-item input {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--teal-mid);
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-
-    .tracker-item label {
-      font-size: 0.9rem;
-      color: var(--gray-text);
-      cursor: pointer;
-    }
-
-    .tracker-footer {
-      margin-top: 1.2rem;
-      font-size: 0.75rem;
-      color: #999;
-      text-align: center;
-    }
-
     /* ── FOOTER ── */
     footer {
       background: var(--nav-bg);
-      color: rgba(255,255,255,0.6);
-      text-align: center;
-      padding: 1.8rem 1rem;
-      font-size: 0.82rem;
+      color: rgba(255,255,255,0.65);
+      padding: 3.5rem 2rem 0;
+      font-size: 0.88rem;
     }
 
-    footer span { color: var(--teal-light); }
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1.2fr;
+      gap: 2.5rem;
+      padding-bottom: 2.5rem;
+    }
+
+    .footer-col h5 {
+      font-family: 'Syne', sans-serif;
+      color: var(--white);
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 0.8rem;
+    }
+
+    .footer-brand img { width: 30px; height: 30px; border-radius: 50%; }
+
+    .footer-brand span {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      color: var(--white);
+      font-size: 1.05rem;
+    }
+
+    .footer-col p {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.55);
+      max-width: 280px;
+    }
+
+    .footer-socials {
+      display: flex;
+      gap: 0.7rem;
+      margin-top: 1.2rem;
+    }
+
+    .footer-socials a {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .footer-socials a:hover {
+      background: var(--teal-mid);
+      transform: translateY(-2px);
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li { margin-bottom: 0.65rem; }
+
+    .footer-links a {
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--white); }
+
+    .footer-newsletter p {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 1rem;
+    }
+
+    .footer-form {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .footer-form input {
+      flex: 1;
+      min-width: 0;
+      padding: 0.65rem 0.85rem;
+      border-radius: 5px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.06);
+      color: var(--white);
+      font-size: 0.85rem;
+    }
+
+    .footer-form input::placeholder { color: rgba(255,255,255,0.4); }
+
+    .footer-form button {
+      background: var(--accent);
+      color: #1a1a1a;
+      border: none;
+      padding: 0 1.1rem;
+      border-radius: 5px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .footer-form button:hover { opacity: 0.85; }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding: 1.4rem 0;
+      text-align: center;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.45);
+    }
+
+    .footer-bottom span { color: var(--teal-light); }
+
+    @media (max-width: 768px) {
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ── SOCIAL PROOF / TESTIMONIALS ── */
+    .testimonials {
+      background: var(--gray-light);
+      padding: 4.5rem 2rem;
+    }
+
+    .testimonials-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .testimonials-head {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .testimonials-head h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #111;
+    }
+
+    .testimonials-head p {
+      color: #888;
+      margin-top: 0.4rem;
+      font-size: 0.95rem;
+    }
+
+    .trust-bar {
+      text-align: center;
+      font-size: 0.82rem;
+      color: #999;
+      letter-spacing: 0.02em;
+      margin: 1.6rem 0 3rem;
+    }
+
+    .trust-bar strong { color: var(--teal-mid); }
+
+    .testimonial-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .testimonial-card {
+      background: var(--white);
+      border-radius: 10px;
+      padding: 1.6rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    .testimonial-stars { color: var(--accent); font-size: 0.85rem; margin-bottom: 0.7rem; }
+
+    .testimonial-card p {
+      font-size: 0.9rem;
+      color: #444;
+      line-height: 1.6;
+      margin-bottom: 1.1rem;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .testimonial-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      color: var(--white);
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .testimonial-author h5 {
+      font-size: 0.85rem;
+      color: #111;
+      font-weight: 700;
+    }
+
+    .testimonial-author span {
+      font-size: 0.76rem;
+      color: #888;
+    }
 
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(22px); }
@@ -657,11 +1271,62 @@
 
     /* ── MOBILE ── */
     @media (max-width: 768px) {
-      .nav-links { display: none; }
+      .nav-toggle { display: flex; }
+      .nav-search { margin-left: auto; }
+
+      .nav-links {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        position: fixed;
+        top: 64px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--nav-bg);
+        flex: none;
+        gap: 0;
+        max-height: 0;
+        overflow-y: auto;
+        opacity: 0;
+        visibility: hidden;
+        transition: max-height 0.3s ease, opacity 0.2s ease;
+        z-index: 1000;
+      }
+
+      .nav-links.open {
+        max-height: calc(100vh - 64px);
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .nav-links > li > a {
+        height: auto;
+        padding: 0.9rem 1.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        justify-content: space-between;
+      }
+
+      /* dropdowns become static accordions instead of hover-popovers */
+      .dropdown {
+        position: static;
+        display: none;
+        border-top: none;
+        background: rgba(0,0,0,0.15);
+        min-width: 0;
+      }
+
+      .nav-links > li.dropdown-open .dropdown { display: block; }
+      .nav-links > li:hover .dropdown { display: none; }
+      .nav-links > li.dropdown-open:hover .dropdown { display: block; }
+      .nav-links > li:hover > a .arrow { transform: none; }
+      .nav-links > li.dropdown-open > a .arrow { transform: rotate(180deg); }
+
       .tutorials { grid-template-columns: 1fr; }
       .tutorials-list { margin-top: 1.5rem; }
-      .hero-content { padding: 2.5rem 1.5rem; }
+      .hero-content { padding: 2.5rem 1.5rem 2.5rem; }
       .hero::after { width: 160px; height: 100px; }
+      .yt-header { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
@@ -676,7 +1341,7 @@
 
   <ul class="nav-links">
     <li>
-      <a href="#">Verilog <span class="arrow">▾</span></a>
+      <a href="#tutorials" data-section="tutorials">Verilog <span class="arrow">▾</span></a>
       <div class="dropdown">
         <a href="#">Verilog Basics</a>
         <a href="#">Data Types</a>
@@ -686,7 +1351,7 @@
       </div>
     </li>
     <li>
-      <a href="#">System Verilog <span class="arrow">▾</span></a>
+      <a href="#tutorials" data-section="tutorials">System Verilog <span class="arrow">▾</span></a>
       <div class="dropdown">
         <a href="#">SV Basics</a>
         <a href="#">Classes & OOP</a>
@@ -696,7 +1361,7 @@
       </div>
     </li>
     <li>
-      <a href="#">UVM <span class="arrow">▾</span></a>
+      <a href="#tutorials" data-section="tutorials">UVM <span class="arrow">▾</span></a>
       <div class="dropdown">
         <a href="#">UVM Basics</a>
         <a href="#">UVM Components</a>
@@ -705,7 +1370,7 @@
       </div>
     </li>
     <li>
-      <a href="#">Interview Questions <span class="arrow">▾</span></a>
+      <a href="#topics" data-section="topics">Interview Questions <span class="arrow">▾</span></a>
       <div class="dropdown">
         <a href="#">Verilog Questions</a>
         <a href="#">System Verilog Questions</a>
@@ -714,7 +1379,7 @@
       </div>
     </li>
     <li>
-      <a href="#">Digital Design <span class="arrow">▾</span></a>
+      <a href="#topics" data-section="topics">Digital Design <span class="arrow">▾</span></a>
       <div class="dropdown">
         <a href="#">Boolean Algebra</a>
         <a href="#">Combinational Circuits</a>
@@ -723,11 +1388,9 @@
         <a href="#">Number Systems</a>
       </div>
     </li>
-    <li><a href="#">ASIC Flows</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#tracker">Daily Tracker</a></li>
+    <li><a href="#topics" data-section="topics">ASIC Flows</a></li>
     <li>
-      <a href="#">Workshops <span class="arrow">▾</span></a>
+      <a href="#workshops" data-section="workshops">Workshops <span class="arrow">▾</span></a>
       <div class="dropdown">
         <a href="#workshops-free">🆓 Free Workshops</a>
         <a href="#workshops-paid">💎 Paid Workshops</a>
@@ -745,18 +1408,111 @@
   </ul>
 
   <div class="nav-search">🔍</div>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
   <div class="hero-bg-img"></div>
   <div class="hero-content">
-    <h1>All About VLSI</h1>
-    <p>Your complete learning hub for Verilog, SystemVerilog, UVM, ASIC Design, and Verification — from beginner to expert.</p>
+    <div class="hero-badge"><span class="dot"></span> New videos every week on YouTube</div>
+    <h1>All About <span id="typewriter-word"></span><span class="typewriter-cursor">|</span></h1>
+    <p>Daily VLSI tutorials, straight from the channel — Verilog, SystemVerilog, UVM, ASIC Design & Verification.</p>
     <div class="hero-btns">
       <a href="#tutorials" class="btn btn-primary">Start Learning</a>
+      <a href="https://youtube.com" target="_blank" class="btn btn-youtube">▶ Watch on YouTube</a>
       <a href="#topics" class="btn btn-outline">Explore Topics</a>
     </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><strong><span class="stat-counter" data-target="50" data-suffix="+">0</span></strong><span>Free Tutorials</span></div>
+      <div class="hero-stat"><strong><span class="stat-counter" data-target="10" data-suffix="K+">0</span></strong><span>Learners Taught</span></div>
+      <div class="hero-stat"><strong><span class="stat-counter" data-target="6" data-suffix="">0</span></strong><span>Core Topics</span></div>
+      <div class="hero-stat"><strong>Weekly</strong><span>Live Workshops</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- DAILY TRACKER -->
+<section class="tracker-section">
+  <div class="tracker-card" id="trackerCard">
+
+    <!-- LEFT: Streak -->
+    <div class="tracker-streak">
+      <div class="flame">🔥</div>
+      <div class="count" id="streakCount">0</div>
+      <div class="label">Day Streak</div>
+      <div class="streak-dots" id="streakDots" style="margin-top:0.8rem; justify-content:center;"></div>
+    </div>
+
+    <!-- MIDDLE: Main content (mode selector or checklist) -->
+    <div class="tracker-mid" id="trackerMid">
+
+      <!-- MODE SELECTOR (shown if no path chosen yet) -->
+      <div id="trackerModeSelect">
+        <h4 style="margin-bottom:0.3rem;">Where are you in your VLSI journey?</h4>
+        <p style="font-size:0.82rem; color:rgba(255,255,255,0.65); margin-bottom:1.1rem;">Choose your learning path to get today's task.</p>
+        <div class="tracker-modes">
+          <button class="tmode-btn" id="btnBeginner">
+            <span class="tmode-icon">🌱</span>
+            <span class="tmode-label">Complete Beginner</span>
+            <span class="tmode-sub">Start from scratch with Digital Design basics</span>
+          </button>
+          <button class="tmode-btn" id="btnOngoing">
+            <span class="tmode-icon">⚡</span>
+            <span class="tmode-label">Ongoing Live Session</span>
+            <span class="tmode-sub">Continue the Digital Design live batch</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- CHECKLIST (shown once path is picked) -->
+      <div id="trackerChecklist" style="display:none;">
+        <div class="tracker-path-badge" id="trackerPathBadge"></div>
+        <h4 id="trackerTitle" style="margin:0.5rem 0 0.25rem;">Today's Session</h4>
+        <p id="trackerStatus" style="font-size:0.82rem; color:rgba(255,255,255,0.65); margin-bottom:1rem;"></p>
+
+        <div class="tracker-steps">
+          <!-- Step 1 -->
+          <label class="tracker-step" id="step1Label">
+            <input type="checkbox" id="step1Check" class="tracker-step-check" />
+            <span class="tracker-step-box" id="step1Box">
+              <span class="step-num">1</span>
+              <span class="step-tick">✓</span>
+            </span>
+            <span class="tracker-step-text">
+              <strong id="step1Title">Watch the session</strong>
+              <span id="step1Sub">Live or recording — mark done once watched</span>
+            </span>
+          </label>
+          <!-- Step 2 -->
+          <label class="tracker-step" id="step2Label">
+            <input type="checkbox" id="step2Check" class="tracker-step-check" />
+            <span class="tracker-step-box" id="step2Box">
+              <span class="step-num">2</span>
+              <span class="step-tick">✓</span>
+            </span>
+            <span class="tracker-step-text">
+              <strong id="step2Title">Solve the practice problem</strong>
+              <span id="step2Sub">Attempt today's problem, then check this off</span>
+            </span>
+          </label>
+        </div>
+
+        <div class="tracker-done-msg" id="trackerDoneMsg" style="display:none;">
+          🎉 Both steps done for today! Come back tomorrow to keep your streak alive.
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: CTA -->
+    <div class="tracker-action" id="trackerAction" style="display:none;">
+      <a href="https://youtube.com/@AllAboutVLSI/videos" target="_blank" class="tracker-watch-btn" id="trackerWatchBtn">▶ Watch Session</a>
+      <button class="tracker-change-path" id="btnChangePath">↩ Change path</button>
+    </div>
+
   </div>
 </section>
 
@@ -767,14 +1523,52 @@
     <p>Enhance your Learning Skills</p>
   </div>
   <div class="tutorials-list">
-    <a href="#" class="tut-item">Verilog Tutorials</a>
-    <a href="#" class="tut-item">SystemVerilog Tutorials</a>
-    <a href="#" class="tut-item">Functional Coverage Tutorials</a>
-    <a href="#" class="tut-item">UVM Tutorials</a>
-    <a href="#" class="tut-item">Digital Design Tutorials</a>
-    <a href="#" class="tut-item">Digital Design Tutorials</a>
-    <a href="#" class="tut-item">ASIC Design Flow</a>
-    <a href="#" class="tut-item">Interview Preparation</a>
+    <a href="#" class="tut-item reveal reveal-delay-1">Verilog Tutorials</a>
+    <a href="#" class="tut-item reveal reveal-delay-2">SystemVerilog Tutorials</a>
+    <a href="#" class="tut-item reveal reveal-delay-3">Functional Coverage Tutorials</a>
+    <a href="#" class="tut-item reveal reveal-delay-4">UVM Tutorials</a>
+    <a href="#" class="tut-item reveal reveal-delay-5">Digital Design Tutorials</a>
+    <a href="#" class="tut-item reveal reveal-delay-6">Digital Design Tutorials</a>
+    <a href="#" class="tut-item reveal reveal-delay-1">ASIC Design Flow</a>
+    <a href="#" class="tut-item reveal reveal-delay-2">Interview Preparation</a>
+  </div>
+</section>
+
+<!-- YOUTUBE SHOWCASE -->
+<section class="youtube-showcase">
+  <div class="yt-inner">
+    <div class="yt-header">
+      <div>
+        <span class="yt-kicker">🎥 From the channel</span>
+        <h2>Watch, Learn, Build</h2>
+        <p>New VLSI tutorials and live workshop recaps every week.</p>
+      </div>
+      <a href="https://youtube.com" target="_blank" class="btn btn-youtube">▶ Subscribe on YouTube</a>
+    </div>
+
+    <div class="yt-grid">
+      <a href="https://youtube.com" target="_blank" class="yt-card reveal reveal-delay-1">
+        <div class="yt-thumb yt-thumb-1"><span class="yt-play">▶</span><span class="yt-duration">12:48</span></div>
+        <div class="yt-card-body">
+          <h4>Verilog Basics: Modules & Ports Explained</h4>
+          <span class="yt-meta">42K views · 3 weeks ago</span>
+        </div>
+      </a>
+      <a href="https://youtube.com" target="_blank" class="yt-card reveal reveal-delay-2">
+        <div class="yt-thumb yt-thumb-2"><span class="yt-play">▶</span><span class="yt-duration">21:05</span></div>
+        <div class="yt-card-body">
+          <h4>UVM Testbench Architecture from Scratch</h4>
+          <span class="yt-meta">28K views · 1 month ago</span>
+        </div>
+      </a>
+      <a href="https://youtube.com" target="_blank" class="yt-card reveal reveal-delay-3">
+        <div class="yt-thumb yt-thumb-3"><span class="yt-play">▶</span><span class="yt-duration">35:30</span></div>
+        <div class="yt-card-body">
+          <h4>Live Workshop Recap: ASIC Design Flow</h4>
+          <span class="yt-meta">19K views · 2 months ago</span>
+        </div>
+      </a>
+    </div>
   </div>
 </section>
 
@@ -782,32 +1576,32 @@
 <section class="topics" id="topics">
   <h2>Explore All Topics</h2>
   <div class="cards-grid">
-    <div class="card">
+    <div class="card reveal reveal-delay-1" style="--card-color:#0e7490;">
       <div class="card-icon">🔌</div>
       <h3>Verilog HDL</h3>
       <p>Master hardware description language from basic gates to complex RTL designs.</p>
     </div>
-    <div class="card">
+    <div class="card reveal reveal-delay-2" style="--card-color:#7c3aed;">
       <div class="card-icon">⚙️</div>
       <h3>SystemVerilog</h3>
       <p>Advanced verification constructs, OOP features, interfaces, and assertions.</p>
     </div>
-    <div class="card">
+    <div class="card reveal reveal-delay-3" style="--card-color:#059669;">
       <div class="card-icon">🧪</div>
       <h3>UVM</h3>
       <p>Universal Verification Methodology — build scalable and reusable testbenches.</p>
     </div>
-    <div class="card">
+    <div class="card reveal reveal-delay-4" style="--card-color:#dc2626;">
       <div class="card-icon">🏭</div>
       <h3>ASIC Flows</h3>
       <p>End-to-end chip design flow: synthesis, place & route, timing closure.</p>
     </div>
-    <div class="card">
+    <div class="card reveal reveal-delay-5" style="--card-color:#f59e0b;">
       <div class="card-icon">💡</div>
       <h3>Digital Design</h3>
       <p>Boolean algebra, combinational & sequential circuits, FSMs, and more.</p>
     </div>
-    <div class="card">
+    <div class="card reveal reveal-delay-6" style="--card-color:#0284c7;">
       <div class="card-icon">🎯</div>
       <h3>Interview Questions</h3>
       <p>Curated VLSI and verification interview questions with detailed answers.</p>
@@ -815,98 +1609,50 @@
   </div>
 </section>
 
-<!-- ROADMAP -->
-<section class="roadmap" id="roadmap">
-  <h2>Learning Roadmap</h2>
-  <p class="workshops-sub">Your step-by-step path through VLSI — design &amp; verification videos for every stage</p>
-  <div class="roadmap-track">
+<!-- SOCIAL PROOF -->
+<section class="testimonials">
+  <div class="testimonials-inner">
+    <div class="testimonials-head">
+      <h2>Trusted by Learners Worldwide</h2>
+      <p>Real feedback from engineers and students growing with the channel</p>
+    </div>
+    <p class="trust-bar">Learners from this community now work at companies like <strong>Intel, Qualcomm, NVIDIA, AMD & Texas Instruments</strong></p>
 
-    <div class="road-stage">
-      <h3>1. Digital Design Basics</h3>
-      <p>Boolean algebra, logic gates, number systems, combinational &amp; sequential circuits.</p>
-      <div class="road-links">
-        <a href="#" class="road-link design" target="_blank" rel="noopener">🎬 Design Video</a>
-        <a href="#" class="road-link verify" target="_blank" rel="noopener">✅ Verification Video</a>
+    <div class="testimonial-grid">
+      <div class="testimonial-card reveal reveal-delay-1">
+        <div class="testimonial-stars">★★★★★</div>
+        <p>"The UVM playlist alone got me through my first verification interview. Clear explanations, real examples — no fluff."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar" style="background:#0e7490;">RK</div>
+          <div>
+            <h5>Rahul K.</h5>
+            <span>Verification Engineer</span>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal reveal-delay-2">
+        <div class="testimonial-stars">★★★★★</div>
+        <p>"I started with zero digital design background. The free workshops + tutorials got me job-ready in under 4 months."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar" style="background:#92400e;">SP</div>
+          <div>
+            <h5>Sneha P.</h5>
+            <span>Final Year Student</span>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal reveal-delay-3">
+        <div class="testimonial-stars">★★★★★</div>
+        <p>"Best free VLSI content on YouTube, hands down. The ASIC flow masterclass was worth way more than what I paid."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar" style="background:#065f46;">AM</div>
+          <div>
+            <h5>Arjun M.</h5>
+            <span>RTL Design Intern</span>
+          </div>
+        </div>
       </div>
     </div>
-
-    <div class="road-stage">
-      <h3>2. Verilog HDL</h3>
-      <p>Data types, operators, modules &amp; ports, behavioral vs structural modeling, testbenches.</p>
-      <div class="road-links">
-        <a href="#" class="road-link design" target="_blank" rel="noopener">🎬 Design Video</a>
-        <a href="#" class="road-link verify" target="_blank" rel="noopener">✅ Verification Video</a>
-      </div>
-    </div>
-
-    <div class="road-stage">
-      <h3>3. SystemVerilog Fundamentals</h3>
-      <p>New data types, interfaces, procedural blocks, and enhancements over Verilog.</p>
-      <div class="road-links">
-        <a href="#" class="road-link design" target="_blank" rel="noopener">🎬 Design Video</a>
-        <a href="#" class="road-link verify" target="_blank" rel="noopener">✅ Verification Video</a>
-      </div>
-    </div>
-
-    <div class="road-stage">
-      <h3>4. SystemVerilog OOP &amp; Constraints</h3>
-      <p>Classes, inheritance, polymorphism, randomization, and constraint solving.</p>
-      <div class="road-links">
-        <a href="#" class="road-link design" target="_blank" rel="noopener">🎬 Design Video</a>
-        <a href="#" class="road-link verify" target="_blank" rel="noopener">✅ Verification Video</a>
-      </div>
-    </div>
-
-    <div class="road-stage">
-      <h3>5. UVM Basics</h3>
-      <p>UVM components, factory, phases, and building your first testbench.</p>
-      <div class="road-links">
-        <a href="#" class="road-link design" target="_blank" rel="noopener">🎬 Design Video</a>
-        <a href="#" class="road-link verify" target="_blank" rel="noopener">✅ Verification Video</a>
-      </div>
-    </div>
-
-    <div class="road-stage">
-      <h3>6. UVM Advanced</h3>
-      <p>Sequences, virtual sequencers, RAL, and scalable testbench architecture.</p>
-      <div class="road-links">
-        <a href="#" class="road-link design" target="_blank" rel="noopener">🎬 Design Video</a>
-        <a href="#" class="road-link verify" target="_blank" rel="noopener">✅ Verification Video</a>
-      </div>
-    </div>
-
-    <div class="road-stage">
-      <h3>7. ASIC Design Flow</h3>
-      <p>RTL to GDSII: synthesis, STA, place &amp; route, DRC/LVS.</p>
-      <div class="road-links">
-        <a href="#" class="road-link design" target="_blank" rel="noopener">🎬 Design Video</a>
-        <a href="#" class="road-link verify" target="_blank" rel="noopener">✅ Verification Video</a>
-      </div>
-    </div>
-
-    <div class="road-stage">
-      <h3>8. Interview Preparation</h3>
-      <p>Curated Verilog, SV, UVM &amp; digital design interview questions with explanations.</p>
-      <div class="road-links">
-        <a href="#" class="road-link design" target="_blank" rel="noopener">🎬 Design Video</a>
-        <a href="#" class="road-link verify" target="_blank" rel="noopener">✅ Verification Video</a>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- DAILY TRACKER -->
-<section class="tracker" id="tracker">
-  <h2>Daily Tracker</h2>
-  <p class="workshops-sub">Build the habit — one day at a time</p>
-  <div class="tracker-card">
-    <div class="tracker-header">
-      <span id="streakBadge" class="streak-badge">🔥 0 day streak</span>
-      <span class="tracker-total">Total completed days: <strong id="totalDays">0</strong></span>
-    </div>
-    <div id="trackerList"></div>
-    <p class="tracker-footer">Resets automatically at midnight • Saved on this device only</p>
   </div>
 </section>
 
@@ -1015,104 +1761,422 @@
 
 <!-- FOOTER -->
 <footer>
-  <p>© 2025 <span>All About VLSI</span> — Built for VLSI Learners & Engineers</p>
+  <div class="footer-inner">
+    <div class="footer-col">
+      <div class="footer-brand">
+        <svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
+          <rect width="30" height="30" rx="7" fill="#17a5bf"/>
+          <path d="M9 10h12M9 15h12M9 20h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span>All About VLSI</span>
+      </div>
+      <p>Your complete learning hub for Verilog, SystemVerilog, UVM, ASIC Design, and Verification — built for engineers, by engineers.</p>
+      <div class="footer-socials">
+        <a href="https://youtube.com" target="_blank" aria-label="YouTube">▶</a>
+        <a href="#" aria-label="LinkedIn">in</a>
+        <a href="#" aria-label="Instagram">📷</a>
+        <a href="#" aria-label="Telegram">✈</a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h5>Quick Links</h5>
+      <ul class="footer-links">
+        <li><a href="#tutorials">Tutorials</a></li>
+        <li><a href="#topics">Topics</a></li>
+        <li><a href="#workshops">Workshops</a></li>
+        <li><a href="#">Blogs</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h5>Resources</h5>
+      <ul class="footer-links">
+        <li><a href="#">Interview Questions</a></li>
+        <li><a href="#">Digital Design Notes</a></li>
+        <li><a href="#">ASIC Flow Guide</a></li>
+        <li><a href="#">Contact Us</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col footer-newsletter">
+      <h5>Stay in the loop</h5>
+      <p>Get new tutorials and free workshop alerts in your inbox.</p>
+      <form class="footer-form" onsubmit="return false;">
+        <input type="email" placeholder="Your email" required />
+        <button type="submit">Join</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2025 <span>All About VLSI</span> — Built for VLSI Learners & Engineers</p>
+  </div>
 </footer>
+
 <script>
-(function () {
-  var TASKS = [
-    { id: 'watch',    label: '🎬 Watched a tutorial / lecture' },
-    { id: 'practice', label: '💻 Practiced or wrote code' },
-    { id: 'quiz',     label: '🧠 Solved an interview question' },
-    { id: 'revise',   label: '📝 Revised a previous topic' }
-  ];
-  var STORAGE_KEY = 'vlsiDailyTracker';
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.querySelector('.nav-links');
 
-  function todayStr() {
-    return new Date().toISOString().slice(0, 10);
-  }
+  navToggle.addEventListener('click', () => {
+    navToggle.classList.toggle('open');
+    navLinks.classList.toggle('open');
+  });
 
-  function yesterdayStr() {
-    return new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-  }
+  // On mobile, tapping a top-level link with a dropdown opens an accordion
+  // instead of following the hover-popover behavior used on desktop.
+  document.querySelectorAll('.nav-links > li').forEach(li => {
+    const link = li.querySelector('a');
+    const dropdown = li.querySelector('.dropdown');
+    if (!dropdown) return;
 
-  function load() {
+    link.addEventListener('click', (e) => {
+      if (window.innerWidth <= 768) {
+        e.preventDefault();
+        li.classList.toggle('dropdown-open');
+      }
+    });
+  });
+
+  // Close the mobile menu after picking a link with no dropdown,
+  // or after picking a final dropdown item
+  document.querySelectorAll('.dropdown a, .nav-links > li > a').forEach(a => {
+    a.addEventListener('click', (e) => {
+      const hasDropdown = a.parentElement.querySelector('.dropdown');
+      if (window.innerWidth <= 768 && !hasDropdown) {
+        navToggle.classList.remove('open');
+        navLinks.classList.remove('open');
+      }
+    });
+  });
+</script>
+
+<script>
+  // ── DAILY PRACTICE TRACKER v2 ──
+  // Two modes: Beginner | Ongoing Session
+  // Two steps per day: Watch → Practice Problem
+  const TRACKER_KEY = 'vlsiDailyTracker2';
+
+  const PATHS = {
+    beginner: {
+      badge:    '🌱 Beginner Path',
+      title:    'Digital Design — Day 1',
+      status:   'Start your VLSI journey with today\'s Digital Design basics session.',
+      step1:    { title: 'Watch the beginner session', sub: 'Watch the Digital Design intro (live or recording)' },
+      step2:    { title: 'Solve the practice problem', sub: 'Try today\'s Boolean algebra / logic gate problem' },
+      watchUrl: 'https://youtube.com/@AllAboutVLSI/videos',
+    },
+    ongoing: {
+      badge:    '⚡ Ongoing: Digital Design Live',
+      title:    'Digital Design — Today\'s Session',
+      status:   'Attend or watch the recording, then tackle the practice problem.',
+      step1:    { title: 'Attend / watch today\'s session', sub: 'Live or recording — mark done once finished' },
+      step2:    { title: 'Solve the practice problem',     sub: 'Attempt the problem shared after the session' },
+      watchUrl: 'https://youtube.com/@AllAboutVLSI/videos',
+    },
+  };
+
+  function dateKey(d = new Date()) { return d.toISOString().slice(0, 10); }
+  function daysBetween(a, b) { return Math.round((new Date(b) - new Date(a)) / 86400000); }
+
+  function loadData() {
     try {
-      var raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) return JSON.parse(raw);
+      const p = JSON.parse(localStorage.getItem(TRACKER_KEY));
+      if (p && typeof p.streak === 'number') return p;
     } catch (e) {}
-    return { completed: [], current: { date: todayStr(), tasks: {} } };
+    return { streak: 0, lastDate: null, history: [], path: null, step1: {}, step2: {} };
   }
 
-  function save(data) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+  function saveData(d) {
+    try { localStorage.setItem(TRACKER_KEY, JSON.stringify(d)); } catch (e) {}
   }
 
-  function allDone(tasks) {
-    return TASKS.every(function (t) { return tasks[t.id]; });
-  }
-
-  function computeStreak(completedDates) {
-    if (!completedDates.length) return 0;
-    var sorted = Array.from(new Set(completedDates)).sort();
-    var last = sorted[sorted.length - 1];
-    if (last !== todayStr() && last !== yesterdayStr()) return 0;
-    var streak = 1;
-    for (var i = sorted.length - 1; i > 0; i--) {
-      var diff = (new Date(sorted[i]) - new Date(sorted[i - 1])) / 86400000;
-      if (diff === 1) streak++;
-      else break;
+  function renderDots(data) {
+    const container = document.getElementById('streakDots');
+    if (!container) return;
+    container.innerHTML = '';
+    const today = dateKey();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const key = dateKey(d);
+      const dot = document.createElement('div');
+      const bothDone = data.history.includes(key);
+      dot.className = 'streak-dot' + (bothDone ? ' done' : '') + (key === today ? ' today' : '');
+      dot.title = key;
+      if (bothDone) dot.textContent = '✓';
+      container.appendChild(dot);
     }
-    return streak;
   }
 
-  var data = load();
+  function renderStreak(data) {
+    document.getElementById('streakCount').textContent = data.streak;
+    renderDots(data);
+  }
 
-  // roll over to a new day
-  if (data.current.date !== todayStr()) {
-    if (allDone(data.current.tasks) && data.completed.indexOf(data.current.date) === -1) {
-      data.completed.push(data.current.date);
+  function showModeSelect() {
+    document.getElementById('trackerModeSelect').style.display = '';
+    document.getElementById('trackerChecklist').style.display  = 'none';
+    document.getElementById('trackerAction').style.display     = 'none';
+  }
+
+  function showChecklist(data) {
+    const path = PATHS[data.path];
+    const today = dateKey();
+    const todaySteps = (data.step1 && data.step1.date === today) ? data.step1 : {};
+    const s2data     = (data.step2 && data.step2.date === today) ? data.step2 : {};
+    const s1done = !!todaySteps.done;
+    const s2done = !!s2data.done;
+    const allDone = s1done && s2done;
+
+    document.getElementById('trackerModeSelect').style.display = 'none';
+    document.getElementById('trackerChecklist').style.display  = '';
+    document.getElementById('trackerAction').style.display     = '';
+
+    document.getElementById('trackerPathBadge').textContent = path.badge;
+    document.getElementById('trackerTitle').textContent     = path.title;
+    document.getElementById('trackerStatus').textContent    = allDone
+      ? '✅ All done for today! See you tomorrow.'
+      : path.status;
+
+    document.getElementById('step1Title').textContent = path.step1.title;
+    document.getElementById('step1Sub').textContent   = path.step1.sub;
+    document.getElementById('step2Title').textContent = path.step2.title;
+    document.getElementById('step2Sub').textContent   = path.step2.sub;
+
+    const step1Label = document.getElementById('step1Label');
+    const step2Label = document.getElementById('step2Label');
+    const step1Check = document.getElementById('step1Check');
+    const step2Check = document.getElementById('step2Check');
+
+    step1Check.checked = s1done;
+    step2Check.checked = s2done;
+
+    step1Label.classList.toggle('checked', s1done);
+    step2Label.classList.toggle('checked', s2done);
+    // Step 2 is locked until step 1 is done
+    step2Label.classList.toggle('locked', !s1done);
+
+    document.getElementById('trackerDoneMsg').style.display = allDone ? '' : 'none';
+    document.getElementById('trackerWatchBtn').href = path.watchUrl;
+  }
+
+  function pickPath(pathKey) {
+    let data = loadData();
+    data.path = pathKey;
+    saveData(data);
+    showChecklist(data);
+    renderStreak(data);
+  }
+
+  function handleStep(stepNum) {
+    let data = loadData();
+    const today = dateKey();
+
+    if (stepNum === 1) {
+      if (data.step1 && data.step1.date === today && data.step1.done) return; // already done
+      data.step1 = { date: today, done: true };
+    } else {
+      if (!data.step1 || data.step1.date !== today || !data.step1.done) return; // step 1 not done
+      if (data.step2 && data.step2.date === today && data.step2.done) return;   // already done
+      data.step2 = { date: today, done: true };
+
+      // Both steps done → count as day completed & update streak
+      if (data.lastDate !== today) {
+        const continued = data.lastDate && daysBetween(data.lastDate, today) === 1;
+        data.streak  = continued ? data.streak + 1 : 1;
+        data.lastDate = today;
+        data.history = [...(data.history || []), today].slice(-30);
+      }
     }
-    data.current = { date: todayStr(), tasks: {} };
-    save(data);
+
+    saveData(data);
+    showChecklist(data);
+    renderStreak(data);
   }
 
-  function updateStreakDisplay() {
-    var effectiveCompleted = data.completed.slice();
-    if (allDone(data.current.tasks) && effectiveCompleted.indexOf(data.current.date) === -1) {
-      effectiveCompleted.push(data.current.date);
+  function initTracker() {
+    let data = loadData();
+
+    // Reset streak if a day was missed
+    if (data.lastDate && data.lastDate !== dateKey()) {
+      if (daysBetween(data.lastDate, dateKey()) > 1) {
+        data.streak = 0;
+        saveData(data);
+      }
     }
-    var streak = computeStreak(effectiveCompleted);
-    var badge = document.getElementById('streakBadge');
-    var totalEl = document.getElementById('totalDays');
-    if (badge) badge.textContent = '🔥 ' + streak + ' day streak';
-    if (totalEl) totalEl.textContent = data.completed.length;
-  }
 
-  function render() {
-    var list = document.getElementById('trackerList');
-    if (!list) return;
-    list.innerHTML = '';
-    TASKS.forEach(function (t) {
-      var item = document.createElement('div');
-      item.className = 'tracker-item';
-      var checked = data.current.tasks[t.id] ? 'checked' : '';
-      item.innerHTML = '<input type="checkbox" id="task-' + t.id + '" ' + checked + '/>' +
-        '<label for="task-' + t.id + '">' + t.label + '</label>';
-      list.appendChild(item);
-      item.querySelector('input').addEventListener('change', function (e) {
-        data.current.tasks[t.id] = e.target.checked;
-        if (allDone(data.current.tasks) && data.completed.indexOf(data.current.date) === -1) {
-          data.completed.push(data.current.date);
-        }
-        save(data);
-        updateStreakDisplay();
-      });
+    renderStreak(data);
+
+    if (data.path) {
+      showChecklist(data);
+    } else {
+      showModeSelect();
+    }
+
+    // Mode buttons
+    document.getElementById('btnBeginner').addEventListener('click', () => pickPath('beginner'));
+    document.getElementById('btnOngoing').addEventListener('click',  () => pickPath('ongoing'));
+
+    // Step checkboxes
+    document.getElementById('step1Check').addEventListener('change', function () {
+      if (this.checked) handleStep(1);
+      else this.checked = true; // can't uncheck
+    });
+    document.getElementById('step2Check').addEventListener('change', function () {
+      if (this.checked) handleStep(2);
+      else this.checked = true;
+    });
+
+    // Change path button
+    document.getElementById('btnChangePath').addEventListener('click', () => {
+      let data = loadData();
+      data.path = null;
+      saveData(data);
+      showModeSelect();
     });
   }
 
-  render();
-  updateStreakDisplay();
-})();
+  initTracker();
+</script>
+
+<script>
+  /* ══════════════════════════════════════════
+     1. TYPEWRITER EFFECT — Hero Headline
+  ══════════════════════════════════════════ */
+  (function () {
+    const words   = ['VLSI', 'Verilog', 'SystemVerilog', 'UVM', 'ASIC Design', 'Verification'];
+    const target  = document.getElementById('typewriter-word');
+    const cursor  = document.querySelector('.typewriter-cursor');
+    if (!target) return;
+
+    let wordIdx = 0, charIdx = 0, deleting = false;
+
+    function type() {
+      const current = words[wordIdx];
+
+      if (!deleting) {
+        target.textContent = current.slice(0, ++charIdx);
+        if (charIdx === current.length) {
+          // pause at full word
+          setTimeout(() => { deleting = true; type(); }, 1800);
+          return;
+        }
+      } else {
+        target.textContent = current.slice(0, --charIdx);
+        if (charIdx === 0) {
+          deleting = false;
+          wordIdx  = (wordIdx + 1) % words.length;
+        }
+      }
+      setTimeout(type, deleting ? 60 : 100);
+    }
+
+    // small initial delay so page loads first
+    setTimeout(type, 500);
+  })();
+
+  /* ══════════════════════════════════════════
+     2. ANIMATED STAT COUNTERS — Hero Stats
+  ══════════════════════════════════════════ */
+  (function () {
+    const counters = document.querySelectorAll('.stat-counter');
+    if (!counters.length) return;
+
+    function animateCounter(el) {
+      const target = parseInt(el.dataset.target, 10);
+      const suffix = el.dataset.suffix || '';
+      const duration = 1600; // ms
+      const steps    = 60;
+      const step     = duration / steps;
+      let current    = 0;
+
+      const timer = setInterval(() => {
+        current += target / steps;
+        if (current >= target) {
+          clearInterval(timer);
+          el.textContent = target + suffix;
+        } else {
+          el.textContent = Math.floor(current) + suffix;
+        }
+      }, step);
+    }
+
+    // Use IntersectionObserver so counters only run when hero is visible
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          counters.forEach(animateCounter);
+          obs.disconnect();
+        }
+      });
+    }, { threshold: 0.3 });
+
+    // observe the hero stats strip
+    const statsEl = document.querySelector('.hero-stats');
+    if (statsEl) obs.observe(statsEl);
+  })();
+
+  /* ══════════════════════════════════════════
+     3. SCROLL-REVEAL — Sections fade up
+  ══════════════════════════════════════════ */
+  (function () {
+    const items = document.querySelectorAll('.reveal');
+    if (!items.length) return;
+
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('revealed');
+          obs.unobserve(e.target); // animate once only
+        }
+      });
+    }, { threshold: 0.12 });
+
+    items.forEach(el => obs.observe(el));
+  })();
+</script>
+
+<script>
+  /* ══════════════════════════════════════════
+     4. SCROLL-SPY — Active nav highlight
+  ══════════════════════════════════════════ */
+  (function () {
+    const sections = [
+      { id: 'tutorials', section: 'tutorials' },
+      { id: 'topics',    section: 'topics'    },
+      { id: 'workshops', section: 'workshops' },
+    ];
+
+    const navLinks = document.querySelectorAll('.nav-links > li > a[data-section]');
+
+    function setActive(sectionId) {
+      navLinks.forEach(a => {
+        a.classList.toggle('nav-active', a.dataset.section === sectionId);
+      });
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setActive(entry.target.id);
+        }
+      });
+    }, { rootMargin: '-40% 0px -55% 0px' });
+
+    sections.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    // Clear active state when scrolled back to top (hero)
+    const heroObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) setActive(null);
+      });
+    }, { threshold: 0.3 });
+    const hero = document.querySelector('.hero');
+    if (hero) heroObserver.observe(hero);
+  })();
 </script>
 
 </body>
