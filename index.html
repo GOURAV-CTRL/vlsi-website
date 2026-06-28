@@ -13,9 +13,12 @@
       --teal-mid:  #0e7490;
       --teal-light:#17a5bf;
       --accent:    #f59e0b;
-      --white:     #ffffff;
-      --gray-light:#f0f4f5;
-      --gray-text: #444c55;
+      --white:      #e8f6fb;
+      --gray-light: #cce8f4;
+      --page-bg:    #dff0f7;
+      --card-bg:    #eaf5fb;
+      --hover-bg:   #d4eaf5;
+      --gray-text:  #2d4a55;
       --nav-bg:    #0d3d4a;
     }
 
@@ -41,7 +44,7 @@
     body {
       font-family: 'DM Sans', sans-serif;
       color: var(--gray-text);
-      background: var(--white);
+      background: var(--page-bg);
       overflow-x: hidden;
     }
 
@@ -186,7 +189,7 @@
       display: block;
       width: 100%;
       height: 2px;
-      background: var(--white);
+      background: var(--page-bg);
       border-radius: 2px;
       transition: transform 0.25s, opacity 0.25s;
     }
@@ -227,7 +230,7 @@
       right: 0;
       width: 340px;
       height: 200px;
-      background: var(--white);
+      background: var(--page-bg);
       border-radius: 100% 0 0 0;
     }
 
@@ -281,6 +284,12 @@
 
     .hero-content h1 span {
       color: var(--accent);
+    }
+
+    /* Prevent layout shift — reserve space for the longest word */
+    #typewriter-word {
+      display: inline-block;
+      min-width: 14ch;
     }
 
     .typewriter-cursor {
@@ -387,7 +396,7 @@
       font-family: 'Syne', sans-serif;
       font-size: 2rem;
       font-weight: 800;
-      color: #111;
+      color: #0d3d4a;
     }
 
     .tutorials-label p {
@@ -407,7 +416,7 @@
       align-items: center;
       gap: 10px;
       padding: 0.75rem 0;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid #c0dde8;
       text-decoration: none;
       color: var(--gray-text);
       font-size: 0.9rem;
@@ -429,264 +438,138 @@
       flex-shrink: 0;
     }
 
-    /* ── DAILY TRACKER ── */
-    .tracker-section {
-      background: var(--white);
-      padding: 0 2rem;
-      margin-top: -2.2rem;
+    /* ── TRACKER STRIP ── */
+    .tracker-cta-section {
+      background: linear-gradient(100deg, #082c35 0%, var(--teal-dark) 40%, var(--teal-mid) 100%);
+      padding: 0;
       position: relative;
-      z-index: 5;
+      overflow: hidden;
     }
 
-    .tracker-card {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: linear-gradient(135deg, var(--teal-dark), var(--teal-mid));
-      border-radius: 16px;
-      box-shadow: 0 14px 38px rgba(13,79,92,0.28);
-      padding: 1.8rem 2rem;
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      align-items: center;
-      gap: 1.8rem;
-      color: var(--white);
-    }
-
-    .tracker-streak {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding-right: 1.8rem;
-      border-right: 1px solid rgba(255,255,255,0.18);
-      min-width: 110px;
-    }
-
-    .tracker-streak .flame { font-size: 1.6rem; line-height: 1; }
-    .tracker-streak .count {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 2.1rem;
-      line-height: 1.1;
-      margin-top: 0.2rem;
-    }
-    .tracker-streak .label {
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: rgba(255,255,255,0.7);
-    }
-
-    .streak-dots {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .streak-dot {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.25);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.62rem;
-    }
-
-    .streak-dot.today { border-color: var(--accent); }
-    .streak-dot.done {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #1a1a1a;
-    }
-
-    /* Mode selector */
-    .tracker-modes {
-      display: flex;
-      gap: 0.8rem;
-      flex-wrap: wrap;
-    }
-
-    .tmode-btn {
-      flex: 1;
-      min-width: 180px;
-      background: rgba(255,255,255,0.08);
-      border: 1.5px solid rgba(255,255,255,0.2);
-      border-radius: 10px;
-      padding: 0.85rem 1rem;
-      color: var(--white);
-      cursor: pointer;
-      text-align: left;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      transition: background 0.2s, border-color 0.2s, transform 0.15s;
-    }
-
-    .tmode-btn:hover {
-      background: rgba(255,255,255,0.15);
-      border-color: var(--accent);
-      transform: translateY(-2px);
-    }
-
-    .tmode-icon { font-size: 1.3rem; margin-bottom: 2px; }
-    .tmode-label { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; }
-    .tmode-sub   { font-size: 0.74rem; color: rgba(255,255,255,0.6); line-height: 1.35; }
-
-    /* Path badge */
-    .tracker-path-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 100px;
-      padding: 0.2rem 0.7rem;
-      font-size: 0.73rem;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-      margin-bottom: 0.15rem;
-    }
-
-    /* Two-step checklist */
-    .tracker-steps {
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-    }
-
-    .tracker-step {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      cursor: pointer;
-      user-select: none;
-      padding: 0.55rem 0.75rem;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      transition: background 0.2s;
-    }
-
-    .tracker-step:hover { background: rgba(255,255,255,0.11); }
-
-    .tracker-step input[type="checkbox"] { display: none; }
-
-    .tracker-step-box {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      font-size: 0.75rem;
-      font-weight: 700;
-      transition: background 0.25s, border-color 0.25s;
-      position: relative;
-    }
-
-    .tracker-step-box .step-tick { display: none; }
-    .tracker-step-box .step-num  { display: block; }
-
-    .tracker-step.checked .tracker-step-box {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #1a1a1a;
-    }
-    .tracker-step.checked .tracker-step-box .step-tick { display: block; }
-    .tracker-step.checked .tracker-step-box .step-num  { display: none; }
-
-    .tracker-step.locked {
-      opacity: 0.45;
-      cursor: not-allowed;
+    /* grid texture */
+    .tracker-cta-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 36px 36px;
       pointer-events: none;
     }
 
-    .tracker-step-text {
+    /* accent glow right */
+    .tracker-cta-section::after {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 280px; height: 280px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(245,158,11,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .tracker-cta-card {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      height: 100px;
+    }
+
+    .tracker-cta-left {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+    }
+
+    .tracker-cta-icon {
+      font-size: 2.2rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .tracker-cta-text {
       display: flex;
       flex-direction: column;
-      gap: 1px;
-      font-size: 0.83rem;
-    }
-    .tracker-step-text strong { font-weight: 600; color: var(--white); }
-    .tracker-step-text span   { font-size: 0.74rem; color: rgba(255,255,255,0.6); }
-
-    .tracker-step.checked .tracker-step-text strong {
-      text-decoration: line-through;
-      opacity: 0.7;
+      gap: 0.15rem;
     }
 
-    .tracker-done-msg {
-      margin-top: 0.8rem;
-      background: rgba(245,158,11,0.15);
-      border: 1px solid rgba(245,158,11,0.4);
-      border-radius: 8px;
-      padding: 0.6rem 0.9rem;
-      font-size: 0.82rem;
-      color: var(--accent);
-      font-weight: 500;
+    .tracker-cta-label {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.3rem, 2.8vw, 1.75rem);
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -0.01em;
+      line-height: 1;
+      white-space: nowrap;
     }
 
-    /* Right action panel */
-    .tracker-action {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.7rem;
-      min-width: 190px;
+    .tracker-cta-sub {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.55);
+      font-weight: 400;
+      letter-spacing: 0.02em;
     }
 
-    .tracker-watch-btn {
+    .tracker-cta-right {
+      flex-shrink: 0;
+    }
+
+    .tracker-btn {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 6px;
-      background: #ff0000;
-      color: var(--white);
+      gap: 8px;
+      background: var(--accent);
+      color: #1a1a1a;
       text-decoration: none;
-      font-weight: 600;
-      font-size: 0.85rem;
-      padding: 0.6rem 1rem;
-      border-radius: 6px;
-      transition: opacity 0.2s;
-      border: none;
-      cursor: pointer;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 0.7rem 1.6rem;
+      border-radius: 8px;
+      white-space: nowrap;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 16px rgba(245,158,11,0.4);
+      letter-spacing: 0.01em;
     }
-    .tracker-watch-btn:hover { opacity: 0.85; }
 
-    .tracker-change-path {
-      background: transparent;
-      border: 1px solid rgba(255,255,255,0.25);
-      color: rgba(255,255,255,0.65);
-      font-size: 0.76rem;
-      padding: 0.45rem 0.8rem;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: color 0.2s, border-color 0.2s;
-      text-align: center;
+    .tracker-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(245,158,11,0.5);
     }
-    .tracker-change-path:hover { color: var(--white); border-color: rgba(255,255,255,0.5); }
 
-    @media (max-width: 768px) {
-      .tracker-card {
-        grid-template-columns: 1fr;
-        text-align: center;
+    .tracker-btn-arrow {
+      font-size: 1rem;
+      transition: transform 0.2s;
+    }
+
+    .tracker-btn:hover .tracker-btn-arrow { transform: translateX(3px); }
+
+    /* left accent bar */
+    .tracker-cta-divider {
+      width: 3px;
+      height: 48px;
+      background: var(--accent);
+      border-radius: 2px;
+      flex-shrink: 0;
+      opacity: 0.8;
+    }
+
+    @media (max-width: 640px) {
+      .tracker-cta-card {
+        height: auto;
+        padding: 1.4rem 1.4rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
       }
-      .tracker-streak {
-        border-right: none;
-        border-bottom: 1px solid rgba(255,255,255,0.18);
-        padding-right: 0;
-        padding-bottom: 1rem;
-      }
-      .streak-dots { justify-content: center; }
-      .tracker-action { align-items: center; }
-      .tracker-modes { flex-direction: column; }
-      .tmode-btn { min-width: 0; }
-      .tracker-step { text-align: left; }
+      .tracker-cta-label { white-space: normal; }
     }
 
     /* ── YOUTUBE SHOWCASE ── */
@@ -845,7 +728,7 @@
       font-weight: 800;
       text-align: center;
       margin-bottom: 2.5rem;
-      color: #111;
+      color: #0d3d4a;
     }
 
     .cards-grid {
@@ -857,7 +740,7 @@
     }
 
     .card {
-      background: var(--white);
+      background: var(--page-bg);
       border-radius: 10px;
       padding: 1.6rem 1.4rem;
       box-shadow: 0 2px 12px rgba(0,0,0,0.06);
@@ -880,7 +763,7 @@
       font-family: 'Syne', sans-serif;
       font-size: 1rem;
       font-weight: 700;
-      color: #111;
+      color: #0d3d4a;
       margin-bottom: 0.4rem;
     }
 
@@ -893,7 +776,7 @@
     /* ── WORKSHOPS ── */
     .workshops {
       padding: 4rem 2rem;
-      background: var(--white);
+      background: var(--card-bg);
     }
 
     .workshops h2 {
@@ -901,7 +784,7 @@
       font-size: 1.8rem;
       font-weight: 800;
       text-align: center;
-      color: #111;
+      color: #0d3d4a;
     }
 
     .workshops-sub {
@@ -962,7 +845,7 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 0;
-      border: 1px solid #e5e7eb;
+      border: 1px solid #b8dced;
       border-top: none;
       border-radius: 0 0 10px 10px;
       overflow: hidden;
@@ -973,19 +856,19 @@
       flex-direction: column;
       justify-content: space-between;
       padding: 1.4rem;
-      background: var(--white);
-      border-right: 1px solid #e5e7eb;
+      background: var(--card-bg);
+      border-right: 1px solid #b8dced;
       transition: background 0.2s;
     }
 
     .wcard:last-child { border-right: none; }
-    .wcard:hover { background: #f9fafb; }
+    .wcard:hover { background: var(--hover-bg); }
 
     .wcard h4 {
       font-family: 'Syne', sans-serif;
       font-size: 0.97rem;
       font-weight: 700;
-      color: #111;
+      color: #0d3d4a;
       margin: 0.5rem 0 0.4rem;
     }
 
@@ -1137,7 +1020,7 @@
       padding: 0.65rem 0.85rem;
       border-radius: 5px;
       border: 1px solid rgba(255,255,255,0.15);
-      background: rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.09);
       color: var(--white);
       font-size: 0.85rem;
     }
@@ -1192,7 +1075,7 @@
       font-family: 'Syne', sans-serif;
       font-size: 1.8rem;
       font-weight: 800;
-      color: #111;
+      color: #0d3d4a;
     }
 
     .testimonials-head p {
@@ -1218,7 +1101,7 @@
     }
 
     .testimonial-card {
-      background: var(--white);
+      background: var(--card-bg);
       border-radius: 10px;
       padding: 1.6rem;
       box-shadow: 0 2px 12px rgba(0,0,0,0.06);
@@ -1255,7 +1138,7 @@
 
     .testimonial-author h5 {
       font-size: 0.85rem;
-      color: #111;
+      color: #0d3d4a;
       font-weight: 700;
     }
 
@@ -1417,102 +1300,39 @@
 <section class="hero">
   <div class="hero-bg-img"></div>
   <div class="hero-content">
-    <div class="hero-badge"><span class="dot"></span> New videos every week on YouTube</div>
+    <div class="hero-badge"><span class="dot"></span> New videos every day on YouTube</div>
     <h1>All About <span id="typewriter-word"></span><span class="typewriter-cursor">|</span></h1>
     <p>Daily VLSI tutorials, straight from the channel — Verilog, SystemVerilog, UVM, ASIC Design & Verification.</p>
     <div class="hero-btns">
       <a href="#tutorials" class="btn btn-primary">Start Learning</a>
-      <a href="https://youtube.com" target="_blank" class="btn btn-youtube">▶ Watch on YouTube</a>
+      <a href="https://youtube.com/@allaboutvlsii?si=1XNn3h21tFb6ejwP" target="_blank" class="btn btn-youtube">▶ Watch on YouTube</a>
       <a href="#topics" class="btn btn-outline">Explore Topics</a>
     </div>
     <div class="hero-stats">
-      <div class="hero-stat"><strong><span class="stat-counter" data-target="50" data-suffix="+">0</span></strong><span>Free Tutorials</span></div>
-      <div class="hero-stat"><strong><span class="stat-counter" data-target="10" data-suffix="K+">0</span></strong><span>Learners Taught</span></div>
+      <div class="hero-stat"><strong><span class="stat-counter" data-target="500" data-suffix="+">0</span></strong><span>Free Tutorials</span></div>
+      <div class="hero-stat"><strong><span class="stat-counter" data-target="20" data-suffix="K+">0</span></strong><span>Learners Taught</span></div>
       <div class="hero-stat"><strong><span class="stat-counter" data-target="6" data-suffix="">0</span></strong><span>Core Topics</span></div>
       <div class="hero-stat"><strong>Weekly</strong><span>Live Workshops</span></div>
     </div>
   </div>
 </section>
 
-<!-- DAILY TRACKER -->
-<section class="tracker-section">
-  <div class="tracker-card" id="trackerCard">
-
-    <!-- LEFT: Streak -->
-    <div class="tracker-streak">
-      <div class="flame">🔥</div>
-      <div class="count" id="streakCount">0</div>
-      <div class="label">Day Streak</div>
-      <div class="streak-dots" id="streakDots" style="margin-top:0.8rem; justify-content:center;"></div>
-    </div>
-
-    <!-- MIDDLE: Main content (mode selector or checklist) -->
-    <div class="tracker-mid" id="trackerMid">
-
-      <!-- MODE SELECTOR (shown if no path chosen yet) -->
-      <div id="trackerModeSelect">
-        <h4 style="margin-bottom:0.3rem;">Where are you in your VLSI journey?</h4>
-        <p style="font-size:0.82rem; color:rgba(255,255,255,0.65); margin-bottom:1.1rem;">Choose your learning path to get today's task.</p>
-        <div class="tracker-modes">
-          <button class="tmode-btn" id="btnBeginner">
-            <span class="tmode-icon">🌱</span>
-            <span class="tmode-label">Complete Beginner</span>
-            <span class="tmode-sub">Start from scratch with Digital Design basics</span>
-          </button>
-          <button class="tmode-btn" id="btnOngoing">
-            <span class="tmode-icon">⚡</span>
-            <span class="tmode-label">Ongoing Live Session</span>
-            <span class="tmode-sub">Continue the Digital Design live batch</span>
-          </button>
-        </div>
+<!-- TRACKER STRIP -->
+<section class="tracker-cta-section">
+  <div class="tracker-cta-card">
+    <div class="tracker-cta-left">
+      <div class="tracker-cta-divider"></div>
+      <span class="tracker-cta-icon">📊</span>
+      <div class="tracker-cta-text">
+        <span class="tracker-cta-label">Daily Progress Tracker</span>
+        <span class="tracker-cta-sub">Log your VLSI learning streak — no login needed</span>
       </div>
-
-      <!-- CHECKLIST (shown once path is picked) -->
-      <div id="trackerChecklist" style="display:none;">
-        <div class="tracker-path-badge" id="trackerPathBadge"></div>
-        <h4 id="trackerTitle" style="margin:0.5rem 0 0.25rem;">Today's Session</h4>
-        <p id="trackerStatus" style="font-size:0.82rem; color:rgba(255,255,255,0.65); margin-bottom:1rem;"></p>
-
-        <div class="tracker-steps">
-          <!-- Step 1 -->
-          <label class="tracker-step" id="step1Label">
-            <input type="checkbox" id="step1Check" class="tracker-step-check" />
-            <span class="tracker-step-box" id="step1Box">
-              <span class="step-num">1</span>
-              <span class="step-tick">✓</span>
-            </span>
-            <span class="tracker-step-text">
-              <strong id="step1Title">Watch the session</strong>
-              <span id="step1Sub">Live or recording — mark done once watched</span>
-            </span>
-          </label>
-          <!-- Step 2 -->
-          <label class="tracker-step" id="step2Label">
-            <input type="checkbox" id="step2Check" class="tracker-step-check" />
-            <span class="tracker-step-box" id="step2Box">
-              <span class="step-num">2</span>
-              <span class="step-tick">✓</span>
-            </span>
-            <span class="tracker-step-text">
-              <strong id="step2Title">Solve the practice problem</strong>
-              <span id="step2Sub">Attempt today's problem, then check this off</span>
-            </span>
-          </label>
-        </div>
-
-        <div class="tracker-done-msg" id="trackerDoneMsg" style="display:none;">
-          🎉 Both steps done for today! Come back tomorrow to keep your streak alive.
-        </div>
-      </div>
-
     </div>
-
-    <!-- RIGHT: CTA -->
-    <div class="tracker-action" id="trackerAction" style="display:none;">
-      <a href="https://youtube.com/@AllAboutVLSI/videos" target="_blank" class="tracker-watch-btn" id="trackerWatchBtn">▶ Watch Session</a>
-      <button class="tracker-change-path" id="btnChangePath">↩ Change path</button>
+    <div class="tracker-cta-right">
+      <a href="tracker.html" class="tracker-btn">
+        Open Tracker <span class="tracker-btn-arrow">→</span>
+      </a>
     </div>
-
   </div>
 </section>
 
@@ -1541,27 +1361,27 @@
       <div>
         <span class="yt-kicker">🎥 From the channel</span>
         <h2>Watch, Learn, Build</h2>
-        <p>New VLSI tutorials and live workshop recaps every week.</p>
+        <p>New VLSI tutorials and live workshop recaps every day.</p>
       </div>
-      <a href="https://youtube.com" target="_blank" class="btn btn-youtube">▶ Subscribe on YouTube</a>
+      <a href="https://youtube.com/@allaboutvlsii?si=1XNn3h21tFb6ejwP" target="_blank" class="btn btn-youtube">▶ Subscribe on YouTube</a>
     </div>
 
     <div class="yt-grid">
-      <a href="https://youtube.com" target="_blank" class="yt-card reveal reveal-delay-1">
+      <a href="https://youtube.com/@allaboutvlsii?si=1XNn3h21tFb6ejwP" target="_blank" class="yt-card reveal reveal-delay-1">
         <div class="yt-thumb yt-thumb-1"><span class="yt-play">▶</span><span class="yt-duration">12:48</span></div>
         <div class="yt-card-body">
           <h4>Verilog Basics: Modules & Ports Explained</h4>
           <span class="yt-meta">42K views · 3 weeks ago</span>
         </div>
       </a>
-      <a href="https://youtube.com" target="_blank" class="yt-card reveal reveal-delay-2">
+      <a href="https://youtube.com/@allaboutvlsii?si=1XNn3h21tFb6ejwP" target="_blank" class="yt-card reveal reveal-delay-2">
         <div class="yt-thumb yt-thumb-2"><span class="yt-play">▶</span><span class="yt-duration">21:05</span></div>
         <div class="yt-card-body">
           <h4>UVM Testbench Architecture from Scratch</h4>
           <span class="yt-meta">28K views · 1 month ago</span>
         </div>
       </a>
-      <a href="https://youtube.com" target="_blank" class="yt-card reveal reveal-delay-3">
+      <a href="https://youtube.com/@allaboutvlsii?si=1XNn3h21tFb6ejwP" target="_blank" class="yt-card reveal reveal-delay-3">
         <div class="yt-thumb yt-thumb-3"><span class="yt-play">▶</span><span class="yt-duration">35:30</span></div>
         <div class="yt-card-body">
           <h4>Live Workshop Recap: ASIC Design Flow</h4>
@@ -1660,102 +1480,12 @@
 <section class="workshops" id="workshops">
   <h2>Workshops</h2>
   <p class="workshops-sub">Hands-on learning with industry experts</p>
-  <div class="workshops-grid">
-
-    <!-- FREE WORKSHOPS -->
-    <div class="workshop-category" id="workshops-free">
-      <div class="wcat-header free">
-        <span class="wcat-badge">🆓 Free</span>
-        <h3>Free Workshops</h3>
-        <p>Start learning at no cost — great for beginners</p>
-      </div>
-      <div class="workshop-cards">
-        <div class="wcard">
-          <div class="wcard-top">
-            <span class="wcard-tag free-tag">Free</span>
-            <h4>Introduction to Verilog HDL</h4>
-            <p>Learn the fundamentals of Verilog from scratch — data types, modules, and basic simulations.</p>
-          </div>
-          <div class="wcard-bottom">
-            <span>📅 Every Saturday</span>
-            <span>⏱ 2 hrs</span>
-            <a href="#" class="wbtn wbtn-free">Register Free</a>
-          </div>
-        </div>
-        <div class="wcard">
-          <div class="wcard-top">
-            <span class="wcard-tag free-tag">Free</span>
-            <h4>Digital Design Basics</h4>
-            <p>Understand logic gates, Boolean algebra, combinational and sequential circuits from ground up.</p>
-          </div>
-          <div class="wcard-bottom">
-            <span>📅 Every Sunday</span>
-            <span>⏱ 2 hrs</span>
-            <a href="#" class="wbtn wbtn-free">Register Free</a>
-          </div>
-        </div>
-        <div class="wcard">
-          <div class="wcard-top">
-            <span class="wcard-tag free-tag">Free</span>
-            <h4>VLSI Career Guidance</h4>
-            <p>Industry insights, career paths, and how to land your first VLSI job — open for all.</p>
-          </div>
-          <div class="wcard-bottom">
-            <span>📅 Monthly</span>
-            <span>⏱ 1.5 hrs</span>
-            <a href="#" class="wbtn wbtn-free">Register Free</a>
-          </div>
-        </div>
-      </div>
+  <div style="text-align:center; padding: 3rem 1rem;">
+    <div style="display:inline-flex; flex-direction:column; align-items:center; gap:1rem; background:var(--card-bg); border:2px dashed var(--teal-light); border-radius:16px; padding:3rem 4rem;">
+      <span style="font-size:3rem;">🚀</span>
+      <h3 style="font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; color:#0d3d4a; margin:0;">Available Soon</h3>
+      <p style="color:#888; font-size:0.95rem; margin:0; max-width:340px;">Exciting workshops are on the way. Stay tuned — we'll announce them shortly!</p>
     </div>
-
-    <!-- PAID WORKSHOPS -->
-    <div class="workshop-category" id="workshops-paid">
-      <div class="wcat-header paid">
-        <span class="wcat-badge">💎 Paid</span>
-        <h3>Paid Workshops</h3>
-        <p>Deep-dive sessions with live projects and mentorship</p>
-      </div>
-      <div class="workshop-cards">
-        <div class="wcard">
-          <div class="wcard-top">
-            <span class="wcard-tag paid-tag">Paid</span>
-            <h4>SystemVerilog & UVM Bootcamp</h4>
-            <p>Comprehensive 4-week bootcamp covering SystemVerilog OOP, testbench architecture, and UVM.</p>
-          </div>
-          <div class="wcard-bottom">
-            <span>📅 Batch starting soon</span>
-            <span>💰 ₹2,999</span>
-            <a href="#" class="wbtn wbtn-paid">Enroll Now</a>
-          </div>
-        </div>
-        <div class="wcard">
-          <div class="wcard-top">
-            <span class="wcard-tag paid-tag">Paid</span>
-            <h4>ASIC Design Flow Masterclass</h4>
-            <p>Complete RTL-to-GDSII flow: synthesis, STA, DRC/LVS, and hands-on tool exposure.</p>
-          </div>
-          <div class="wcard-bottom">
-            <span>📅 Weekend batch</span>
-            <span>💰 ₹3,999</span>
-            <a href="#" class="wbtn wbtn-paid">Enroll Now</a>
-          </div>
-        </div>
-        <div class="wcard">
-          <div class="wcard-top">
-            <span class="wcard-tag paid-tag">Paid</span>
-            <h4>Interview Prep Intensive</h4>
-            <p>Crack top VLSI company interviews with curated problems, mock sessions and expert feedback.</p>
-          </div>
-          <div class="wcard-bottom">
-            <span>📅 Flexible schedule</span>
-            <span>💰 ₹1,999</span>
-            <a href="#" class="wbtn wbtn-paid">Enroll Now</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div>
 </section>
 
@@ -1772,7 +1502,7 @@
       </div>
       <p>Your complete learning hub for Verilog, SystemVerilog, UVM, ASIC Design, and Verification — built for engineers, by engineers.</p>
       <div class="footer-socials">
-        <a href="https://youtube.com" target="_blank" aria-label="YouTube">▶</a>
+        <a href="https://youtube.com/@allaboutvlsii?si=1XNn3h21tFb6ejwP" target="_blank" aria-label="YouTube">▶</a>
         <a href="#" aria-label="LinkedIn">in</a>
         <a href="#" aria-label="Instagram">📷</a>
         <a href="#" aria-label="Telegram">✈</a>
@@ -1852,191 +1582,8 @@
 </script>
 
 <script>
-  // ── DAILY PRACTICE TRACKER v2 ──
-  // Two modes: Beginner | Ongoing Session
-  // Two steps per day: Watch → Practice Problem
-  const TRACKER_KEY = 'vlsiDailyTracker2';
-
-  const PATHS = {
-    beginner: {
-      badge:    '🌱 Beginner Path',
-      title:    'Digital Design — Day 1',
-      status:   'Start your VLSI journey with today\'s Digital Design basics session.',
-      step1:    { title: 'Watch the beginner session', sub: 'Watch the Digital Design intro (live or recording)' },
-      step2:    { title: 'Solve the practice problem', sub: 'Try today\'s Boolean algebra / logic gate problem' },
-      watchUrl: 'https://youtube.com/@AllAboutVLSI/videos',
-    },
-    ongoing: {
-      badge:    '⚡ Ongoing: Digital Design Live',
-      title:    'Digital Design — Today\'s Session',
-      status:   'Attend or watch the recording, then tackle the practice problem.',
-      step1:    { title: 'Attend / watch today\'s session', sub: 'Live or recording — mark done once finished' },
-      step2:    { title: 'Solve the practice problem',     sub: 'Attempt the problem shared after the session' },
-      watchUrl: 'https://youtube.com/@AllAboutVLSI/videos',
-    },
-  };
-
-  function dateKey(d = new Date()) { return d.toISOString().slice(0, 10); }
-  function daysBetween(a, b) { return Math.round((new Date(b) - new Date(a)) / 86400000); }
-
-  function loadData() {
-    try {
-      const p = JSON.parse(localStorage.getItem(TRACKER_KEY));
-      if (p && typeof p.streak === 'number') return p;
-    } catch (e) {}
-    return { streak: 0, lastDate: null, history: [], path: null, step1: {}, step2: {} };
-  }
-
-  function saveData(d) {
-    try { localStorage.setItem(TRACKER_KEY, JSON.stringify(d)); } catch (e) {}
-  }
-
-  function renderDots(data) {
-    const container = document.getElementById('streakDots');
-    if (!container) return;
-    container.innerHTML = '';
-    const today = dateKey();
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(); d.setDate(d.getDate() - i);
-      const key = dateKey(d);
-      const dot = document.createElement('div');
-      const bothDone = data.history.includes(key);
-      dot.className = 'streak-dot' + (bothDone ? ' done' : '') + (key === today ? ' today' : '');
-      dot.title = key;
-      if (bothDone) dot.textContent = '✓';
-      container.appendChild(dot);
-    }
-  }
-
-  function renderStreak(data) {
-    document.getElementById('streakCount').textContent = data.streak;
-    renderDots(data);
-  }
-
-  function showModeSelect() {
-    document.getElementById('trackerModeSelect').style.display = '';
-    document.getElementById('trackerChecklist').style.display  = 'none';
-    document.getElementById('trackerAction').style.display     = 'none';
-  }
-
-  function showChecklist(data) {
-    const path = PATHS[data.path];
-    const today = dateKey();
-    const todaySteps = (data.step1 && data.step1.date === today) ? data.step1 : {};
-    const s2data     = (data.step2 && data.step2.date === today) ? data.step2 : {};
-    const s1done = !!todaySteps.done;
-    const s2done = !!s2data.done;
-    const allDone = s1done && s2done;
-
-    document.getElementById('trackerModeSelect').style.display = 'none';
-    document.getElementById('trackerChecklist').style.display  = '';
-    document.getElementById('trackerAction').style.display     = '';
-
-    document.getElementById('trackerPathBadge').textContent = path.badge;
-    document.getElementById('trackerTitle').textContent     = path.title;
-    document.getElementById('trackerStatus').textContent    = allDone
-      ? '✅ All done for today! See you tomorrow.'
-      : path.status;
-
-    document.getElementById('step1Title').textContent = path.step1.title;
-    document.getElementById('step1Sub').textContent   = path.step1.sub;
-    document.getElementById('step2Title').textContent = path.step2.title;
-    document.getElementById('step2Sub').textContent   = path.step2.sub;
-
-    const step1Label = document.getElementById('step1Label');
-    const step2Label = document.getElementById('step2Label');
-    const step1Check = document.getElementById('step1Check');
-    const step2Check = document.getElementById('step2Check');
-
-    step1Check.checked = s1done;
-    step2Check.checked = s2done;
-
-    step1Label.classList.toggle('checked', s1done);
-    step2Label.classList.toggle('checked', s2done);
-    // Step 2 is locked until step 1 is done
-    step2Label.classList.toggle('locked', !s1done);
-
-    document.getElementById('trackerDoneMsg').style.display = allDone ? '' : 'none';
-    document.getElementById('trackerWatchBtn').href = path.watchUrl;
-  }
-
-  function pickPath(pathKey) {
-    let data = loadData();
-    data.path = pathKey;
-    saveData(data);
-    showChecklist(data);
-    renderStreak(data);
-  }
-
-  function handleStep(stepNum) {
-    let data = loadData();
-    const today = dateKey();
-
-    if (stepNum === 1) {
-      if (data.step1 && data.step1.date === today && data.step1.done) return; // already done
-      data.step1 = { date: today, done: true };
-    } else {
-      if (!data.step1 || data.step1.date !== today || !data.step1.done) return; // step 1 not done
-      if (data.step2 && data.step2.date === today && data.step2.done) return;   // already done
-      data.step2 = { date: today, done: true };
-
-      // Both steps done → count as day completed & update streak
-      if (data.lastDate !== today) {
-        const continued = data.lastDate && daysBetween(data.lastDate, today) === 1;
-        data.streak  = continued ? data.streak + 1 : 1;
-        data.lastDate = today;
-        data.history = [...(data.history || []), today].slice(-30);
-      }
-    }
-
-    saveData(data);
-    showChecklist(data);
-    renderStreak(data);
-  }
-
-  function initTracker() {
-    let data = loadData();
-
-    // Reset streak if a day was missed
-    if (data.lastDate && data.lastDate !== dateKey()) {
-      if (daysBetween(data.lastDate, dateKey()) > 1) {
-        data.streak = 0;
-        saveData(data);
-      }
-    }
-
-    renderStreak(data);
-
-    if (data.path) {
-      showChecklist(data);
-    } else {
-      showModeSelect();
-    }
-
-    // Mode buttons
-    document.getElementById('btnBeginner').addEventListener('click', () => pickPath('beginner'));
-    document.getElementById('btnOngoing').addEventListener('click',  () => pickPath('ongoing'));
-
-    // Step checkboxes
-    document.getElementById('step1Check').addEventListener('change', function () {
-      if (this.checked) handleStep(1);
-      else this.checked = true; // can't uncheck
-    });
-    document.getElementById('step2Check').addEventListener('change', function () {
-      if (this.checked) handleStep(2);
-      else this.checked = true;
-    });
-
-    // Change path button
-    document.getElementById('btnChangePath').addEventListener('click', () => {
-      let data = loadData();
-      data.path = null;
-      saveData(data);
-      showModeSelect();
-    });
-  }
-
-  initTracker();
+  // Tracker moved to tracker.html
+  void 0;
 </script>
 
 <script>
