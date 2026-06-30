@@ -1,44 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1407047741331999"
-     crossorigin="anonymous"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>All About VLSI</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
-    /* ── SCROLL PROGRESS BAR ── */
-    #scroll-progress {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 3px;
-      width: 0%;
-      background: linear-gradient(90deg, var(--teal-light), var(--accent));
-      z-index: 9999;
-      transition: width 0.1s linear;
-      box-shadow: 0 0 8px rgba(245,158,11,0.5);
-    }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --teal-dark:  #0a3d4a;
-      --teal-mid:   #0e7490;
-      --teal-light: #17a5bf;
-      --accent:     #f59e0b;
-      --accent-dim: rgba(245,158,11,0.12);
-      --white:      #eef8fc;
-      --gray-light: #e2f2f9;
-      --page-bg:    #f5fafd;
-      --card-bg:    #ffffff;
-      --hover-bg:   #eaf5fb;
-      --gray-text:  #1e3a44;
-      --nav-bg:     #071e26;
-      --border:     rgba(14,116,144,0.15);
-      --glow-teal:  rgba(23,165,191,0.18);
-      --glow-amber: rgba(245,158,11,0.14);
+      --teal-dark: #0d4f5c;
+      --teal-mid:  #0e7490;
+      --teal-light:#17a5bf;
+      --accent:    #f59e0b;
+      --white:      #e8f6fb;
+      --gray-light: #cce8f4;
+      --page-bg:    #dff0f7;
+      --card-bg:    #eaf5fb;
+      --hover-bg:   #d4eaf5;
+      --gray-text:  #2d4a55;
+      --nav-bg:    #0d3d4a;
     }
 
     html { scroll-behavior: smooth; }
@@ -61,12 +42,9 @@
     .reveal-delay-6 { transition-delay: 0.48s; }
 
     body {
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: 'DM Sans', sans-serif;
       color: var(--gray-text);
       background: var(--page-bg);
-      background-image:
-        radial-gradient(ellipse 60% 40% at 80% 10%, rgba(23,165,191,0.08) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 35% at 5% 60%, rgba(14,116,144,0.07) 0%, transparent 55%);
       overflow-x: hidden;
     }
 
@@ -74,16 +52,13 @@
     nav {
       display: flex;
       align-items: center;
-      background: rgba(7,30,38,0.92);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: var(--nav-bg);
       padding: 0 2.5rem;
       height: 64px;
       position: sticky;
       top: 0;
       z-index: 1000;
-      box-shadow: 0 1px 0 rgba(255,255,255,0.06), 0 4px 24px rgba(0,0,0,0.35);
-      border-bottom: 1px solid rgba(23,165,191,0.12);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
     }
 
     .nav-logo {
@@ -101,11 +76,10 @@
 
     .nav-logo span {
       font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 1.1rem;
+      font-weight: 700;
+      font-size: 1.15rem;
       color: var(--white);
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
+      letter-spacing: 0.02em;
     }
 
     .nav-links {
@@ -120,19 +94,11 @@
       position: relative;
     }
 
-    nav {
-      animation: navSlideDown 0.5s ease both;
-    }
-    @keyframes navSlideDown {
-      from { transform: translateY(-100%); opacity: 0; }
-      to   { transform: translateY(0);     opacity: 1; }
-    }
-
     .nav-links > li > a {
       display: flex;
       align-items: center;
       gap: 5px;
-      color: rgba(255,255,255,0.8);
+      color: rgba(255,255,255,0.88);
       text-decoration: none;
       font-size: 0.875rem;
       font-weight: 500;
@@ -140,24 +106,7 @@
       height: 64px;
       transition: color 0.2s, background 0.2s;
       white-space: nowrap;
-      position: relative;
     }
-
-    .nav-links > li > a::after {
-      content: '';
-      position: absolute;
-      bottom: 12px;
-      left: 1rem;
-      right: 1rem;
-      height: 2px;
-      background: var(--teal-light);
-      border-radius: 2px;
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform 0.25s ease;
-    }
-
-    .nav-links > li > a:hover::after { transform: scaleX(1); }
 
     .nav-links > li > a:hover,
     .nav-links > li:hover > a {
@@ -252,48 +201,25 @@
     /* ── HERO ── */
     .hero {
       position: relative;
-      min-height: 520px;
+      min-height: 480px;
       display: flex;
       align-items: center;
       overflow: hidden;
       background:
-        radial-gradient(circle at 90% 15%, rgba(245,158,11,0.22) 0%, transparent 42%),
-        radial-gradient(circle at 10% 85%, rgba(23,165,191,0.18) 0%, transparent 45%),
-        linear-gradient(135deg, #040e12 0%, #071e26 25%, var(--teal-dark) 55%, var(--teal-mid) 85%, var(--teal-light) 100%);
-    }
-
-    /* floating chip nodes */
-    .hero-nodes {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      overflow: hidden;
-    }
-    .hero-node {
-      position: absolute;
-      border-radius: 50%;
-      animation: floatNode var(--dur, 8s) ease-in-out infinite alternate;
-      opacity: 0.45;
-    }
-    .hero-node:nth-child(1) { width:180px; height:180px; top:-40px; right:18%; background: radial-gradient(circle, rgba(245,158,11,0.25) 0%, transparent 70%); --dur:7s; }
-    .hero-node:nth-child(2) { width:260px; height:260px; bottom:-60px; right:8%;  background: radial-gradient(circle, rgba(23,165,191,0.2)  0%, transparent 70%); --dur:10s; animation-delay:-3s; }
-    .hero-node:nth-child(3) { width:120px; height:120px; top:30%;  right:32%; background: radial-gradient(circle, rgba(245,158,11,0.18) 0%, transparent 70%); --dur:6s; animation-delay:-1.5s; }
-
-    @keyframes floatNode {
-      from { transform: translateY(0px) scale(1); }
-      to   { transform: translateY(-22px) scale(1.05); }
+        radial-gradient(circle at 88% 18%, rgba(245,158,11,0.20) 0%, transparent 45%),
+        linear-gradient(135deg, #082c35 0%, var(--teal-dark) 38%, var(--teal-mid) 75%, var(--teal-light) 100%);
     }
 
     /* circuit-style dot/line grid backdrop */
     .hero-bg-img {
       position: absolute;
       inset: 0;
-      opacity: 0.35;
+      opacity: 0.5;
       background-image:
-        linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
-      background-size: 38px 38px;
-      mask-image: radial-gradient(ellipse 85% 75% at 65% 35%, black 5%, transparent 70%);
+        linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: radial-gradient(ellipse 90% 80% at 70% 40%, black 10%, transparent 75%);
     }
 
     /* decorative curved cutout bottom-right */
@@ -347,11 +273,11 @@
 
     .hero-content h1 {
       font-family: 'Syne', sans-serif;
-      font-size: clamp(2.5rem, 5.5vw, 4.4rem);
+      font-size: clamp(2.4rem, 5.5vw, 4.2rem);
       font-weight: 800;
       color: var(--white);
-      line-height: 1.06;
-      letter-spacing: -0.03em;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
       margin-top: 1.1rem;
       animation: fadeUp 0.7s 0.1s ease both;
     }
@@ -396,39 +322,31 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 0.78rem 1.8rem;
-      border-radius: 8px;
+      padding: 0.75rem 1.7rem;
+      border-radius: 6px;
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       cursor: pointer;
       text-decoration: none;
-      letter-spacing: 0.01em;
-      transition: transform 0.18s, box-shadow 0.18s;
+      transition: transform 0.15s, box-shadow 0.15s;
     }
 
-    .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,0.28); }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(0,0,0,0.25); }
 
     .btn-primary {
       background: var(--accent);
-      color: #111;
-      box-shadow: 0 4px 18px rgba(245,158,11,0.38);
-    }
-
-    .btn-primary:hover {
-      box-shadow: 0 10px 30px rgba(245,158,11,0.52);
+      color: #1a1a1a;
     }
 
     .btn-youtube {
       background: #ff0000;
       color: var(--white);
-      box-shadow: 0 4px 18px rgba(255,0,0,0.3);
     }
 
     .btn-outline {
-      background: rgba(255,255,255,0.07);
+      background: transparent;
       color: var(--white);
-      border: 1.5px solid rgba(255,255,255,0.45);
-      backdrop-filter: blur(4px);
+      border: 2px solid rgba(255,255,255,0.6);
     }
 
     /* ── HERO STATS STRIP ── */
@@ -464,71 +382,297 @@
       .hero-stats { gap: 1.6rem; }
     }
 
-    /* ── TUTORIALS SECTION ── */
-    .tutorials {
-      display: grid;
-      grid-template-columns: 280px 1fr;
-      gap: 0;
+    /* ── ROADMAP SECTION ── */
+    .roadmap {
+      position: relative;
       max-width: 1100px;
-      margin: 5.5rem auto 3rem;
+      margin: 5rem auto 3rem;
       padding: 0 2rem;
     }
 
-    .tutorials-label h2 {
+    .roadmap-label {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+
+    .roadmap-label h2 {
       font-family: 'Syne', sans-serif;
-      font-size: 2rem;
+      font-size: 2.2rem;
       font-weight: 800;
       color: #0d3d4a;
-      letter-spacing: -0.02em;
     }
 
-    .tutorials-kicker {
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--teal-mid);
-      margin-bottom: 0.5rem;
-    }
-
-    .tutorials-label p {
-      color: #7a9aab;
-      font-weight: 400;
+    .roadmap-label p {
+      color: #6b8b96;
+      font-weight: 500;
       margin-top: 0.4rem;
-      font-size: 0.9rem;
-      line-height: 1.5;
+      font-size: 0.95rem;
     }
 
-    .tutorials-list {
-      border-left: 2px solid var(--accent);
-      padding-left: 2rem;
+    .roadmap-track {
+      position: relative;
+      padding: 1rem 0 2rem;
     }
 
-    .tut-item {
+    .roadmap-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: visible;
+    }
+
+    .roadmap-svg path.road-base {
+      fill: none;
+      stroke: #b9dde9;
+      stroke-width: 14;
+      stroke-linecap: round;
+    }
+
+    .roadmap-svg path.road-dash {
+      fill: none;
+      stroke: #ffffff;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-dasharray: 14 14;
+    }
+
+    .roadmap-svg path.road-progress {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-dasharray: 2000;
+      stroke-dashoffset: 2000;
+      transition: stroke-dashoffset 2.2s cubic-bezier(.4,0,.2,1);
+    }
+
+    .roadmap-track.revealed .roadmap-svg path.road-progress {
+      stroke-dashoffset: 0;
+    }
+
+    .roadmap-stops {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .roadmap-stop {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 0.8rem 0;
-      border-bottom: 1px solid rgba(14,116,144,0.1);
+      width: 50%;
+      min-height: 170px;
+      opacity: 0;
+      transform: translateY(40px) scale(0.94);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .roadmap-stop.revealed {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .roadmap-stop.right {
+      margin-left: auto;
+      justify-content: flex-start;
+      flex-direction: row;
+    }
+
+    .roadmap-stop.left {
+      margin-right: auto;
+      justify-content: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .stop-marker {
+      flex-shrink: 0;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, var(--teal-mid), var(--teal-dark));
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      box-shadow: 0 0 0 6px #dff0f7, 0 0 0 8px #b9dde9, 0 8px 18px rgba(13,79,92,0.35);
+      position: relative;
+      z-index: 2;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .stop-marker::after {
+      content: '';
+      position: absolute;
+      inset: -14px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .roadmap-stop.revealed .stop-marker::after {
+      opacity: 1;
+      transform: scale(1);
+      animation: marker-pulse 2.4s ease-out 0.6s infinite;
+    }
+
+    @keyframes marker-pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(245,158,11,0.45); }
+      70%  { box-shadow: 0 0 0 14px rgba(245,158,11,0); }
+      100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+    }
+
+    .stop-card {
+      display: block;
+      background: var(--card-bg);
+      border: 1px solid #c0dde8;
+      border-radius: 14px;
+      padding: 1.1rem 1.4rem;
+      max-width: 280px;
       text-decoration: none;
       color: var(--gray-text);
-      font-size: 0.88rem;
-      font-weight: 500;
-      letter-spacing: 0.06em;
+      box-shadow: 0 4px 14px rgba(13,79,92,0.06);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      cursor: pointer;
+    }
+
+    .roadmap-stop.right .stop-card { margin-left: 1.4rem; }
+    .roadmap-stop.left .stop-card { margin-right: 1.4rem; }
+
+    .stop-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 24px rgba(13,79,92,0.14);
+      border-color: var(--accent);
+    }
+
+    .stop-card .stop-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      transition: color 0.2s, padding-left 0.2s;
-    }
-
-    .tut-item:hover {
-      color: var(--teal-mid);
-      padding-left: 8px;
-    }
-
-    .tut-item::before {
-      content: '▶';
-      font-size: 0.55rem;
       color: var(--accent);
-      flex-shrink: 0;
+    }
+
+    .stop-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #0d3d4a;
+      margin: 0.25rem 0 0.35rem;
+    }
+
+    .stop-card p {
+      font-size: 0.85rem;
+      color: #5e7e88;
+      line-height: 1.45;
+    }
+
+    .stop-card .stop-go {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 0.6rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--teal-mid);
+    }
+
+    .stop-card.disabled {
+      cursor: default;
+      opacity: 0.75;
+    }
+
+    .stop-card.disabled .stop-go {
+      color: #9bb7bf;
+    }
+
+    .roadmap-destination {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      margin: 2.5rem auto 0;
+      opacity: 0;
+      transform: translateY(30px) scale(0.9);
+      transition: opacity 0.7s ease 0.3s, transform 0.7s ease 0.3s;
+    }
+
+    .roadmap-destination.revealed {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .destination-flag {
+      width: 78px;
+      height: 78px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, var(--accent), #d97706);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 0 6px #dff0f7, 0 0 0 8px #f3d8a8, 0 10px 22px rgba(217,119,6,0.4);
+      margin-bottom: 0.9rem;
+    }
+
+    .destination-flag svg {
+      width: 34px;
+      height: 34px;
+    }
+
+    .roadmap-destination.revealed .destination-flag {
+      animation: flag-wave 2.6s ease-in-out 1s infinite;
+    }
+
+    @keyframes flag-wave {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-6deg); }
+      75% { transform: rotate(6deg); }
+    }
+
+    .roadmap-destination h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #0d3d4a;
+    }
+
+    .roadmap-destination p {
+      font-size: 0.88rem;
+      color: #6b8b96;
+      margin-top: 0.3rem;
+      max-width: 320px;
+    }
+
+    @media (max-width: 768px) {
+      .roadmap-svg { display: none; }
+      .roadmap-stop, .roadmap-stop.left, .roadmap-stop.right {
+        width: 100%;
+        margin: 0;
+        flex-direction: row;
+        justify-content: flex-start;
+      }
+      .roadmap-stop.left .stop-card,
+      .roadmap-stop.right .stop-card { margin: 0 0 0 1.2rem; }
+      .roadmap-stop { min-height: auto; padding-bottom: 1.8rem; position: relative; }
+      .roadmap-stop:not(:last-child)::before {
+        content: '';
+        position: absolute;
+        left: 31px;
+        top: 64px;
+        width: 3px;
+        height: calc(100% - 50px);
+        background: repeating-linear-gradient(to bottom, var(--accent) 0 8px, transparent 8px 16px);
+      }
+      .stop-card { max-width: none; }
     }
 
     /* ── TRACKER STRIP ── */
@@ -697,10 +841,9 @@
 
     .yt-header h2 {
       font-family: 'Syne', sans-serif;
-      font-size: 2rem;
+      font-size: 1.9rem;
       font-weight: 800;
       color: var(--white);
-      letter-spacing: -0.02em;
     }
 
     .yt-header p {
@@ -719,16 +862,15 @@
       display: block;
       text-decoration: none;
       background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.09);
-      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
       overflow: hidden;
-      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), border-color 0.25s, box-shadow 0.25s;
+      transition: transform 0.2s, border-color 0.2s;
     }
 
     .yt-card:hover {
-      transform: translateY(-6px);
-      border-color: rgba(23,165,191,0.4);
-      box-shadow: 0 16px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(23,165,191,0.2);
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,0.22);
     }
 
     .yt-thumb {
@@ -814,35 +956,16 @@
     /* ── TOPICS CARDS ── */
     .topics {
       background: var(--gray-light);
-      background-image: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(23,165,191,0.07) 0%, transparent 70%);
-      padding: 5rem 2rem;
+      padding: 4rem 2rem;
     }
 
     .topics h2 {
       font-family: 'Syne', sans-serif;
-      font-size: 2rem;
+      font-size: 1.8rem;
       font-weight: 800;
       text-align: center;
-      margin-bottom: 0.5rem;
+      margin-bottom: 2.5rem;
       color: #0d3d4a;
-      letter-spacing: -0.02em;
-    }
-
-    .topics-kicker {
-      text-align: center;
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--teal-mid);
-      margin-bottom: 0.6rem;
-    }
-
-    .topics-sub {
-      text-align: center;
-      color: #7a9aab;
-      font-size: 0.95rem;
-      margin-bottom: 3rem;
     }
 
     .cards-grid {
@@ -854,51 +977,37 @@
     }
 
     .card {
-      background: var(--card-bg);
-      border-radius: 14px;
-      padding: 1.8rem 1.5rem;
-      box-shadow: 0 2px 0 rgba(255,255,255,0.9) inset, 0 2px 16px rgba(0,0,0,0.07);
-      transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.28s, border-color 0.28s;
-      border: 1px solid rgba(14,116,144,0.12);
+      background: var(--page-bg);
+      border-radius: 10px;
+      padding: 1.6rem 1.4rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
       border-top: 3px solid var(--card-color, var(--teal-mid));
       cursor: pointer;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: var(--card-color, var(--teal-mid));
-      opacity: 0;
-      transition: opacity 0.3s;
     }
 
     .card:hover {
-      transform: translateY(-7px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.1), 0 0 0 1px var(--card-color, var(--teal-mid));
+      transform: translateY(-5px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.09), 0 0 0 2px var(--card-color, var(--teal-mid));
     }
 
     .card-icon {
-      font-size: 2.2rem;
-      margin-bottom: 0.9rem;
+      font-size: 2rem;
+      margin-bottom: 0.8rem;
     }
 
     .card h3 {
       font-family: 'Syne', sans-serif;
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 700;
       color: #0d3d4a;
-      margin-bottom: 0.45rem;
-      letter-spacing: -0.01em;
+      margin-bottom: 0.4rem;
     }
 
     .card p {
-      font-size: 0.83rem;
-      color: #6b8a97;
-      line-height: 1.55;
+      font-size: 0.82rem;
+      color: #777;
+      line-height: 1.5;
     }
 
     /* ── WORKSHOPS ── */
@@ -909,11 +1018,10 @@
 
     .workshops h2 {
       font-family: 'Syne', sans-serif;
-      font-size: 2rem;
+      font-size: 1.8rem;
       font-weight: 800;
       text-align: center;
       color: #0d3d4a;
-      letter-spacing: -0.02em;
     }
 
     .workshops-sub {
@@ -1048,9 +1156,8 @@
     footer {
       background: var(--nav-bg);
       color: rgba(255,255,255,0.65);
-      padding: 4rem 2rem 0;
+      padding: 3.5rem 2rem 0;
       font-size: 0.88rem;
-      border-top: 1px solid rgba(23,165,191,0.15);
     }
 
     .footer-inner {
@@ -1188,8 +1295,7 @@
     /* ── SOCIAL PROOF / TESTIMONIALS ── */
     .testimonials {
       background: var(--gray-light);
-      background-image: radial-gradient(ellipse 60% 50% at 20% 70%, rgba(245,158,11,0.07) 0%, transparent 60%);
-      padding: 5rem 2rem;
+      padding: 4.5rem 2rem;
     }
 
     .testimonials-inner {
@@ -1204,10 +1310,9 @@
 
     .testimonials-head h2 {
       font-family: 'Syne', sans-serif;
-      font-size: 2rem;
+      font-size: 1.8rem;
       font-weight: 800;
       color: #0d3d4a;
-      letter-spacing: -0.02em;
     }
 
     .testimonials-head p {
@@ -1234,35 +1339,12 @@
 
     .testimonial-card {
       background: var(--card-bg);
-      border-radius: 14px;
-      padding: 1.8rem 1.6rem 1.6rem;
-      box-shadow: 0 2px 0 rgba(255,255,255,0.9) inset, 0 4px 20px rgba(0,0,0,0.07);
-      border: 1px solid rgba(14,116,144,0.1);
-      position: relative;
-      overflow: hidden;
-      transition: transform 0.25s, box-shadow 0.25s;
+      border-radius: 10px;
+      padding: 1.6rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     }
 
-    .testimonial-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.1);
-    }
-
-    .testimonial-card::before {
-      content: '\201C';
-      position: absolute;
-      top: -8px;
-      left: 16px;
-      font-family: 'Syne', serif;
-      font-size: 6rem;
-      line-height: 1;
-      color: var(--teal-light);
-      opacity: 0.12;
-      pointer-events: none;
-      font-weight: 800;
-    }
-
-    .testimonial-stars { color: var(--accent); font-size: 0.85rem; margin-bottom: 0.9rem; letter-spacing: 0.05em; }
+    .testimonial-stars { color: var(--accent); font-size: 0.85rem; margin-bottom: 0.7rem; }
 
     .testimonial-card p {
       font-size: 0.9rem;
@@ -1360,8 +1442,6 @@
       .nav-links > li:hover > a .arrow { transform: none; }
       .nav-links > li.dropdown-open > a .arrow { transform: rotate(180deg); }
 
-      .tutorials { grid-template-columns: 1fr; }
-      .tutorials-list { margin-top: 1.5rem; }
       .hero-content { padding: 2.5rem 1.5rem 2.5rem; }
       .hero::after { width: 160px; height: 100px; }
       .yt-header { flex-direction: column; align-items: flex-start; }
@@ -1369,7 +1449,6 @@
   </style>
 </head>
 <body>
-<div id="scroll-progress"></div>
 
 <!-- NAVBAR -->
 <nav>
@@ -1380,13 +1459,13 @@
 
   <ul class="nav-links">
     <li>
-      <a href="#tutorials" data-section="tutorials">Verilog <span class="arrow">▾</span></a>
+      <a href="verilog-course.html" data-section="tutorials">Verilog <span class="arrow">▾</span></a>
       <div class="dropdown">
-        <a href="#">Verilog Basics</a>
-        <a href="#">Data Types</a>
-        <a href="#">Operators</a>
-        <a href="#">Modules & Ports</a>
-        <a href="#">Testbenches</a>
+        <a href="verilog-course.html">Verilog Basics</a>
+        <a href="verilog-course.html">Data Types</a>
+        <a href="verilog-course.html">Operators</a>
+        <a href="verilog-course.html">Modules & Ports</a>
+        <a href="verilog-course.html">Testbenches</a>
       </div>
     </li>
     <li>
@@ -1455,11 +1534,6 @@
 <!-- HERO -->
 <section class="hero">
   <div class="hero-bg-img"></div>
-  <div class="hero-nodes">
-    <div class="hero-node"></div>
-    <div class="hero-node"></div>
-    <div class="hero-node"></div>
-  </div>
   <div class="hero-content">
     <div class="hero-badge"><span class="dot"></span> New videos every day on YouTube</div>
     <h1>All About <span id="typewriter-word"></span><span class="typewriter-cursor">|</span></h1>
@@ -1497,22 +1571,81 @@
   </div>
 </section>
 
-<!-- TUTORIALS -->
-<section class="tutorials" id="tutorials">
-  <div class="tutorials-label">
-    <p class="tutorials-kicker">Learn By Topic</p>
-    <h2>Tutorials</h2>
-    <p>Structured paths from zero to job-ready — each topic built from first principles.</p>
+<!-- ROADMAP -->
+<section class="roadmap" id="tutorials">
+  <div class="roadmap-label">
+    <h2>Your Roadmap to VLSI Mastery</h2>
+    <p>Five checkpoints. One destination: job-ready Design &amp; Verification engineer.</p>
   </div>
-  <div class="tutorials-list">
-    <a href="#" class="tut-item reveal reveal-delay-1">Verilog Tutorials</a>
-    <a href="#" class="tut-item reveal reveal-delay-2">SystemVerilog Tutorials</a>
-    <a href="#" class="tut-item reveal reveal-delay-3">Functional Coverage Tutorials</a>
-    <a href="#" class="tut-item reveal reveal-delay-4">UVM Tutorials</a>
-    <a href="#" class="tut-item reveal reveal-delay-5">Digital Design Tutorials</a>
-    <a href="#" class="tut-item reveal reveal-delay-6">Digital Design Tutorials</a>
-    <a href="#" class="tut-item reveal reveal-delay-1">ASIC Design Flow</a>
-    <a href="#" class="tut-item reveal reveal-delay-2">Interview Preparation</a>
+
+  <div class="roadmap-track">
+    <svg class="roadmap-svg" viewBox="0 0 700 900" preserveAspectRatio="none">
+      <path class="road-base" d="M 560 60 C 560 160, 140 160, 140 280 C 140 400, 560 400, 560 500 C 560 620, 140 620, 140 740 C 140 820, 350 840, 350 880" />
+      <path class="road-dash" d="M 560 60 C 560 160, 140 160, 140 280 C 140 400, 560 400, 560 500 C 560 620, 140 620, 140 740 C 140 820, 350 840, 350 880" />
+      <path class="road-progress" d="M 560 60 C 560 160, 140 160, 140 280 C 140 400, 560 400, 560 500 C 560 620, 140 620, 140 740 C 140 820, 350 840, 350 880" />
+    </svg>
+
+    <div class="roadmap-stops">
+      <div class="roadmap-stop right reveal">
+        <div class="stop-marker">1</div>
+        <a href="#" class="stop-card disabled">
+          <span class="stop-tag">Checkpoint 01</span>
+          <h3>Digital Design</h3>
+          <p>Logic gates, FSMs, timing fundamentals — the foundation every chip engineer needs.</p>
+          <span class="stop-go">Coming soon →</span>
+        </a>
+      </div>
+
+      <div class="roadmap-stop left reveal reveal-delay-1">
+        <div class="stop-marker">2</div>
+        <a href="#" class="stop-card disabled">
+          <span class="stop-tag">Checkpoint 02</span>
+          <h3>STA</h3>
+          <p>Static Timing Analysis — setup/hold, clocks, and closing timing on real designs.</p>
+          <span class="stop-go">Coming soon →</span>
+        </a>
+      </div>
+
+      <div class="roadmap-stop right reveal reveal-delay-2">
+        <div class="stop-marker">3</div>
+        <a href="verilog-course.html" class="stop-card">
+          <span class="stop-tag">Checkpoint 03</span>
+          <h3>Verilog</h3>
+          <p>RTL coding from scratch — modules, always blocks, and synthesizable design.</p>
+          <span class="stop-go">Start course →</span>
+        </a>
+      </div>
+
+      <div class="roadmap-stop left reveal reveal-delay-3">
+        <div class="stop-marker">4</div>
+        <a href="#" class="stop-card disabled">
+          <span class="stop-tag">Checkpoint 04</span>
+          <h3>System Verilog</h3>
+          <p>OOP constructs, randomization, and constructs that power modern verification.</p>
+          <span class="stop-go">Coming soon →</span>
+        </a>
+      </div>
+
+      <div class="roadmap-stop right reveal reveal-delay-4">
+        <div class="stop-marker">5</div>
+        <a href="#" class="stop-card disabled">
+          <span class="stop-tag">Checkpoint 05</span>
+          <h3>UVM</h3>
+          <p>Build reusable, scalable testbenches the way the industry actually verifies chips.</p>
+          <span class="stop-go">Coming soon →</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="roadmap-destination reveal">
+    <div class="destination-flag">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 21V4M5 4h12l-3 4 3 4H5" stroke="#0d3d4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h3>Destination: VLSI Engineer</h3>
+    <p>Complete all five checkpoints and you're ready for real Design &amp; Verification roles.</p>
   </div>
 </section>
 
@@ -1556,9 +1689,7 @@
 
 <!-- TOPIC CARDS -->
 <section class="topics" id="topics">
-  <p class="topics-kicker">What You'll Learn</p>
   <h2>Explore All Topics</h2>
-  <p class="topics-sub">From first principles to advanced verification — everything in one place</p>
   <div class="cards-grid">
     <div class="card reveal reveal-delay-1" style="--card-color:#0e7490;">
       <div class="card-icon">🔌</div>
@@ -1633,275 +1764,4 @@
           <div>
             <h5>Arjun M.</h5>
             <span>RTL Design Intern</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- WORKSHOPS -->
-<section class="workshops" id="workshops">
-  <h2>Workshops</h2>
-  <p class="workshops-sub">Hands-on learning with industry experts</p>
-  <div style="text-align:center; padding: 3rem 1rem;">
-    <div style="display:inline-flex; flex-direction:column; align-items:center; gap:1rem; background:var(--card-bg); border:2px dashed var(--teal-light); border-radius:16px; padding:3rem 4rem;">
-      <span style="font-size:3rem;">🚀</span>
-      <h3 style="font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; color:#0d3d4a; margin:0;">Available Soon</h3>
-      <p style="color:#888; font-size:0.95rem; margin:0; max-width:340px;">Exciting workshops are on the way. Stay tuned — we'll announce them shortly!</p>
-    </div>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="footer-inner">
-    <div class="footer-col">
-      <div class="footer-brand">
-        <svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
-          <rect width="30" height="30" rx="7" fill="#17a5bf"/>
-          <path d="M9 10h12M9 15h12M9 20h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <span>All About VLSI</span>
-      </div>
-      <p>Your complete learning hub for Verilog, SystemVerilog, UVM, ASIC Design, and Verification — built for engineers, by engineers.</p>
-      <div class="footer-socials">
-        <a href="https://youtube.com/@allaboutvlsii?si=1XNn3h21tFb6ejwP" target="_blank" aria-label="YouTube">▶</a>
-        <a href="#" aria-label="LinkedIn">in</a>
-        <a href="#" aria-label="Instagram">📷</a>
-        <a href="#" aria-label="Telegram">✈</a>
-      </div>
-    </div>
-
-    <div class="footer-col">
-      <h5>Quick Links</h5>
-      <ul class="footer-links">
-        <li><a href="#tutorials">Tutorials</a></li>
-        <li><a href="#topics">Topics</a></li>
-        <li><a href="#workshops">Workshops</a></li>
-        <li><a href="#">Blogs</a></li>
-      </ul>
-    </div>
-
-    <div class="footer-col">
-      <h5>Resources</h5>
-      <ul class="footer-links">
-        <li><a href="#">Interview Questions</a></li>
-        <li><a href="#">Digital Design Notes</a></li>
-        <li><a href="#">ASIC Flow Guide</a></li>
-        <li><a href="#">Contact Us</a></li>
-      </ul>
-    </div>
-
-    <div class="footer-col footer-newsletter">
-      <h5>Stay in the loop</h5>
-      <p>Get new tutorials and free workshop alerts in your inbox.</p>
-      <form class="footer-form" onsubmit="return false;">
-        <input type="email" placeholder="Your email" required />
-        <button type="submit">Join</button>
-      </form>
-    </div>
-  </div>
-
-  <div class="footer-bottom">
-    <p>© 2025 <span>All About VLSI</span> — Built for VLSI Learners & Engineers</p>
-  </div>
-</footer>
-
-<script>
-  const navToggle = document.getElementById('navToggle');
-  const navLinks = document.querySelector('.nav-links');
-
-  navToggle.addEventListener('click', () => {
-    navToggle.classList.toggle('open');
-    navLinks.classList.toggle('open');
-  });
-
-  // On mobile, tapping a top-level link with a dropdown opens an accordion
-  // instead of following the hover-popover behavior used on desktop.
-  document.querySelectorAll('.nav-links > li').forEach(li => {
-    const link = li.querySelector('a');
-    const dropdown = li.querySelector('.dropdown');
-    if (!dropdown) return;
-
-    link.addEventListener('click', (e) => {
-      if (window.innerWidth <= 768) {
-        e.preventDefault();
-        li.classList.toggle('dropdown-open');
-      }
-    });
-  });
-
-  // Close the mobile menu after picking a link with no dropdown,
-  // or after picking a final dropdown item
-  document.querySelectorAll('.dropdown a, .nav-links > li > a').forEach(a => {
-    a.addEventListener('click', (e) => {
-      const hasDropdown = a.parentElement.querySelector('.dropdown');
-      if (window.innerWidth <= 768 && !hasDropdown) {
-        navToggle.classList.remove('open');
-        navLinks.classList.remove('open');
-      }
-    });
-  });
-</script>
-
-<script>
-  // Tracker moved to tracker.html
-  void 0;
-</script>
-
-<script>
-  /* ══════════════════════════════════════════
-     1. TYPEWRITER EFFECT — Hero Headline
-  ══════════════════════════════════════════ */
-  (function () {
-    const words   = ['VLSI', 'Verilog', 'SystemVerilog', 'UVM', 'ASIC Design', 'Verification'];
-    const target  = document.getElementById('typewriter-word');
-    const cursor  = document.querySelector('.typewriter-cursor');
-    if (!target) return;
-
-    let wordIdx = 0, charIdx = 0, deleting = false;
-
-    function type() {
-      const current = words[wordIdx];
-
-      if (!deleting) {
-        target.textContent = current.slice(0, ++charIdx);
-        if (charIdx === current.length) {
-          // pause at full word
-          setTimeout(() => { deleting = true; type(); }, 1800);
-          return;
-        }
-      } else {
-        target.textContent = current.slice(0, --charIdx);
-        if (charIdx === 0) {
-          deleting = false;
-          wordIdx  = (wordIdx + 1) % words.length;
-        }
-      }
-      setTimeout(type, deleting ? 60 : 100);
-    }
-
-    // small initial delay so page loads first
-    setTimeout(type, 500);
-  })();
-
-  /* ══════════════════════════════════════════
-     2. ANIMATED STAT COUNTERS — Hero Stats
-  ══════════════════════════════════════════ */
-  (function () {
-    const counters = document.querySelectorAll('.stat-counter');
-    if (!counters.length) return;
-
-    function animateCounter(el) {
-      const target = parseInt(el.dataset.target, 10);
-      const suffix = el.dataset.suffix || '';
-      const duration = 1600; // ms
-      const steps    = 60;
-      const step     = duration / steps;
-      let current    = 0;
-
-      const timer = setInterval(() => {
-        current += target / steps;
-        if (current >= target) {
-          clearInterval(timer);
-          el.textContent = target + suffix;
-        } else {
-          el.textContent = Math.floor(current) + suffix;
-        }
-      }, step);
-    }
-
-    // Use IntersectionObserver so counters only run when hero is visible
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          counters.forEach(animateCounter);
-          obs.disconnect();
-        }
-      });
-    }, { threshold: 0.3 });
-
-    // observe the hero stats strip
-    const statsEl = document.querySelector('.hero-stats');
-    if (statsEl) obs.observe(statsEl);
-  })();
-
-  /* ══════════════════════════════════════════
-     3. SCROLL-REVEAL — Sections fade up
-  ══════════════════════════════════════════ */
-  (function () {
-    const items = document.querySelectorAll('.reveal');
-    if (!items.length) return;
-
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('revealed');
-          obs.unobserve(e.target); // animate once only
-        }
-      });
-    }, { threshold: 0.12 });
-
-    items.forEach(el => obs.observe(el));
-  })();
-</script>
-
-<script>
-  /* ══════════════════════════════════════════
-     4. SCROLL-SPY — Active nav highlight
-  ══════════════════════════════════════════ */
-  (function () {
-    const sections = [
-      { id: 'tutorials', section: 'tutorials' },
-      { id: 'topics',    section: 'topics'    },
-      { id: 'workshops', section: 'workshops' },
-    ];
-
-    const navLinks = document.querySelectorAll('.nav-links > li > a[data-section]');
-
-    function setActive(sectionId) {
-      navLinks.forEach(a => {
-        a.classList.toggle('nav-active', a.dataset.section === sectionId);
-      });
-    }
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          setActive(entry.target.id);
-        }
-      });
-    }, { rootMargin: '-40% 0px -55% 0px' });
-
-    sections.forEach(({ id }) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-
-    // Clear active state when scrolled back to top (hero)
-    const heroObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) setActive(null);
-      });
-    }, { threshold: 0.3 });
-    const hero = document.querySelector('.hero');
-    if (hero) heroObserver.observe(hero);
-  })();
-</script>
-
-<script>
-  /* Scroll progress bar */
-  (function() {
-    const bar = document.getElementById('scroll-progress');
-    window.addEventListener('scroll', () => {
-      const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-      bar.style.width = pct + '%';
-    }, { passive: true });
-  })();
-</script>
-
-</body>
-</html>
+   
