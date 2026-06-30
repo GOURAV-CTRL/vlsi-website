@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verilog Course · All About VLSI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal-dark:   #0d4f5c;
+      --teal-mid:    #0e7490;
+      --teal-light:  #17a5bf;
+      --accent:      #f59e0b;
+      --white:       #ffffff;
+      --gray-bg:     #f5f7f8;
+      --gray-text:   #444c55;
+      --nav-bg:      #0d3d4a;
+      --green:       #059669;
+      --green-light: #d1fae5;
+      --code-bg:     #0f1923;
+      --tag-bg:      #e0f2fe;
+      --tag-color:   #0369a1;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; color: var(--gray-text); background: var(--gray-bg); min-height: 100vh; }
+
+    /* ── NAV ── */
+    nav {
+      display: flex; align-items: center;
+      background: var(--nav-bg);
+      padding: 0 2.5rem; height: 60px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo svg { width: 32px; height: 32px; }
+    .nav-logo span { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem; color: var(--white); }
+    .nav-actions { margin-left: auto; display: flex; align-items: center; gap: 1rem; }
+    .nav-back { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.75); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: color 0.2s; }
+    .nav-back:hover { color: var(--white); }
+    .nav-tracker-link { display: inline-flex; align-items: center; gap: 6px; background: var(--accent); color: #111; text-decoration: none; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.78rem; padding: 0.35rem 0.85rem; border-radius: 100px; transition: opacity 0.2s; }
+    .nav-tracker-link:hover { opacity: 0.85; }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #082c35 0%, var(--teal-dark) 50%, #0a5e70 100%);
+      padding: 3.5rem 2rem 0;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 60px),
+                  repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 60px);
+    }
+    .hero-inner { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; }
+    .hero-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 1rem; }
+    .hero-eyebrow span { background: rgba(245,158,11,0.12); padding: 0.25rem 0.7rem; border-radius: 4px; border: 1px solid rgba(245,158,11,0.3); }
+    .hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; color: var(--white); line-height: 1.1; margin-bottom: 1rem; }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero-desc { color: rgba(255,255,255,0.65); font-size: 1rem; max-width: 540px; line-height: 1.7; margin-bottom: 2rem; }
+    .hero-stats { display: flex; gap: 2.5rem; padding-bottom: 2rem; flex-wrap: wrap; }
+    .hero-stat { }
+    .hero-stat .num { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--white); line-height: 1; }
+    .hero-stat .lbl { font-size: 0.75rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+    /* progress ring in hero */
+    .hero-progress-strip {
+      background: rgba(255,255,255,0.07);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 0.9rem 0;
+      margin-top: 0;
+    }
+    .hero-progress-inner { max-width: 860px; margin: 0 auto; display: flex; align-items: center; gap: 1rem; }
+    .progress-bar-wrap { flex: 1; background: rgba(255,255,255,0.12); border-radius: 100px; height: 8px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--teal-light), var(--accent)); border-radius: 100px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+    .progress-label { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 700; color: rgba(255,255,255,0.8); white-space: nowrap; }
+
+    /* ── LAYOUT ── */
+    .page { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+
+    /* ── SECTION HEADERS ── */
+    .sec-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.2rem; margin-top: 2.5rem; }
+    .sec-header:first-child { margin-top: 0; }
+    .sec-chip { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; font-weight: 600; background: var(--teal-mid); color: var(--white); padding: 0.2rem 0.55rem; border-radius: 4px; letter-spacing: 0.05em; }
+    .sec-title { font-family: 'Syne', sans-serif; font-size: 1.15rem; font-weight: 800; color: #111; }
+
+    /* ── VIDEO CARD ── */
+    .video-list { display: flex; flex-direction: column; gap: 0.85rem; }
+
+    .vcard {
+      background: var(--white);
+      border-radius: 14px;
+      border: 2px solid #e8edf0;
+      display: grid;
+      grid-template-columns: 160px 1fr auto;
+      align-items: stretch;
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+    }
+    .vcard:hover { border-color: var(--teal-light); box-shadow: 0 6px 24px rgba(14,116,144,0.12); transform: translateY(-1px); }
+    .vcard.completed { border-color: #6ee7b7; background: #fafffe; }
+
+    /* thumbnail */
+    .vcard-thumb {
+      position: relative;
+      width: 160px;
+      background: var(--code-bg);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .vcard-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .vcard-thumb-placeholder {
+      width: 100%; height: 100%; min-height: 90px;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #0a2030, #0d4f5c);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; color: rgba(255,255,255,0.35);
+      letter-spacing: 0.05em;
+    }
+    .vcard-play {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.3);
+      transition: background 0.2s;
+    }
+    .vcard:hover .vcard-play { background: rgba(0,0,0,0.1); }
+    .play-btn {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(255,255,255,0.92);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; transition: transform 0.2s;
+    }
+    .vcard:hover .play-btn { transform: scale(1.1); }
+    .vcard-num-badge {
+      position: absolute; top: 7px; left: 7px;
+      background: rgba(0,0,0,0.7);
+      color: #fff; font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; font-weight: 600;
+      padding: 0.18rem 0.45rem; border-radius: 4px;
+    }
+    .done-overlay {
+      position: absolute; inset: 0;
+      display: none; align-items: center; justify-content: center;
+      background: rgba(5,150,105,0.7);
+      font-size: 1.8rem;
+    }
+    .vcard.completed .done-overlay { display: flex; }
+
+    /* body */
+    .vcard-body { padding: 1rem 1.2rem; display: flex; flex-direction: column; justify-content: center; gap: 0.35rem; }
+    .vcard-body-top { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .vtag { display: inline-block; font-size: 0.68rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 100px; background: var(--tag-bg); color: var(--tag-color); }
+    .vtag.green { background: #d1fae5; color: #065f46; }
+    .vcard-title { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; color: #111; line-height: 1.3; }
+    .vcard.completed .vcard-title { color: #888; }
+    .vcard-meta { font-size: 0.77rem; color: #999; display: flex; gap: 0.7rem; align-items: center; flex-wrap: wrap; }
+    .vcard-topics { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.2rem; }
+    .vtopic { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; background: #f0f4f5; color: #556; padding: 0.15rem 0.4rem; border-radius: 4px; }
+
+    /* action side */
+    .vcard-action {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 1rem;
+      gap: 0.5rem;
+      border-left: 1.5px solid #f0f4f5;
+      min-width: 88px;
+    }
+    .mark-btn {
+      padding: 0.45rem 0.75rem;
+      border-radius: 8px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.75rem;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      white-space: nowrap;
+    }
+    .mark-btn.mark { background: var(--teal-mid); color: var(--white); }
+    .mark-btn.mark:hover { background: var(--teal-dark); transform: translateY(-1px); }
+    .mark-btn.unmark { background: #f0f4f5; color: #888; }
+    .mark-btn.unmark:hover { background: #fee2e2; color: #b91c1c; }
+    .watch-link {
+      display: inline-block;
+      font-size: 0.72rem;
+      color: var(--teal-mid);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .watch-link:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .vcard { grid-template-columns: 110px 1fr; }
+      .vcard-action { display: none; }
+      .vcard-thumb { min-height: 75px; }
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: #0d3d4a; color: #fff;
+      padding: 0.7rem 1.5rem; border-radius: 100px;
+      font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+      opacity: 0; transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none; z-index: 999; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── VIDEO PLAYER MODAL ── */
+    .video-modal {
+      position: fixed; inset: 0;
+      background: rgba(5, 10, 15, 0.88);
+      display: none;
+      align-items: center; justify-content: center;
+      padding: 2.5rem 1.2rem;
+      z-index: 1000;
+    }
+    .video-modal.open { display: flex; }
+    .video-modal-inner { position: relative; width: 100%; max-width: 920px; }
+    .video-modal-close {
+      position: absolute; top: -2.6rem; right: 0;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: none; color: #fff;
+      font-size: 1.1rem; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .video-modal-close:hover { background: rgba(255,255,255,0.2); }
+    .video-modal-frame {
+      position: relative; width: 100%; aspect-ratio: 16 / 9;
+      background: #000; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.55);
+    }
+    .video-modal-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    @media (max-width: 600px) {
+      .video-modal-close { top: -2.3rem; width: 32px; height: 32px; }
+    }
+
+    /* ── RESET AREA ── */
+    .reset-row { text-align: center; margin-top: 2.5rem; }
+    .reset-btn { background: none; border: 1px solid #e2e8f0; color: #aaa; font-size: 0.78rem; padding: 0.4rem 1rem; border-radius: 6px; cursor: pointer; transition: color 0.2s, border-color 0.2s; }
+    .reset-btn:hover { color: #e53e3e; border-color: #fc8181; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="36" height="36" rx="8" fill="#17a5bf"/>
+      <rect x="8" y="8" width="8" height="8" rx="2" fill="white"/>
+      <rect x="20" y="8" width="8" height="8" rx="2" fill="white"/>
+      <rect x="8" y="20" width="8" height="8" rx="2" fill="white"/>
+      <rect x="20" y="20" width="8" height="8" rx="2" fill="#f59e0b"/>
+    </svg>
+    <span>All About VLSI</span>
+  </a>
+  <div class="nav-actions">
+    <a href="tracker.html" class="nav-tracker-link">📊 My Tracker</a>
+    <a href="index.html" class="nav-back">← Home</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow"><span>module verilog_course;</span></div>
+    <h1>Verilog from<br/><em>Zero to RTL</em></h1>
+    <p class="hero-desc">Learn Hardware Description Language through structured, bite-sized videos. Each video you complete is automatically logged in your tracker.</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="num" id="totalVideos">0</div>
+        <div class="lbl">Total Videos</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num" id="completedCount">0</div>
+        <div class="lbl">Completed</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num" id="remainingCount">0</div>
+        <div class="lbl">Remaining</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-progress-strip">
+    <div class="hero-progress-inner">
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+      </div>
+      <div class="progress-label" id="progressLabel">0% complete</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="page" id="courseContent"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- IN-PAGE VIDEO PLAYER MODAL -->
+<div class="video-modal" id="videoModal">
+  <div class="video-modal-inner">
+    <button class="video-modal-close" id="videoModalClose" aria-label="Close">✕</button>
+    <div class="video-modal-frame">
+      <iframe id="videoModalIframe" src="" title="Video player" frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   COURSE DATA
+   Add your videos here. Each section has a title and videos array.
+   For each video: id (unique!), title, duration, tags[], topics[]
+
+   ── To make a video playable in-page ──
+   Add a `videoId` field with the 11-character code from the YouTube
+   embed link (the part right after "/embed/"):
+     embed link:  https://www.youtube.com/embed/IP_8QJ5k2I8?si=...
+     videoId:     'IP_8QJ5k2I8'
+   That's it — no need to paste the whole <iframe> tag, just the ID.
+   The thumbnail, click-to-play modal, and "Mark Done" auto-trigger
+   are all handled automatically once videoId is set.
+
+   Leave `videoId` out (and leave `url` blank) for videos that haven't
+   been recorded yet — they'll show as "Coming soon" and stay locked.
+══════════════════════════════════════════ */
+const COURSE = [
+  {
+    section: 'Foundations',
+    chip: 'MODULE 01',
+    videos: [
+      {
+        id: 'v01',
+        title: 'Introduction to Verilog & HDL Concepts',
+        videoId: 'IP_8QJ5k2I8',
+        duration: '18 min',
+        tags: ['Beginner'],
+        topics: ['HDL', 'History', 'Design Flow']
+      },
+      {
+        id: 'v02',
+        title: 'Verilog Data Types',
+        videoId: 'R57WWiEqkLQ',
+        duration: '22 min',
+        tags: ['Beginner'],
+        topics: ['module', 'input/output', 'wire']
+      },
+      {
+        id: 'v03',
+        title: 'Port Connection Rules',
+        videoId: 'C219U48xX04',
+        duration: '20 min',
+        tags: ['Beginner'],
+        topics: ['wire', 'reg', 'integer', 'parameter']
+      },
+    ]
+  },
+  {
+    section: 'Gate Level Modelling',
+    chip: 'MODULE 02',
+    videos: [
+      {
+        id: 'v05',
+        title: 'Intro to Gate Level Modelling',
+        videoId: 'c-qxVcc-FbI',
+        duration: '19 min',
+        tags: ['Intermediate'],
+        topics: ['assign', 'combinational']
+      },
+      {
+        id: 'v06',
+        title: 'Verilog Code for Full Adder Using Gate Level Modelling',
+        videoId: 'VbtIJPZhXLo',
+        duration: '24 min',
+        tags: ['Intermediate'],
+        topics: ['always', 'if-else', 'case']
+      },
+      {
+        id: 'v07',
+        title: 'BCD Adder Verilog Code Using Gate Level Modelling',
+        videoId: '_dqCK0T3d8E',
+        duration: '21 min',
+        tags: ['Intermediate'],
+        topics: ['mux', 'decoder', 'casex']
+      },
+      {
+        id: 'v08',
+        title: '2 Bit Comparator Verilog Code Using Gate Level Modelling',
+        videoId: '7r6BRVTjStc',
+        duration: '28 min',
+        tags: ['Intermediate'],
+        topics: ['ripple carry', 'generate', 'propagate']
+      },
+    ]
+  },
+  {
+    section: 'Behavioural Modelling',
+    chip: 'MODULE 03',
+    videos: [
+      {
+        id: 'v09',
+        title: 'Introduction to Behavioural Modelling',
+        videoId: 'dTCiUa-s2YE',
+        duration: '23 min',
+        tags: ['Intermediate'],
+        topics: ['posedge', 'negedge', 'reset']
+      },
+      {
+        id: 'v10',
+        title: 'Operators in Verilog',
+        videoId: '5niKP6J4x1M',
+        duration: '20 min',
+        tags: ['Intermediate'],
+        topics: ['SIPO', 'PISO', 'PIPO']
+      },
+      {
+        id: 'v11',
+        title: 'Logical Operators in Verilog, Shifting and Concatenation',
+        videoId: 's7FXSFFniWQ',
+        duration: '26 min',
+        tags: ['Intermediate'],
+        topics: ['up/down', 'BCD', 'ring counter']
+      },
+      {
+        id: 'v12',
+        title: 'Blocking vs Non Blocking Assignments',
+        videoId: 'VG5xdgxjtOY',
+        duration: '35 min',
+        tags: ['Advanced'],
+        topics: ['FSM', 'state encoding', 'one-hot']
+      },
+      {
+        id: 'v13',
+        title: 'Verilog Event Scheduler',
+        videoId: 'eAlZy7yf-Rg',
+        duration: '24 min',
+        tags: ['Advanced'],
+        topics: ['event queue', 'simulation', 'scheduling']
+      },
+      {
+        id: 'v14',
+        title: 'Verilog Event Scheduler — Part 2',
+        videoId: 'gKp9t-K7XyM',
+        duration: '22 min',
+        tags: ['Advanced'],
+        topics: ['event queue', 'simulation', 'scheduling']
+      },
+    ]
+  },
+  {
+    section: 'Coding Combinational Circuits Using Behavioural Modelling',
+    chip: 'MODULE 04',
+    videos: [
+      {
+        id: 'v15',
+        title: 'Full Adder and Half Subtractor Coding Using Behavioural Style',
+        videoId: 'es5uRydhfHM',
+        duration: '38 min',
+        tags: ['Advanced'],
+        topics: ['FIFO', 'full/empty', 'gray code']
+      },
+      {
+        id: 'v16',
+        title: 'BCD Adder Code',
+        videoId: 'iqtwooX8aOs',
+        duration: '30 min',
+        tags: ['Advanced'],
+        topics: ['SRAM', 'reg array', 'readmemh']
+      },
+      {
+        id: 'v17',
+        title: 'Loops and Case Statements',
+        videoId: 'g1MkRBDuM1Y',
+        duration: '25 min',
+        tags: ['Advanced'],
+        topics: ['parameter', 'localparam', 'genvar']
+      },
+      {
+        id: 'v17b',
+        title: 'Mux and Demux Verilog Code Using Behavioural Style',
+        videoId: 'HoQk9CSSGQ8',
+        duration: '25 min',
+        tags: ['Advanced'],
+        topics: ['mux', 'demux', 'behavioural']
+      },
+      {
+        id: 'v17c',
+        title: 'Encoder and Decoder Using Behavioural Style',
+        videoId: 'WYRdgAT-1_4',
+        duration: '25 min',
+        tags: ['Advanced'],
+        topics: ['encoder', 'decoder', 'behavioural']
+      },
+    ]
+  },
+  {
+    section: 'Coding Sequential Circuits Using Behavioural Modelling',
+    chip: 'MODULE 05',
+    videos: [
+      {
+        id: 'v18',
+        title: 'SR Latch Using Behavioural Modelling',
+        videoId: 'EZQq-1W2OFI',
+        duration: '27 min',
+        tags: ['Beginner'],
+        topics: ['$monitor', '$display', 'initial', 'forever']
+      },
+      {
+        id: 'v19',
+        title: 'D, JK and T Latch Using Behavioural Modelling',
+        videoId: 'kjtisRDYObI',
+        duration: '20 min',
+        tags: ['Intermediate'],
+        topics: ['#delay', '@posedge', 'timescale']
+      },
+      {
+        id: 'v20',
+        title: 'SISO and SIPO Using Behavioural Modelling',
+        videoId: 'rBpprJN516A',
+        duration: '32 min',
+        tags: ['Advanced'],
+        topics: ['$error', 'file I/O', 'scoreboard']
+      },
+      {
+        id: 'v20b',
+        title: 'PISO and PIPO Using Behavioural Modelling',
+        videoId: '6Abaq6wvgj4',
+        duration: '24 min',
+        tags: ['Advanced'],
+        topics: ['shift register', 'behavioural']
+      },
+      {
+        id: 'v20c',
+        title: 'Universal Shift Register Using Behavioural Modelling',
+        videoId: 'EbFvuOIsiz4',
+        duration: '24 min',
+        tags: ['Advanced'],
+        topics: ['shift register', 'behavioural']
+      },
+      {
+        id: 'v20d',
+        title: 'Blocking vs Non Blocking and Counter Verilog Code',
+        videoId: 'EbFvuOIsiz4',
+        duration: '24 min',
+        tags: ['Advanced'],
+        topics: ['blocking', 'non-blocking', 'counter']
+      },
+    ]
+  },
+  {
+    section: 'Frequency Division Using Verilog',
+    chip: 'MODULE 06',
+    videos: [
+      {
+        id: 'v21',
+        title: 'Frequency Division Using Verilog by Even Numbers',
+        videoId: 'ztWEL1bTlbM',
+        duration: '24 min',
+        tags: ['Advanced'],
+        topics: ['clock divider', 'even division']
+      },
+      {
+        id: 'v22',
+        title: 'Frequency Division by Odd Numbers',
+        videoId: 'ztWEL1bTlbM',
+        duration: '24 min',
+        tags: ['Advanced'],
+        topics: ['clock divider', 'odd division']
+      },
+      {
+        id: 'v23',
+        title: 'Frequency Division by 3 with 50% Duty Cycle',
+        videoId: 'ztWEL1bTlbM',
+        duration: '24 min',
+        tags: ['Advanced'],
+        topics: ['clock divider', 'duty cycle']
+      },
+      {
+        id: 'v24',
+        title: 'Frequency Division by 1.5',
+        videoId: 'ahT-pQ9lmQU',
+        duration: '24 min',
+        tags: ['Advanced'],
+        topics: ['clock divider', 'fractional division']
+      },
+    ]
+  },
+  {
+    section: 'Data Flow Modelling',
+    chip: 'MODULE 07',
+    videos: [
+      {
+        id: 'v25',
+        title: 'Intro to Data Flow Modelling',
+        videoId: 'FR12MV9gkz4',
+        duration: '24 min',
+        tags: ['Intermediate'],
+        topics: ['data flow', 'assign']
+      },
+    ]
+  },
+  {
+    section: 'FSM Modelling Using Verilog',
+    chip: 'MODULE 08',
+    videos: [
+      {
+        id: 'v26',
+        title: 'Intro to FSM (Theory)',
+        videoId: 'Z8d3Y96BDOo',
+        duration: '24 min',
+        tags: ['Advanced'],
+        topics: ['FSM', 'theory']
+      },
+      {
+        id: 'v27',
+        title: 'Intro to FSM Coding',
+        videoId: 'Z8d3Y96BDOo',
+        duration: '24 min',
+        tags: ['Advanced'],
+        topics: ['FSM', 'coding']
+      },
+    ]
+  },
+];
+
+/* ══════════════════════════════════════════
+   STORAGE KEYS — shared with tracker
+══════════════════════════════════════════ */
+const TRACKER_KEY  = 'vlsiTrackerData';
+const VERILOG_KEY  = 'vlsiVerilogProgress';  // { completedIds: [], lastUpdated }
+
+function loadTrackerData() {
+  try { const p = JSON.parse(localStorage.getItem(TRACKER_KEY)); return p && typeof p.streak === 'number' ? p : null; }
+  catch(e) { return null; }
+}
+
+function loadVerilogProgress() {
+  try {
+    const p = JSON.parse(localStorage.getItem(VERILOG_KEY));
+    return p && Array.isArray(p.completedIds) ? p : { completedIds: [] };
+  } catch(e) { return { completedIds: [] }; }
+}
+
+function saveVerilogProgress(prog) {
+  prog.lastUpdated = new Date().toISOString();
+  try { localStorage.setItem(VERILOG_KEY, JSON.stringify(prog)); } catch(e) {}
+}
+
+/* Sync completed video count back into the tracker's today-step1 + video count */
+function syncToTracker(completedIds) {
+  let data = loadTrackerData();
+  if (!data) data = blankTrackerData();
+
+  const today = dateKey();
+  if (!data.today || data.today.date !== today) {
+    data.today = { date: today, mode: 'selfpaced' };
+  }
+
+  data.mode = 'selfpaced';
+  data.today.mode   = 'selfpaced';
+  data.today.topic  = 'Verilog';
+  data.today.videos = completedIds.length;
+
+  // Step 1 = at least 1 video watched
+  if (completedIds.length >= 1) data.today.step1 = true;
+
+  try { localStorage.setItem(TRACKER_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+function blankTrackerData() {
+  return { mode: 'selfpaced', streak: 0, lastDate: null, history: [], today: {} };
+}
+
+function dateKey(d = new Date()) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/* ══════════════════════════════════════════
+   RENDER
+══════════════════════════════════════════ */
+const allVideos = COURSE.flatMap(s => s.videos);
+
+function render() {
+  const prog = loadVerilogProgress();
+  const done = new Set(prog.completedIds);
+  const container = document.getElementById('courseContent');
+
+  container.innerHTML = '';
+
+  COURSE.forEach(sec => {
+    // section header
+    const hdr = document.createElement('div');
+    hdr.className = 'sec-header';
+    hdr.innerHTML = `<span class="sec-chip">${sec.chip}</span><span class="sec-title">${sec.section}</span>`;
+    container.appendChild(hdr);
+
+    const list = document.createElement('div');
+    list.className = 'video-list';
+
+    sec.videos.forEach(v => {
+      const completed = done.has(v.id);
+      const card = document.createElement('div');
+      card.className = 'vcard' + (completed ? ' completed' : '');
+      card.dataset.id = v.id;
+
+      // Tag color
+      const tagClass = v.tags[0] === 'Advanced' ? '' : (v.tags[0] === 'Intermediate' ? '' : 'green');
+
+      card.innerHTML = `
+        <div class="vcard-thumb">
+          ${v.videoId
+            ? `<img src="https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg" alt="${v.title}">`
+            : `<div class="vcard-thumb-placeholder">module ${v.id}.v</div>`
+          }
+          <div class="vcard-play">
+            <div class="play-btn">▶</div>
+          </div>
+          <div class="vcard-num-badge">${v.id.toUpperCase()}</div>
+          <div class="done-overlay">✓</div>
+        </div>
+        <div class="vcard-body">
+          <div class="vcard-body-top">
+            ${v.tags.map(t => `<span class="vtag ${tagClass}">${t}</span>`).join('')}
+            <span class="vcard-meta">${v.duration}</span>
+          </div>
+          <div class="vcard-title">${v.title}</div>
+          <div class="vcard-topics">${v.topics.map(t => `<span class="vtopic">${t}</span>`).join('')}</div>
+        </div>
+        <div class="vcard-action">
+          <button class="mark-btn ${completed ? 'unmark' : 'mark'}" data-id="${v.id}">
+            ${completed ? '✓ Done' : '+ Mark Done'}
+          </button>
+          ${v.videoId
+            ? `<a class="watch-link" href="https://youtu.be/${v.videoId}" target="_blank" rel="noopener" data-watch="${v.id}">Watch on YouTube ↗</a>`
+            : (v.url ? `<a class="watch-link" href="${v.url}" target="_blank" rel="noopener" data-watch="${v.id}">Watch ↗</a>` : `<span class="watch-link" style="color:#ccc">Coming soon</span>`)
+          }
+        </div>
+      `;
+
+      // Watch link → auto-mark as completed (opens YouTube directly, doesn't open the modal)
+      const watchLink = card.querySelector('[data-watch]');
+      if (watchLink) {
+        watchLink.addEventListener('click', (e) => {
+          e.stopPropagation();
+          markVideo(v.id, true);
+        });
+      }
+
+      // Mark/unmark button
+      const btn = card.querySelector('.mark-btn');
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isCompleted = btn.classList.contains('unmark');
+        markVideo(v.id, !isCompleted);
+      });
+
+      // Card click → play in-page if we have a videoId, else fall back to opening the link
+      card.addEventListener('click', () => {
+        if (v.videoId) {
+          openVideoModal(v);
+        } else if (v.url) {
+          markVideo(v.id, true);
+          window.open(v.url, '_blank', 'noopener');
+        }
+      });
+
+      list.appendChild(card);
+    });
+
+    container.appendChild(list);
+  });
+
+  // reset
+  const resetRow = document.createElement('div');
+  resetRow.className = 'reset-row';
+  resetRow.innerHTML = `<button class="reset-btn" id="resetBtn">↩ Reset Verilog progress</button>`;
+  container.appendChild(resetRow);
+  document.getElementById('resetBtn').addEventListener('click', resetProgress);
+
+  updateStats(done.size);
+}
+
+function markVideo(id, completed) {
+  const prog = loadVerilogProgress();
+  const doneSet = new Set(prog.completedIds);
+
+  if (completed) {
+    doneSet.add(id);
+    showToast('✓ Marked done — tracker updated!');
+  } else {
+    doneSet.delete(id);
+    showToast('Unmarked — progress updated.');
+  }
+
+  prog.completedIds = [...doneSet];
+  saveVerilogProgress(prog);
+  syncToTracker(prog.completedIds);
+  render();
+}
+
+function resetProgress() {
+  if (!confirm('Reset all Verilog video progress?')) return;
+  saveVerilogProgress({ completedIds: [] });
+  syncToTracker([]);
+  render();
+  showToast('Verilog progress reset.');
+}
+
+function updateStats(completedCount) {
+  const total = allVideos.length;
+  const remaining = total - completedCount;
+  const pct = total === 0 ? 0 : Math.round((completedCount / total) * 100);
+
+  document.getElementById('totalVideos').textContent = total;
+  document.getElementById('completedCount').textContent = completedCount;
+  document.getElementById('remainingCount').textContent = remaining;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = pct + '% complete';
+}
+
+/* ── In-page video modal ── */
+function openVideoModal(v) {
+  if (!v.videoId) return;
+  document.getElementById('videoModalIframe').src = `https://www.youtube.com/embed/${v.videoId}?autoplay=1&rel=0`;
+  document.getElementById('videoModal').classList.add('open');
+  markVideo(v.id, true);
+}
+
+function closeVideoModal() {
+  document.getElementById('videoModal').classList.remove('open');
+  document.getElementById('videoModalIframe').src = ''; // stop playback
+}
+
+document.getElementById('videoModalClose').addEventListener('click', closeVideoModal);
+document.getElementById('videoModal').addEventListener('click', (e) => {
+  if (e.target.id === 'videoModal') closeVideoModal();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeVideoModal();
+});
+
+/* ── Toast ── */
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// Init
+render();
+</script>
+</body>
+</html>
