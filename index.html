@@ -1764,4 +1764,276 @@
           <div>
             <h5>Arjun M.</h5>
             <span>RTL Design Intern</span>
-   
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORKSHOPS -->
+<section class="workshops" id="workshops">
+  <h2>Workshops</h2>
+  <p class="workshops-sub">Hands-on learning with industry experts</p>
+  <div style="text-align:center; padding: 3rem 1rem;">
+    <div style="display:inline-flex; flex-direction:column; align-items:center; gap:1rem; background:var(--card-bg); border:2px dashed var(--teal-light); border-radius:16px; padding:3rem 4rem;">
+      <span style="font-size:3rem;">🚀</span>
+      <h3 style="font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; color:#0d3d4a; margin:0;">Available Soon</h3>
+      <p style="color:#888; font-size:0.95rem; margin:0; max-width:340px;">Exciting workshops are on the way. Stay tuned — we'll announce them shortly!</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-col">
+      <div class="footer-brand">
+        <svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
+          <rect width="30" height="30" rx="7" fill="#17a5bf"/>
+          <path d="M9 10h12M9 15h12M9 20h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span>All About VLSI</span>
+      </div>
+      <p>Your complete learning hub for Verilog, SystemVerilog, UVM, ASIC Design, and Verification — built for engineers, by engineers.</p>
+      <div class="footer-socials">
+        <a href="https://youtube.com/@allaboutvlsii?si=1XNn3h21tFb6ejwP" target="_blank" aria-label="YouTube">▶</a>
+        <a href="#" aria-label="LinkedIn">in</a>
+        <a href="#" aria-label="Instagram">📷</a>
+        <a href="#" aria-label="Telegram">✈</a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h5>Quick Links</h5>
+      <ul class="footer-links">
+        <li><a href="#tutorials">Tutorials</a></li>
+        <li><a href="#topics">Topics</a></li>
+        <li><a href="#workshops">Workshops</a></li>
+        <li><a href="#">Blogs</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h5>Resources</h5>
+      <ul class="footer-links">
+        <li><a href="#">Interview Questions</a></li>
+        <li><a href="#">Digital Design Notes</a></li>
+        <li><a href="#">ASIC Flow Guide</a></li>
+        <li><a href="#">Contact Us</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col footer-newsletter">
+      <h5>Stay in the loop</h5>
+      <p>Get new tutorials and free workshop alerts in your inbox.</p>
+      <form class="footer-form" onsubmit="return false;">
+        <input type="email" placeholder="Your email" required />
+        <button type="submit">Join</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2025 <span>All About VLSI</span> — Built for VLSI Learners & Engineers</p>
+  </div>
+</footer>
+
+<script>
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.querySelector('.nav-links');
+
+  navToggle.addEventListener('click', () => {
+    navToggle.classList.toggle('open');
+    navLinks.classList.toggle('open');
+  });
+
+  // On mobile, tapping a top-level link with a dropdown opens an accordion
+  // instead of following the hover-popover behavior used on desktop.
+  document.querySelectorAll('.nav-links > li').forEach(li => {
+    const link = li.querySelector('a');
+    const dropdown = li.querySelector('.dropdown');
+    if (!dropdown) return;
+
+    link.addEventListener('click', (e) => {
+      if (window.innerWidth <= 768) {
+        e.preventDefault();
+        li.classList.toggle('dropdown-open');
+      }
+    });
+  });
+
+  // Close the mobile menu after picking a link with no dropdown,
+  // or after picking a final dropdown item
+  document.querySelectorAll('.dropdown a, .nav-links > li > a').forEach(a => {
+    a.addEventListener('click', (e) => {
+      const hasDropdown = a.parentElement.querySelector('.dropdown');
+      if (window.innerWidth <= 768 && !hasDropdown) {
+        navToggle.classList.remove('open');
+        navLinks.classList.remove('open');
+      }
+    });
+  });
+</script>
+
+<script>
+  // Tracker moved to tracker.html
+  void 0;
+</script>
+
+<script>
+  /* ══════════════════════════════════════════
+     1. TYPEWRITER EFFECT — Hero Headline
+  ══════════════════════════════════════════ */
+  (function () {
+    const words   = ['VLSI', 'Verilog', 'SystemVerilog', 'UVM', 'ASIC Design', 'Verification'];
+    const target  = document.getElementById('typewriter-word');
+    const cursor  = document.querySelector('.typewriter-cursor');
+    if (!target) return;
+
+    let wordIdx = 0, charIdx = 0, deleting = false;
+
+    function type() {
+      const current = words[wordIdx];
+
+      if (!deleting) {
+        target.textContent = current.slice(0, ++charIdx);
+        if (charIdx === current.length) {
+          // pause at full word
+          setTimeout(() => { deleting = true; type(); }, 1800);
+          return;
+        }
+      } else {
+        target.textContent = current.slice(0, --charIdx);
+        if (charIdx === 0) {
+          deleting = false;
+          wordIdx  = (wordIdx + 1) % words.length;
+        }
+      }
+      setTimeout(type, deleting ? 60 : 100);
+    }
+
+    // small initial delay so page loads first
+    setTimeout(type, 500);
+  })();
+
+  /* ══════════════════════════════════════════
+     2. ANIMATED STAT COUNTERS — Hero Stats
+  ══════════════════════════════════════════ */
+  (function () {
+    const counters = document.querySelectorAll('.stat-counter');
+    if (!counters.length) return;
+
+    function animateCounter(el) {
+      const target = parseInt(el.dataset.target, 10);
+      const suffix = el.dataset.suffix || '';
+      const duration = 1600; // ms
+      const steps    = 60;
+      const step     = duration / steps;
+      let current    = 0;
+
+      const timer = setInterval(() => {
+        current += target / steps;
+        if (current >= target) {
+          clearInterval(timer);
+          el.textContent = target + suffix;
+        } else {
+          el.textContent = Math.floor(current) + suffix;
+        }
+      }, step);
+    }
+
+    // Use IntersectionObserver so counters only run when hero is visible
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          counters.forEach(animateCounter);
+          obs.disconnect();
+        }
+      });
+    }, { threshold: 0.3 });
+
+    // observe the hero stats strip
+    const statsEl = document.querySelector('.hero-stats');
+    if (statsEl) obs.observe(statsEl);
+  })();
+
+  /* ══════════════════════════════════════════
+     3. SCROLL-REVEAL — Sections fade up
+  ══════════════════════════════════════════ */
+  (function () {
+    const items = document.querySelectorAll('.reveal');
+    if (!items.length) return;
+
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('revealed');
+          obs.unobserve(e.target); // animate once only
+        }
+      });
+    }, { threshold: 0.12 });
+
+    items.forEach(el => obs.observe(el));
+
+    // Roadmap road-draw animation
+    const track = document.querySelector('.roadmap-track');
+    if (track) {
+      const trackObs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            track.classList.add('revealed');
+            trackObs.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      trackObs.observe(track);
+    }
+  })();
+</script>
+
+<script>
+  /* ══════════════════════════════════════════
+     4. SCROLL-SPY — Active nav highlight
+  ══════════════════════════════════════════ */
+  (function () {
+    const sections = [
+      { id: 'tutorials', section: 'tutorials' },
+      { id: 'topics',    section: 'topics'    },
+      { id: 'workshops', section: 'workshops' },
+    ];
+
+    const navLinks = document.querySelectorAll('.nav-links > li > a[data-section]');
+
+    function setActive(sectionId) {
+      navLinks.forEach(a => {
+        a.classList.toggle('nav-active', a.dataset.section === sectionId);
+      });
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setActive(entry.target.id);
+        }
+      });
+    }, { rootMargin: '-40% 0px -55% 0px' });
+
+    sections.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    // Clear active state when scrolled back to top (hero)
+    const heroObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) setActive(null);
+      });
+    }, { threshold: 0.3 });
+    const hero = document.querySelector('.hero');
+    if (hero) heroObserver.observe(hero);
+  })();
+</script>
+
+</body>
+</html>
