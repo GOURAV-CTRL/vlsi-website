@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1407047741331999"
-     crossorigin="anonymous"></script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Daily Tracker · All About VLSI</title>
@@ -348,21 +346,6 @@
       padding: 0.75rem 1rem;
     }
 
-    .selfpaced-input-row input[type="number"] {
-      width: 64px;
-      padding: 0.4rem 0.6rem;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 7px;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 1.1rem;
-      color: var(--teal-dark);
-      text-align: center;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .selfpaced-input-row input:focus { border-color: var(--teal-mid); }
-
     .selfpaced-input-row label {
       font-size: 0.88rem;
       color: var(--gray-text);
@@ -382,21 +365,6 @@
       transition: border-color 0.2s;
     }
     .topic-select:focus { border-color: var(--teal-mid); }
-
-    .log-btn {
-      padding: 0.48rem 1.1rem;
-      background: var(--teal-mid);
-      color: var(--white);
-      border: none;
-      border-radius: 7px;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.15s;
-      white-space: nowrap;
-    }
-    .log-btn:hover { background: var(--teal-dark); transform: translateY(-1px); }
 
     /* Checklist steps */
     .checklist-steps { display: flex; flex-direction: column; gap: 0.75rem; }
@@ -796,11 +764,12 @@
       ☕ No live session link has been added for today yet. Check back soon, or revise something you've already covered.
     </div>
 
-    <!-- Self-paced: video count input -->
+    <!-- Self-paced: jump straight into a course. Progress is logged automatically
+         on the course page itself and synced back here — no manual entry needed. -->
     <div class="selfpaced-input-row" id="videoInputRow" style="display:none;">
-      <label for="videoCount">Videos watched today:</label>
-      <input type="number" id="videoCount" min="1" max="999" value="1" />
-      <select class="topic-select" id="topicSelect">
+      <label for="topicSelect">Continue a course:</label>
+      <select class="topic-select" id="topicSelect" onchange="goToTopicCourse(this.value)">
+        <option value="" disabled selected>Pick a topic →</option>
         <option value="Verilog">Verilog</option>
         <option value="SystemVerilog">SystemVerilog</option>
         <option value="UVM">UVM</option>
@@ -809,7 +778,6 @@
         <option value="Interview Prep">Interview Prep</option>
         <option value="Other">Other</option>
       </select>
-      <button class="log-btn" onclick="logVideos()">Log ✓</button>
     </div>
 
     <!-- Steps -->
@@ -871,13 +839,27 @@
   const KEY = 'vlsiTrackerData';
 
   /* ══════════════════════════════════════════════════════════
+     📚 TOPIC → COURSE PAGE MAP
+     When a user logs a video under one of these topics, they'll
+     be taken straight to that topic's course page after logging.
+     Add more entries here as you build out other course pages.
+  ══════════════════════════════════════════════════════════ */
+  const TOPIC_PAGES = {
+    'Verilog': 'verilog-course.html',
+    // 'SystemVerilog': 'systemverilog.html',
+    // 'UVM': 'uvm.html',
+    // 'Digital Design': 'digital-design.html',
+    // 'ASIC Flows': 'asic-flows.html',
+  };
+
+  /* ══════════════════════════════════════════════════════════
      📡 LIVE CLASS LINKS — UPDATE THIS DAILY
      Each entry: 'YYYY-MM-DD': { url, title, sub, thumb (optional) }
      If no thumb provided, YouTube auto-thumbnail is used as fallback.
      Add a new entry for each session. Keep old ones as a log.
   ══════════════════════════════════════════════════════════ */
   const LIVE_CLASS_LINKS = {
-    '2026-06-29': {
+    '2026-06-28': {
       url:   'https://www.youtube.com/live/DZ0cr3mELYk?si=JP52TxQax2I8xw6K',
       title: 'Design & Verification Free Course — Batch 3 · Day 8',
       sub:   'Problem Solving Session on KMaps',
@@ -1014,9 +996,9 @@
       document.getElementById('videoInputRow').style.display = '';
       document.getElementById('weekendNotice').style.display = 'none';
       document.getElementById('checklistTitle').textContent = '📺 Today — Self-Paced';
-      document.getElementById('checklistSub').textContent = 'Log the videos you watched, then mark your revision done.';
+      document.getElementById('checklistSub').textContent = 'Pick a topic below to open its course — your progress syncs back here automatically.';
 
-      setStep(1, 'Log today\'s videos', 'Use the form above to record what you watched', s1, false);
+      setStep(1, 'Watch a course video', 'Open a course below — marking a video done there checks this off automatically', s1, false);
       setStep(2, 'Revise & make notes', 'Write a short note or solve one practice problem', s2, !s1);
       renderHistory(data);
 
@@ -1091,21 +1073,29 @@
     document.getElementById('weekendNotice').style.display = 'none';
   }
 
-  // ── Log videos (self-paced step 1)
-  function logVideos() {
-    const count = parseInt(document.getElementById('videoCount').value) || 1;
-    const topic = document.getElementById('topicSelect').value;
+  // ── Direct topic shortcut: picking a topic with a built-out course page
+  // takes the user straight there. No manual logging here — the course page
+  // marks videos done as you watch, and that syncs back into this tracker
+  // automatically (shared localStorage key) next time this page loads.
+  function goToTopicCourse(topic) {
+    const coursePage = TOPIC_PAGES[topic];
+    if (!coursePage) {
+      alert(`The ${topic} course page isn't built yet — check back soon!`);
+      document.getElementById('topicSelect').value = '';
+      return;
+    }
 
+    // Make sure today's entry exists in self-paced mode so the topic is
+    // remembered, but leave step1/videos untouched — those are only set
+    // once the course page reports real progress.
     let data = load();
     const today = dateKey();
     if (!data.today || data.today.date !== today) data.today = { date: today, mode: 'selfpaced' };
-    data.today.step1  = true;
-    data.today.videos = count;
-    data.today.topic  = topic;
+    data.today.topic = topic;
     data.mode = 'selfpaced';
     save(data);
-    render(data);
-    renderStreak(data);
+
+    window.location.href = coursePage;
   }
 
   // ── Handle step checks (live batch)
@@ -1168,7 +1158,7 @@
   document.getElementById('step1Check').addEventListener('change', function() {
     let data = load();
     if (data.mode === 'selfpaced') {
-      // step 1 for self-paced is via logVideos button, not checkbox
+      // step 1 for self-paced is set automatically from the course page, not a checkbox
       this.checked = !!(data.today && data.today.step1);
       return;
     }
