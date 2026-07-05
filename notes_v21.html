@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — Frequency Division by Even Numbers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 42px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.8;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #16324f;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .warn-title .icon{ font-size:22px; }
+  .star{ color:#e0a800; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.vector-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+  }
+  table.vector-table td, table.vector-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 6px 14px;
+    text-align:center;
+    color: var(--ink);
+  }
+  table.vector-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 20px;
+  }
+  .flow-box{
+    border: 1.5px solid var(--ink-soft);
+    border-radius: 8px;
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.5);
+    display:block;
+    margin: 6px 0;
+  }
+  .flow-arrow{
+    text-align:center;
+    font-size:22px;
+    color: var(--accent);
+    margin: 0;
+    line-height:1.1;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Frequency Division by Even Numbers 🔁</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes — Part 17: Behavioural Modelling, Counter Method</div>
+
+    <!-- CONCEPT -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">The Idea</span>
+      </div>
+      <p>To divide a clock frequency by an <mark class="blue">even number N</mark>, use a free-running counter that counts input clock edges and <mark class="green">toggles the output</mark> every <mark class="orange">N/2</mark> edges. Because the output toggles twice per full count of N, the output period becomes exactly N times the input period.</p>
+      <p>This works cleanly for even N (2, 4, 6, ...) because <mark class="pink">N/2 is a whole number</mark> — no half-cycle correction is needed, unlike the odd-divide case.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- CODE -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Behavioural Verilog — Counter Method</span>
+      </div>
+
+      <div class="code-snip">module freq_div_even #(
+    parameter N = 6              // Division factor: even number (2, 4, 6, ...)
+)(
+    input  wire clk_in,
+    input  wire rst_n,
+    output reg  clk_out
+);
+
+    integer count;
+
+    always @(posedge clk_in or negedge rst_n) begin
+        if (!rst_n) begin
+            count   &lt;= 0;
+            clk_out &lt;= 0;
+        end
+        else begin
+            if (count == (N/2 - 1)) begin
+                clk_out &lt;= ~clk_out;
+                count   &lt;= 0;
+            end
+            else begin
+                count &lt;= count + 1;
+            end
+        end
+    end
+
+endmodule</div>
+
+      <p><mark class="blue">Non-blocking (&lt;=)</mark> is used throughout since this is a <mark class="green">clocked, sequential</mark> always block — matching the golden rule from Part 16.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WHY IT WORKS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Why the Counter Threshold is N/2 − 1</span>
+      </div>
+      <ul>
+        <li><mark class="orange">count</mark> increments once per input clock edge, starting from 0.</li>
+        <li>When <mark class="green">count reaches N/2 − 1</mark>, that's the N/2-th edge counted (0, 1, 2, ... N/2−1) — so the output toggles.</li>
+        <li>Counter resets to 0 and the process repeats, giving a toggle exactly every <mark class="pink">N/2 input cycles</mark>.</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <!-- EXAMPLES TABLE -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Worked Examples</span>
+      </div>
+      <table class="vector-table">
+        <tr><th>N</th><th>Toggle every</th><th>clk_out frequency</th></tr>
+        <tr><td>2</td><td>1 input cycle</td><td>clk_in / 2</td></tr>
+        <tr><td>4</td><td>2 input cycles</td><td>clk_in / 4</td></tr>
+        <tr><td>6</td><td>3 input cycles</td><td>clk_in / 6</td></tr>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- TESTBENCH -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Testbench Snippet</span>
+      </div>
+
+      <div class="code-snip">module tb_freq_div_even;
+    reg clk_in, rst_n;
+    wire clk_out;
+
+    freq_div_even #(.N(4)) dut (   // change N to test 2, 4, 6
+        .clk_in(clk_in),
+        .rst_n(rst_n),
+        .clk_out(clk_out)
+    );
+
+    always #5 clk_in = ~clk_in;    // 100 MHz input clock
+
+    initial begin
+        clk_in = 0;
+        rst_n  = 0;
+        #12 rst_n = 1;
+        #200 $finish;
+    end
+
+    initial
+        $monitor("T=%0t clk_in=%b clk_out=%b", $time, clk_in, clk_out);
+endmodule</div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WARNING -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Important Note</span>
+      </div>
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> This Method Only Works Directly for Even N</div>
+        <p>For <mark class="blue">odd division</mark> (e.g., divide-by-3, divide-by-5), a single posedge-triggered toggle counter can't produce a <mark class="orange">50% duty cycle</mark> output — that needs a combined <mark class="pink">posedge + negedge</mark> approach, covered separately.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

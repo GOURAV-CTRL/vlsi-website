@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — Fractional Frequency Division</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb; --paper-line: #c7e0f0; --accent: #2c5f8a;
+    --ink: #0a1f3d; --ink-soft: #142d52;
+    --highlight-yellow: #fff176; --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1; --highlight-blue: #9ad1ff; --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{ margin:0; padding: 40px 20px; background: #cfe6f5; font-family: 'Patrick Hand', cursive; display:flex; justify-content:center; }
+  .page{ position:relative; width: 820px; max-width: 100%;
+    background: repeating-linear-gradient(var(--paper), var(--paper) 38px, var(--paper-line) 39px, var(--paper) 40px);
+    border-radius: 6px; box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px; overflow:hidden; }
+  .page::after{ content:""; position:absolute; top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%); pointer-events:none; }
+  h1.title{ font-family:'Caveat', cursive; font-weight:700; color: var(--ink); font-size: 42px; margin: 0 0 4px 0; text-align:center; }
+  .subtitle{ text-align:center; color: var(--ink-soft); font-size:18px; margin-bottom: 26px; opacity:0.8; }
+  .topic{ margin-bottom: 30px; }
+  .topic-head{ display:flex; align-items:baseline; gap:10px; margin-bottom:8px; flex-wrap:wrap; }
+  .topic-title{ font-family:'Caveat', cursive; font-weight:700; font-size:29px; color: var(--ink); }
+  p, li{ font-size: 20px; line-height: 1.55; color: var(--ink); font-weight: 500; margin: 0 0 9px 0; }
+  ul{ margin: 6px 0 0 0; padding-left: 24px; }
+  li{ margin-bottom: 7px; } li::marker{ color: var(--accent); }
+  mark{ background: var(--highlight-yellow); padding: 1px 4px; border-radius: 2px; box-decoration-break: clone; -webkit-box-decoration-break: clone; font-weight: 600; }
+  mark.pink{ background: var(--highlight-pink); } mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); } mark.orange{ background: var(--highlight-orange); }
+  .code-snip{ font-family: 'Patrick Hand', cursive; background: #f8fbff; border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px; padding: 10px 14px; margin: 10px 0; color: #16324f; font-size: 19px; white-space: pre-wrap; display:inline-block; }
+  .warn-box{ border: 2px dashed #b35900; background: rgba(255, 244, 224, 0.6); border-radius: 10px; padding: 12px 16px; margin: 12px 0; }
+  .warn-title{ font-family:'Caveat', cursive; font-weight:700; font-size: 24px; color: #b35900; }
+  .warn-title .icon{ font-size:22px; }
+  .divider{ border:none; border-top: 2px dashed var(--ink-soft); opacity:0.35; margin: 16px 0 22px 0; }
+  table.vector-table{ border-collapse: collapse; margin: 10px 0; font-size: 19px; }
+  table.vector-table td, table.vector-table th{ border: 1.5px solid var(--ink-soft); padding: 6px 14px; text-align:center; color: var(--ink); }
+  table.vector-table th{ background: rgba(154, 209, 255, 0.4); font-family:'Caveat', cursive; font-size: 20px; }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Fractional Frequency Division ➗</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes — Part 20: Dual-Modulus Averaging Method</div>
+
+    <div class="topic">
+      <div class="topic-head"><span class="topic-title">The Idea: Average Between Two Integer Divisors</span></div>
+      <p>Fractional division (e.g. divide by <mark class="blue">2.5</mark>) can't be done with a single fixed integer count. Instead, a <mark class="green">dual-modulus</mark> approach alternates between two nearby integer divide values (e.g. divide-by-2 and divide-by-3) over a repeating pattern, so the <mark class="orange">average</mark> division ratio equals the desired fraction.</p>
+      <p>For divide-by-2.5: alternate one cycle of ÷2 and one cycle of ÷3 → average = (2+3)/2 = <mark class="pink">2.5</mark>.</p>
+    </div>
+
+    <hr class="divider">
+
+    <div class="topic">
+      <div class="topic-head"><span class="topic-title">Behavioural Verilog — Divide-by-2.5 (Dual-Modulus Method)</span></div>
+      <div class="code-snip">module freq_div_2p5 (
+    input  wire clk_in,
+    input  wire rst_n,
+    output reg  clk_out
+);
+
+    reg       toggle_pattern;   // alternates which modulus is active
+    integer   count;
+    integer   mod_val;
+
+    always @(posedge clk_in or negedge rst_n) begin
+        if (!rst_n) begin
+            count          &lt;= 0;
+            clk_out        &lt;= 0;
+            toggle_pattern &lt;= 0;
+        end
+        else begin
+            mod_val = toggle_pattern ? 3 : 2;   // alternate 2, 3, 2, 3...
+
+            if (count == (mod_val - 1)) begin
+                count          &lt;= 0;
+                clk_out        &lt;= ~clk_out;
+                toggle_pattern &lt;= ~toggle_pattern;
+            end
+            else begin
+                count &lt;= count + 1;
+            end
+        end
+    end
+
+endmodule</div>
+      <p>Over two output half-periods, the total input cycles consumed = <mark class="green">2 + 3 = 5</mark>, spread across <mark class="orange">2 toggles</mark> → average full-period = 5 cycles → <mark class="pink">divide-by-2.5</mark>. Duty cycle here is not perfectly even since one half is ÷2 and the other ÷3, but the average frequency ratio is exact.</p>
+    </div>
+
+    <hr class="divider">
+
+    <div class="topic">
+      <div class="topic-head"><span class="topic-title">General Fractional Divider Pattern</span></div>
+      <table class="vector-table">
+        <tr><th>Target N.5</th><th>Alternate between</th><th>Per-toggle counts</th></tr>
+        <tr><td>2.5</td><td>÷2, ÷3</td><td>2, 3</td></tr>
+        <tr><td>3.5</td><td>÷3, ÷4</td><td>3, 4</td></tr>
+        <tr><td>4.5</td><td>÷4, ÷5</td><td>4, 5</td></tr>
+      </table>
+      <p>This generalizes to any <mark class="blue">integer + 0.5</mark> divisor. Other fractions (e.g. .25, .33) need a longer repeating pattern with more than two modulus values, weighted so the long-term average matches the target ratio.</p>
+    </div>
+
+    <div class="warn-box">
+      <div class="warn-title"><span class="icon">⚠️</span> Fractional Dividers Have Jitter</div>
+      <p>Because the instantaneous period alternates between two different integer values, a fractional divider's output has <mark class="blue">cycle-to-cycle jitter</mark> — the average frequency is exact, but individual periods are not identical. This matters for clock-sensitive applications (e.g. driving other flip-flops directly) and is usually acceptable only where average frequency, not instantaneous period, is what's needed.</p>
+    </div>
+
+  </div>
+</body>
+</html>

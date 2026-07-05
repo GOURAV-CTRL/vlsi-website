@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — Blocking &amp; Non-Blocking Assignments</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 42px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.8;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #16324f;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .warn-title .icon{ font-size:22px; }
+  .star{ color:#e0a800; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.vector-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+  }
+  table.vector-table td, table.vector-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 6px 14px;
+    text-align:center;
+    color: var(--ink);
+  }
+  table.vector-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Blocking vs Non-Blocking Assignments 📒</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes — Part 3: Procedural Assignments</div>
+
+    <!-- BLOCKING -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Blocking Assignment ( = )</span>
+      </div>
+      <p>Executes <mark>immediately and sequentially</mark> — the statement must fully complete (evaluate RHS, update LHS) <mark class="blue">before the next line in the same always block runs</mark>. Behaves like ordinary C-style code.</p>
+
+      <div class="code-snip">always @(*) begin
+  y1 = a &amp; b;   // step 1: finishes completely...
+  y2 = y1 | c;   // step 2: ...before this line even starts
+end</div>
+
+      <div class="sub-head">🔹 Where It's Used</div>
+      <ul class="indent">
+        <li>Almost exclusively inside <mark class="blue">combinational always blocks</mark> (<span class="doodle-box">always @(*)</span>).</li>
+        <li>Models <mark class="green">instantaneous logic</mark> — like wires and gates settling with zero delay.</li>
+        <li>Order of statements <mark class="orange">matters a lot</mark> — later lines see the updated value of earlier ones.</li>
+      </ul>
+
+      <p><span class="star">★</span> If <mark class="pink">y1</mark> is used before it's assigned in the block, it holds its <mark>previous (stale) value</mark> for that evaluation — a classic sign of incomplete sensitivity or wrong ordering.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- NON-BLOCKING -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Non-Blocking Assignment ( &lt;= )</span>
+      </div>
+      <p>Schedules the update to happen <mark>at the end of the current time step</mark> — RHS values are all sampled <mark class="blue">first, using pre-update values</mark>, then every LHS updates <mark class="green">together, in parallel</mark>.</p>
+
+      <div class="code-snip">always @(posedge clk) begin
+  q1 &lt;= d;     // both RHS values sampled
+  q2 &lt;= q1;    // using OLD q1, not the new one
+end
+// after clock edge: q2 gets the value q1 had
+// BEFORE this edge — true shift-register behavior</div>
+
+      <div class="sub-head">🔹 Where It's Used</div>
+      <ul class="indent">
+        <li>Almost exclusively inside <mark class="blue">sequential always blocks</mark> (<span class="doodle-box">always @(posedge clk)</span>).</li>
+        <li>Correctly models <mark class="green">flip-flop behavior</mark> — every register updates simultaneously on the clock edge.</li>
+        <li>Order of statements <mark class="orange">doesn't matter</mark> — swapping q1/q2 lines above gives the identical result.</li>
+      </ul>
+
+      <p><span class="star">★</span> This is exactly how a <mark class="pink">2-stage shift register</mark> is built — swap the assignment type to <mark>blocking</mark> and it silently breaks into a combinational chain instead.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- QUICK CONTRAST -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Blocking vs Non-Blocking — Don't Mix Them Up</span>
+      </div>
+      <table class="vector-table">
+        <tr><th>Aspect</th><th>Blocking ( = )</th><th>Non-Blocking ( &lt;= )</th></tr>
+        <tr><td>Execution</td><td>Sequential, immediate</td><td>Scheduled, deferred to end of time step</td></tr>
+        <tr><td>RHS evaluated with</td><td>Latest updated values</td><td>Old (pre-edge) values</td></tr>
+        <tr><td>LHS updates</td><td>One at a time, in order</td><td>All together, simultaneously</td></tr>
+        <tr><td>Typical block</td><td>always @(*) — combinational</td><td>always @(posedge clk) — sequential</td></tr>
+        <tr><td>Models</td><td>Wires / gates</td><td>Flip-flops / registers</td></tr>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- SIMULATION SEMANTICS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Why the Difference Actually Exists</span>
+      </div>
+      <p>Verilog's event scheduler keeps <mark>separate regions</mark> per simulation time step. Non-blocking assignments don't skip the queue — they deliberately go into a <mark class="blue">later region</mark> so every register reads the "before" world and writes the "after" world without racing each other.</p>
+
+      <div class="sub-head">🔹 The Two Regions (Simplified)</div>
+      <ul class="indent">
+        <li><mark class="green">Active region</mark> — blocking assignments execute here, immediately, in program order.</li>
+        <li><mark class="orange">NBA (Non-Blocking Assign) update region</mark> — all &lt;= right-hand sides were already sampled earlier; now the left-hand sides actually get written, all at once, after every always block has run.</li>
+      </ul>
+
+      <p><span class="star">★</span> This is exactly why a <mark class="pink">clocked always block full of &lt;=</mark> gives the same result no matter what order the statements are written in — they all read the old state and write the new state as one atomic step.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WARNINGS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Important Warnings</span>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Never Mix = and &lt;= in the Same Always Block</div>
+        <p>Mixing <mark class="blue">blocking</mark> and <mark class="green">non-blocking</mark> assignments to different signals in one always block is legal but strongly discouraged — it makes the execution order hard to reason about and is a common source of <mark class="orange">simulation-vs-synthesis mismatches</mark>.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Using = in Sequential Logic Causes Race Conditions</div>
+        <p>Writing <mark class="blue">q1 = d;</mark> inside a <span class="doodle-box">posedge clk</span> block instead of <mark class="green">q1 &lt;= d;</mark> can make downstream logic see the <mark>new</mark> value in the same clock edge instead of the old one — this silently turns a shift register into a combinational pass-through in simulation.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Using &lt;= in Combinational Logic Delays Updates</div>
+        <p>Non-blocking assignments in an <mark class="blue">always @(*)</mark> block still work in simulation but delay the visible update by one simulation delta cycle — this can cause <mark class="pink">extra simulation events</mark> and confuses tools/readers expecting instantaneous combinational behavior. Stick to <mark>blocking</mark> for combinational logic.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> The Golden Rule</div>
+        <p><mark class="green">Combinational always block → use =</mark>. <mark class="orange">Sequential (clocked) always block → use &lt;=</mark>. Following this one rule avoids almost every blocking/non-blocking bug in RTL design.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — Arithmetic &amp; Bitwise Operators</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 42px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.8;
+  }
+  .timestamp{
+    font-family:'Caveat', cursive;
+    font-size: 18px;
+    color: var(--accent);
+    font-weight:600;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #16324f;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .warn-title .icon{ font-size:22px; }
+  .star{ color:#e0a800; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.vector-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+  }
+  table.vector-table td, table.vector-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 6px 14px;
+    text-align:center;
+    color: var(--ink);
+  }
+  table.vector-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Operators in Verilog 📒</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes — Part 1: Arithmetic &amp; Bitwise</div>
+
+    <!-- ARITHMETIC OPERATORS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Arithmetic Operators</span>
+      </div>
+      <p>Operate on the <mark>numeric value</mark> of operands, treating them as whole numbers — result width follows the <mark class="blue">widest operand</mark> (with some rounding rules for division).</p>
+
+      <table class="vector-table">
+        <tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
+        <tr><td>+</td><td>Addition</td><td>a + b</td></tr>
+        <tr><td>-</td><td>Subtraction</td><td>a - b</td></tr>
+        <tr><td>*</td><td>Multiplication</td><td>a * b</td></tr>
+        <tr><td>/</td><td>Division</td><td>a / b</td></tr>
+        <tr><td>%</td><td>Modulus (remainder)</td><td>a % b</td></tr>
+        <tr><td>**</td><td>Power (exponent)</td><td>a ** b</td></tr>
+      </table>
+
+      <div class="sub-head">🔹 Behaviour Notes</div>
+      <ul class="indent">
+        <li><mark class="green">+ and -</mark> map directly to <mark>adder/subtractor hardware</mark> — cheap to synthesize.</li>
+        <li><mark class="orange">* (multiplication)</mark> is expensive in hardware — synthesizes to a multiplier, uses more area/timing than add/sub.</li>
+        <li><mark class="pink">/ and % (division/modulus)</mark> are the most expensive and are often <mark>non-synthesizable</mark> unless the divisor is a power of 2 — mostly used in testbenches.</li>
+        <li><mark class="blue">** (power)</mark> works only in simulation for most tools — rarely synthesizable.</li>
+      </ul>
+
+      <div class="code-snip">wire [3:0] a = 4'd6, b = 4'd3;
+wire [4:0] sum  = a + b;   // 9
+wire [4:0] diff = a - b;   // 3
+wire [7:0] prod = a * b;   // 18
+wire [3:0] quo  = a / b;   // 2
+wire [3:0] rem  = a % b;   // 0</div>
+
+      <p><span class="star">★</span> If either operand is <mark>x or z</mark> in any bit, the entire arithmetic result becomes <mark class="pink">unknown (x)</mark> — this trips up a lot of beginners in simulation.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- BITWISE OPERATORS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Bitwise Operators</span>
+      </div>
+      <p>Operate <mark>bit-by-bit</mark> on the operands — each output bit depends only on the corresponding input bits at that same position, no carry propagation.</p>
+
+      <table class="vector-table">
+        <tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
+        <tr><td>&amp;</td><td>Bitwise AND</td><td>a &amp; b</td></tr>
+        <tr><td>|</td><td>Bitwise OR</td><td>a | b</td></tr>
+        <tr><td>^</td><td>Bitwise XOR</td><td>a ^ b</td></tr>
+        <tr><td>~^ / ^~</td><td>Bitwise XNOR</td><td>a ~^ b</td></tr>
+        <tr><td>~</td><td>Bitwise NOT</td><td>~a</td></tr>
+      </table>
+
+      <div class="code-snip">a = 4'b1100;
+b = 4'b1010;
+
+a &amp; b   = 4'b1000;
+a | b   = 4'b1110;
+a ^ b   = 4'b0110;
+~a      = 4'b0011;</div>
+
+      <div class="sub-head">🔹 Key Point — Width Matters</div>
+      <ul class="indent">
+        <li>If <mark class="blue">operand widths don't match</mark>, Verilog <mark>zero-extends the smaller one</mark> before doing the bit-by-bit operation.</li>
+        <li>Bitwise operators map <mark class="green">directly to gate-level hardware</mark> (AND gates, OR gates, etc.) — very cheap to synthesize, unlike arithmetic * or /.</li>
+        <li>Result width = width of the <mark class="orange">largest operand</mark> (no extra carry bit, unlike + which can grow by 1 bit).</li>
+      </ul>
+
+      <p><span class="star">★</span> A very common student bug: using <mark class="pink">bitwise & / |</mark> when a <mark>logical &amp;&amp; / ||</mark> was actually intended (or vice versa) — they behave very differently on multi-bit vectors.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- BITWISE VS LOGICAL QUICK CONTRAST -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Bitwise vs Logical — Quick Contrast</span>
+      </div>
+      <table class="vector-table">
+        <tr><th>Aspect</th><th>Bitwise (&amp;, |, ^)</th><th>Logical (&amp;&amp;, ||)</th></tr>
+        <tr><td>Operates on</td><td>Each bit</td><td>Whole value as true/false</td></tr>
+        <tr><td>Result width</td><td>Same as operand width</td><td>Always 1 bit</td></tr>
+        <tr><td>Example (4'b0110 op 4'b0000)</td><td>0110 &amp; 0000 = 0000</td><td>0110 &amp;&amp; 0000 = 0 (false)</td></tr>
+      </table>
+      <p>This distinction becomes very important once you start writing <mark class="blue">if conditions</mark> and <mark class="green">reduction checks</mark> on multi-bit signals.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WARNINGS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Important Warnings</span>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Avoid /, %, and * for Synthesis Where Possible</div>
+        <p>Division and modulus by a <mark>non-power-of-2</mark> value often can't be synthesized, or ends up creating <mark class="pink">huge combinational logic</mark>. Prefer shifts <mark class="blue">(&gt;&gt;, &lt;&lt;)</mark> for power-of-2 division when writing RTL.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Signed vs Unsigned Arithmetic</div>
+        <p>By default, operands are treated as <mark>unsigned</mark> unless declared <mark class="orange">signed</mark>. Mixing signed and unsigned operands in one expression silently forces everything to <mark class="pink">unsigned</mark>, which can quietly break negative-number logic.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Watch Out for x Propagation</div>
+        <p>Both arithmetic and bitwise operators propagate <mark class="blue">x/z</mark> — a single unknown bit in either operand can turn the entire result unknown, especially in arithmetic operations. Always check for uninitialized signals when debugging unexpected <mark>x</mark> in waveforms.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

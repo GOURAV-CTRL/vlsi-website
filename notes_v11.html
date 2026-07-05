@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — Logical &amp; Shift Operators</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 42px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.8;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #16324f;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .warn-title .icon{ font-size:22px; }
+  .star{ color:#e0a800; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.vector-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+  }
+  table.vector-table td, table.vector-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 6px 14px;
+    text-align:center;
+    color: var(--ink);
+  }
+  table.vector-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Operators in Verilog 📒</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes — Part 2: Logical &amp; Shift</div>
+
+    <!-- LOGICAL OPERATORS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Logical Operators</span>
+      </div>
+      <p>Treat the <mark>entire operand</mark> as a single boolean condition — any nonzero value is <mark class="blue">true (1)</mark>, zero is <mark class="green">false (0)</mark>. Result is always <mark class="orange">1 bit</mark>.</p>
+
+      <table class="vector-table">
+        <tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
+        <tr><td>&amp;&amp;</td><td>Logical AND</td><td>a &amp;&amp; b</td></tr>
+        <tr><td>||</td><td>Logical OR</td><td>a || b</td></tr>
+        <tr><td>!</td><td>Logical NOT</td><td>!a</td></tr>
+      </table>
+
+      <div class="code-snip">a = 4'b0110;   // nonzero → true
+b = 4'b0000;   // zero    → false
+
+a &amp;&amp; b  = 1'b0;   // true AND false
+a || b  = 1'b1;   // true OR  false
+!a      = 1'b0;   // NOT true
+!b      = 1'b1;   // NOT false</div>
+
+      <div class="sub-head">🔹 Where They're Used</div>
+      <ul class="indent">
+        <li>Almost always inside <mark class="blue">if conditions</mark>, e.g. <span class="doodle-box">if (rst_n &amp;&amp; enable)</span>.</li>
+        <li>Combine <mark class="green">multiple conditions</mark> cleanly — much more readable than nested if statements.</li>
+        <li>Never used to combine bits of a bus — that's the job of <mark class="orange">bitwise</mark> operators (& , |), not logical ones.</li>
+      </ul>
+
+      <p><span class="star">★</span> If any bit of the operand is <mark class="pink">x</mark> and no bit is 1, the logical result itself becomes <mark>x</mark> (ambiguous truth value) — not simply 0 or 1.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- SHIFT OPERATORS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Shift Operators</span>
+      </div>
+      <p>Move bits of a vector <mark>left or right</mark> by a specified number of positions — extremely common for building <mark class="blue">multipliers, dividers by powers of 2, and serial shift logic</mark>.</p>
+
+      <table class="vector-table">
+        <tr><th>Operator</th><th>Meaning</th><th>Fill Bit</th></tr>
+        <tr><td>&lt;&lt;</td><td>Logical left shift</td><td>0</td></tr>
+        <tr><td>&gt;&gt;</td><td>Logical right shift</td><td>0</td></tr>
+        <tr><td>&lt;&lt;&lt;</td><td>Arithmetic left shift</td><td>0</td></tr>
+        <tr><td>&gt;&gt;&gt;</td><td>Arithmetic right shift</td><td>Sign bit (MSB)</td></tr>
+      </table>
+
+      <div class="code-snip">reg [3:0] a = 4'b1100;
+
+a &lt;&lt; 1   = 4'b1000;   // logical left,  0 fills LSB
+a &gt;&gt; 1   = 4'b0110;   // logical right, 0 fills MSB
+a &gt;&gt;&gt; 1  = 4'b1110;   // arithmetic right, sign bit fills MSB (if signed)</div>
+
+      <div class="sub-head">🔹 Logical vs Arithmetic Shift</div>
+      <ul class="indent">
+        <li><mark class="blue">Logical shifts (&lt;&lt;, &gt;&gt;)</mark> always fill new bits with <mark>0</mark>, regardless of signed/unsigned.</li>
+        <li><mark class="orange">Arithmetic right shift (&gt;&gt;&gt;)</mark> fills with the <mark class="pink">sign bit</mark> — this preserves the sign of a signed number, effectively dividing it by 2 while keeping negativity.</li>
+        <li><mark class="green">Arithmetic left shift (&lt;&lt;&lt;)</mark> behaves exactly the same as logical left shift — fills with 0 either way.</li>
+      </ul>
+
+      <div class="code-snip">reg signed [3:0] s = -4'sd4;  // 4'b1100
+
+s &gt;&gt;&gt; 1  = 4'b1110;  // -2, sign preserved
+s &gt;&gt; 1   = 4'b0110;  // +6, sign lost — wrong for signed math!</div>
+
+      <p><span class="star">★</span> Shifting is <mark>much cheaper in hardware</mark> than multiply/divide — <mark class="blue">a &lt;&lt; n</mark> is equivalent to <mark class="green">a × 2ⁿ</mark>, and <mark class="orange">a &gt;&gt; n</mark> is <mark class="pink">a ÷ 2ⁿ</mark> (unsigned).</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- QUICK CONTRAST -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Logical vs Bitwise — Don't Mix Them Up</span>
+      </div>
+      <table class="vector-table">
+        <tr><th>Aspect</th><th>Logical (&amp;&amp;, ||, !)</th><th>Bitwise (&amp;, |, ~)</th></tr>
+        <tr><td>Operates on</td><td>Whole value as true/false</td><td>Each bit individually</td></tr>
+        <tr><td>Result width</td><td>Always 1 bit</td><td>Same as operand width</td></tr>
+        <tr><td>Typical use</td><td>if / while conditions</td><td>Combinational logic building</td></tr>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WARNINGS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Important Warnings</span>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Don't Confuse &amp; with &amp;&amp;</div>
+        <p>Writing <mark class="blue">if (a &amp; b)</mark> instead of <mark class="green">if (a &amp;&amp; b)</mark> is a very common bug — the bitwise version can produce a nonzero (true-ish) result even when the "intended" logical condition should be false, since it depends on which specific bits overlap.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Use Arithmetic Shift Only on Signed Vectors</div>
+        <p>The <mark class="orange">&gt;&gt;&gt;</mark> operator only preserves sign correctly if the <mark>vector is declared signed</mark>; on an unsigned reg/wire, &gt;&gt;&gt; behaves exactly like a plain logical &gt;&gt; (fills with 0).</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Shift Amount Can Be a Variable</div>
+        <p>Unlike some HDLs, Verilog allows the shift amount to be a <mark class="pink">signal</mark>, not just a constant, e.g. <span class="doodle-box">a &gt;&gt; sel</span> — useful for barrel shifters, but synthesizes to extra mux logic, so it's not "free" in hardware.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

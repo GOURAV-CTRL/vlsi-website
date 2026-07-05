@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — Introduction to FSM Coding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb; --paper-line: #c7e0f0; --accent: #2c5f8a;
+    --ink: #0a1f3d; --ink-soft: #142d52;
+    --highlight-yellow: #fff176; --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1; --highlight-blue: #9ad1ff; --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{ margin:0; padding: 40px 20px; background: #cfe6f5; font-family: 'Patrick Hand', cursive; display:flex; justify-content:center; }
+  .page{ position:relative; width: 820px; max-width: 100%;
+    background: repeating-linear-gradient(var(--paper), var(--paper) 38px, var(--paper-line) 39px, var(--paper) 40px);
+    border-radius: 6px; box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px; overflow:hidden; }
+  .page::after{ content:""; position:absolute; top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%); pointer-events:none; }
+  h1.title{ font-family:'Caveat', cursive; font-weight:700; color: var(--ink); font-size: 42px; margin: 0 0 4px 0; text-align:center; }
+  .subtitle{ text-align:center; color: var(--ink-soft); font-size:18px; margin-bottom: 26px; opacity:0.8; }
+  .topic{ margin-bottom: 30px; }
+  .topic-head{ display:flex; align-items:baseline; gap:10px; margin-bottom:8px; flex-wrap:wrap; }
+  .topic-title{ font-family:'Caveat', cursive; font-weight:700; font-size:29px; color: var(--ink); }
+  p, li{ font-size: 20px; line-height: 1.55; color: var(--ink); font-weight: 500; margin: 0 0 9px 0; }
+  ul{ margin: 6px 0 0 0; padding-left: 24px; }
+  li{ margin-bottom: 7px; } li::marker{ color: var(--accent); }
+  mark{ background: var(--highlight-yellow); padding: 1px 4px; border-radius: 2px; box-decoration-break: clone; -webkit-box-decoration-break: clone; font-weight: 600; }
+  mark.pink{ background: var(--highlight-pink); } mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); } mark.orange{ background: var(--highlight-orange); }
+  .code-snip{ font-family: 'Patrick Hand', cursive; background: #f8fbff; border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px; padding: 10px 14px; margin: 10px 0; color: #16324f; font-size: 19px; white-space: pre-wrap; display:inline-block; }
+  .warn-box{ border: 2px dashed #b35900; background: rgba(255, 244, 224, 0.6); border-radius: 10px; padding: 12px 16px; margin: 12px 0; }
+  .warn-title{ font-family:'Caveat', cursive; font-weight:700; font-size: 24px; color: #b35900; }
+  .warn-title .icon{ font-size:22px; }
+  .divider{ border:none; border-top: 2px dashed var(--ink-soft); opacity:0.35; margin: 16px 0 22px 0; }
+  table.vector-table{ border-collapse: collapse; margin: 10px 0; font-size: 19px; }
+  table.vector-table td, table.vector-table th{ border: 1.5px solid var(--ink-soft); padding: 6px 14px; text-align:center; color: var(--ink); }
+  table.vector-table th{ background: rgba(154, 209, 255, 0.4); font-family:'Caveat', cursive; font-size: 20px; }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Introduction to FSM Coding 🚦</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes — Part 22: The 3-Always-Block Style</div>
+
+    <div class="topic">
+      <div class="topic-head"><span class="topic-title">The Standard 3-Always-Block FSM Style</span></div>
+      <p>The most common, synthesis-friendly way to code an FSM splits it into <mark class="blue">three always blocks</mark>:</p>
+      <ul>
+        <li><mark class="green">State register</mark> — clocked, non-blocking, holds current state.</li>
+        <li><mark class="orange">Next-state logic</mark> — combinational, blocking, decides next state from current state + inputs.</li>
+        <li><mark class="pink">Output logic</mark> — combinational (or clocked for Moore-registered outputs), decides outputs from current state (Moore) or current state + inputs (Mealy).</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <div class="topic">
+      <div class="topic-head"><span class="topic-title">Example — Simple Moore FSM (Detects "10" sequence)</span></div>
+      <div class="code-snip">module fsm_detect10 (
+    input  wire clk,
+    input  wire rst_n,
+    input  wire din,
+    output reg  detected
+);
+
+    // State encoding
+    localparam S0 = 2'b00,   // idle
+               S1 = 2'b01,   // saw '1'
+               S2 = 2'b10;   // saw '1','0' -> detected
+
+    reg [1:0] state, next_state;
+
+    // Block 1: State register (sequential, non-blocking)
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            state &lt;= S0;
+        else
+            state &lt;= next_state;
+    end
+
+    // Block 2: Next-state logic (combinational, blocking)
+    always @(*) begin
+        case (state)
+            S0: next_state = din ? S1 : S0;
+            S1: next_state = din ? S1 : S2;
+            S2: next_state = din ? S1 : S0;
+            default: next_state = S0;
+        endcase
+    end
+
+    // Block 3: Output logic (combinational, Moore -> depends only on state)
+    always @(*) begin
+        detected = (state == S2);
+    end
+
+endmodule</div>
+      <p>This split keeps each block's <mark class="green">purpose obvious</mark> and matches the golden rule from Part 16: the clocked block uses <mark class="blue">&lt;=</mark>, both combinational blocks use <mark class="orange">=</mark>.</p>
+    </div>
+
+    <hr class="divider">
+
+    <div class="topic">
+      <div class="topic-head"><span class="topic-title">Moore vs Mealy — Quick Note</span></div>
+      <table class="vector-table">
+        <tr><th>Type</th><th>Output depends on</th><th>Output block sensitivity</th></tr>
+        <tr><td>Moore</td><td>Current state only</td><td>state</td></tr>
+        <tr><td>Mealy</td><td>Current state + current inputs</td><td>state, inputs</td></tr>
+      </table>
+      <p><mark class="pink">Moore</mark> outputs change only on clock edges (via state), so they're glitch-free but may lag by a cycle. <mark class="blue">Mealy</mark> outputs can react within the same cycle as an input change, but are more prone to <mark class="orange">combinational glitches</mark>.</p>
+    </div>
+
+    <div class="warn-box">
+      <div class="warn-title"><span class="icon">⚠️</span> Always Give Next-State Logic a default Case</div>
+      <p>The <mark class="blue">next_state</mark> combinational block must cover every possible state value (including unreachable/unused encodings) — usually via a <mark class="orange">default</mark> case — otherwise synthesis may infer an unintended <mark class="pink">latch</mark> instead of pure combinational logic.</p>
+    </div>
+
+  </div>
+</body>
+</html>

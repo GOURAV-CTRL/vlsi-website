@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — Divide-by-3 with 50% Duty Cycle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb; --paper-line: #c7e0f0; --accent: #2c5f8a;
+    --ink: #0a1f3d; --ink-soft: #142d52;
+    --highlight-yellow: #fff176; --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1; --highlight-blue: #9ad1ff; --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{ margin:0; padding: 40px 20px; background: #cfe6f5; font-family: 'Patrick Hand', cursive; display:flex; justify-content:center; }
+  .page{ position:relative; width: 820px; max-width: 100%;
+    background: repeating-linear-gradient(var(--paper), var(--paper) 38px, var(--paper-line) 39px, var(--paper) 40px);
+    border-radius: 6px; box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px; overflow:hidden; }
+  .page::after{ content:""; position:absolute; top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%); pointer-events:none; }
+  h1.title{ font-family:'Caveat', cursive; font-weight:700; color: var(--ink); font-size: 42px; margin: 0 0 4px 0; text-align:center; }
+  .subtitle{ text-align:center; color: var(--ink-soft); font-size:18px; margin-bottom: 26px; opacity:0.8; }
+  .topic{ margin-bottom: 30px; }
+  .topic-head{ display:flex; align-items:baseline; gap:10px; margin-bottom:8px; flex-wrap:wrap; }
+  .topic-title{ font-family:'Caveat', cursive; font-weight:700; font-size:29px; color: var(--ink); }
+  p, li{ font-size: 20px; line-height: 1.55; color: var(--ink); font-weight: 500; margin: 0 0 9px 0; }
+  ul{ margin: 6px 0 0 0; padding-left: 24px; }
+  li{ margin-bottom: 7px; } li::marker{ color: var(--accent); }
+  mark{ background: var(--highlight-yellow); padding: 1px 4px; border-radius: 2px; box-decoration-break: clone; -webkit-box-decoration-break: clone; font-weight: 600; }
+  mark.pink{ background: var(--highlight-pink); } mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); } mark.orange{ background: var(--highlight-orange); }
+  .code-snip{ font-family: 'Patrick Hand', cursive; background: #f8fbff; border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px; padding: 10px 14px; margin: 10px 0; color: #16324f; font-size: 19px; white-space: pre-wrap; display:inline-block; }
+  .warn-box{ border: 2px dashed #b35900; background: rgba(255, 244, 224, 0.6); border-radius: 10px; padding: 12px 16px; margin: 12px 0; }
+  .warn-title{ font-family:'Caveat', cursive; font-weight:700; font-size: 24px; color: #b35900; }
+  .warn-title .icon{ font-size:22px; }
+  .divider{ border:none; border-top: 2px dashed var(--ink-soft); opacity:0.35; margin: 16px 0 22px 0; }
+  table.vector-table{ border-collapse: collapse; margin: 10px 0; font-size: 19px; }
+  table.vector-table td, table.vector-table th{ border: 1.5px solid var(--ink-soft); padding: 6px 14px; text-align:center; color: var(--ink); }
+  table.vector-table th{ background: rgba(154, 209, 255, 0.4); font-family:'Caveat', cursive; font-size: 20px; }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Divide-by-3 with True 50% Duty Cycle ⚖️</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes — Part 19: Posedge + Negedge Combination Trick</div>
+
+    <div class="topic">
+      <div class="topic-head"><span class="topic-title">The Trick: Combine Posedge and Negedge Logic</span></div>
+      <p>To get an exact <mark class="blue">50% duty cycle</mark> for odd division, the classic technique creates <mark class="green">two</mark> divided clocks — one from a posedge-triggered counter, one from a negedge-triggered counter — then <mark class="orange">XOR's</mark> them together. Each half-clock counter individually gives a skewed duty cycle, but combining a posedge-based and negedge-based version cancels the skew.</p>
+    </div>
+
+    <hr class="divider">
+
+    <div class="topic">
+      <div class="topic-head"><span class="topic-title">Behavioural Verilog — Divide-by-3, 50% Duty Cycle</span></div>
+      <div class="code-snip">module freq_div_by3_50 (
+    input  wire clk_in,
+    input  wire rst_n,
+    output wire clk_out
+);
+
+    reg [1:0] cnt_pos, cnt_neg;
+    reg       clk_pos, clk_neg;
+
+    // Posedge-triggered counter/toggle
+    always @(posedge clk_in or negedge rst_n) begin
+        if (!rst_n) begin
+            cnt_pos &lt;= 0;
+            clk_pos &lt;= 0;
+        end
+        else begin
+            if (cnt_pos == 2) begin
+                cnt_pos &lt;= 0;
+                clk_pos &lt;= ~clk_pos;
+            end
+            else
+                cnt_pos &lt;= cnt_pos + 1;
+        end
+    end
+
+    // Negedge-triggered counter/toggle
+    always @(negedge clk_in or negedge rst_n) begin
+        if (!rst_n) begin
+            cnt_neg &lt;= 0;
+            clk_neg &lt;= 0;
+        end
+        else begin
+            if (cnt_neg == 2) begin
+                cnt_neg &lt;= 0;
+                clk_neg &lt;= ~clk_neg;
+            end
+            else
+                cnt_neg &lt;= cnt_neg + 1;
+        end
+    end
+
+    // Combine both halves for exact 50% duty cycle
+    assign clk_out = clk_pos ^ clk_neg;
+
+endmodule</div>
+      <p>The <mark class="pink">XOR combination</mark> is the standard divide-by-3 50%-duty trick: each internal signal (clk_pos, clk_neg) toggles every 3 edges of its own reference edge, and XOR-ing the two staggered waveforms produces a perfectly even high/low split at the output.</p>
+    </div>
+
+    <hr class="divider">
+
+    <div class="topic">
+      <div class="topic-head"><span class="topic-title">Why This Works — Intuition</span></div>
+      <ul>
+        <li><mark class="blue">clk_pos</mark> toggles every 3 rising edges of clk_in.</li>
+        <li><mark class="green">clk_neg</mark> toggles every 3 falling edges of clk_in — offset by half a clk_in period from clk_pos.</li>
+        <li>XOR-ing two signals of the <mark class="orange">same divided frequency</mark> but offset in phase produces a waveform whose high/low durations average out to exactly <mark class="pink">50%</mark>.</li>
+      </ul>
+    </div>
+
+    <div class="warn-box">
+      <div class="warn-title"><span class="icon">⚠️</span> This Generalizes Beyond N = 3</div>
+      <p>The same posedge/negedge + XOR structure extends to any <mark class="blue">odd N</mark> by changing the toggle threshold (N-1 instead of 2) in both counters — the dual-edge cancellation principle stays the same.</p>
+    </div>
+
+  </div>
+</body>
+</html>

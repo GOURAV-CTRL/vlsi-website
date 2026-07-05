@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — Intro to Behavioural Modelling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 42px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.8;
+  }
+  .timestamp{
+    font-family:'Caveat', cursive;
+    font-size: 18px;
+    color: var(--accent);
+    font-weight:600;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #16324f;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .warn-title .icon{ font-size:22px; }
+  .star{ color:#e0a800; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.vector-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+  }
+  table.vector-table td, table.vector-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 6px 14px;
+    text-align:center;
+    color: var(--ink);
+  }
+  table.vector-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Intro to Behavioural Modelling 📒</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes</div>
+
+    <!-- THE THREE STYLES -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Three Ways to Describe Hardware in Verilog</span>
+      </div>
+      <p>Verilog lets you describe the <mark>same circuit</mark> in more than one way, depending on <mark class="blue">how close to the hardware</mark> you want to write:</p>
+      <ul>
+        <li><mark class="green">Gate Level</mark> → describe the circuit as <mark>interconnected primitive gates</mark> (and, or, not...). Closest to the actual transistors/schematic.</li>
+        <li><mark class="blue">Data Flow</mark> → describe the circuit as <mark>continuous assignments</mark> using boolean/arithmetic expressions (the <span class="doodle-box">assign</span> statement).</li>
+        <li><mark class="orange">Behavioural</mark> → describe <mark>what the circuit should do</mark>, using procedural code (<span class="doodle-box">always</span> / <span class="doodle-box">initial</span>) — closer to software.</li>
+      </ul>
+      <p><span class="star">★</span> All three styles can even be <mark class="pink">mixed together</mark> in the same module — this is called <mark>mixed-style modelling</mark>.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WHAT IS BEHAVIOURAL MODELLING -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">What is Behavioural Modelling?</span>
+      </div>
+      <p>Behavioural modelling describes a circuit's <mark>functionality / behaviour</mark> rather than its exact gate-level structure — you tell Verilog <mark class="blue">"what should happen"</mark>, not <mark class="green">"how it's wired."</mark></p>
+      <ul>
+        <li>Written using <mark class="orange">procedural blocks</mark>: <span class="doodle-box">always</span> and <span class="doodle-box">initial</span>.</li>
+        <li>Uses <mark class="pink">high-level constructs</mark> like if-else, case, for, while — just like software.</li>
+        <li>Signals assigned inside these blocks must be declared as <mark>reg</mark> (or reg-like types), not wire.</li>
+        <li>The <mark class="blue">synthesis tool</mark> figures out the actual gates needed to implement the described behaviour.</li>
+      </ul>
+      <div class="code-snip">module mux2 (
+  input  a, b, sel,
+  output reg y
+);
+  always @(*) begin
+    if (sel)
+      y = b;
+    else
+      y = a;
+  end
+endmodule</div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- COMPARISON -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">How It Differs — Same 2:1 MUX, 3 Styles</span>
+      </div>
+
+      <div class="sub-head">🔹 Gate Level</div>
+      <p>Every gate is <mark class="green">manually placed and wired</mark> — you decide the exact structure.</p>
+      <div class="code-snip">wire nsel, t1, t2;
+not (nsel, sel);
+and (t1, a, nsel);
+and (t2, b, sel);
+or  (y, t1, t2);</div>
+
+      <div class="sub-head">🔹 Data Flow</div>
+      <p>One <mark class="blue">continuous expression</mark> describes the logic — no gates named, but still purely combinational and boolean/arithmetic in nature.</p>
+      <div class="code-snip">assign y = sel ? b : a;</div>
+
+      <div class="sub-head">🔹 Behavioural</div>
+      <p>Described with an <mark class="orange">if-else inside always</mark> — reads like a decision, not a circuit.</p>
+      <div class="code-snip">always @(*)
+  y = sel ? b : a;</div>
+
+      <p><span class="star">★</span> All three produce the <mark class="pink">exact same hardware</mark> after synthesis — they're just different levels of abstraction for describing it.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- KEY DIFFERENCES TABLE -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Key Differences at a Glance</span>
+      </div>
+      <table class="vector-table">
+        <tr><th>Aspect</th><th>Gate Level</th><th>Data Flow</th><th>Behavioural</th></tr>
+        <tr><td>Describes</td><td>Structure</td><td>Expression</td><td>Function/behaviour</td></tr>
+        <tr><td>Main construct</td><td>Primitives</td><td>assign</td><td>always / initial</td></tr>
+        <tr><td>Data type used</td><td>wire</td><td>wire</td><td>reg</td></tr>
+        <tr><td>Execution style</td><td>Concurrent</td><td>Concurrent</td><td>Sequential (inside block)</td></tr>
+        <tr><td>Abstraction</td><td>Lowest</td><td>Medium</td><td>Highest</td></tr>
+        <tr><td>Feels like</td><td>Schematic</td><td>Boolean equation</td><td>Software / algorithm</td></tr>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WHY BEHAVIOURAL IS POPULAR -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Why Designers Prefer Behavioural Modelling</span>
+      </div>
+      <ul>
+        <li><mark class="blue">Faster to write</mark> and read for complex logic — no need to derive boolean equations by hand.</li>
+        <li>Naturally handles <mark class="green">sequential circuits</mark> (flip-flops, counters, FSMs) using <span class="doodle-box">@(posedge clk)</span> — something gate/data-flow struggle to express cleanly.</li>
+        <li><mark class="orange">Scales better</mark> for large designs — writing thousands of gates by hand is impractical.</li>
+        <li>Still <mark class="pink">synthesizable</mark> as long as you follow proper RTL coding guidelines — it's not just for testbenches.</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WARNINGS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Important Warnings</span>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Behavioural ≠ Always Synthesizable</div>
+        <p>Not everything you can write inside an <mark class="blue">always block</mark> can be turned into real hardware — things like <mark>#delay statements</mark> or <mark class="pink">real numbers</mark> are simulation-only and get ignored/rejected by synthesis tools.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> reg Doesn't Mean Flip-Flop</div>
+        <p>A signal declared as <mark>reg</mark> inside behavioural code becomes a <mark class="green">flip-flop only if</mark> it's assigned inside a clocked always block; if it's driven by a combinational <span class="doodle-box">always @(*)</span>, it stays <mark class="orange">combinational logic</mark>.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Don't Assign the Same Signal in Two Styles</div>
+        <p>A signal driven by <mark>assign</mark> (data flow) can't also be assigned inside an <mark class="blue">always block</mark> (behavioural) — this causes a <mark class="pink">multiple-driver conflict</mark> at compile/elaboration time.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

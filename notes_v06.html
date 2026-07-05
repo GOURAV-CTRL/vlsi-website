@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — Adders, Subtractors &amp; Hierarchy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 40px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.9;
+  }
+  .intro{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin-bottom: 26px;
+    background: rgba(255,255,255,0.4);
+    border-left: 4px solid var(--accent);
+    padding: 10px 16px;
+    border-radius: 4px;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  .checkmark{ font-size:22px; }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #0a1f3d;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .star{ color:#cf9300; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.cmp-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+    width: 100%;
+  }
+  table.cmp-table td, table.cmp-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 7px 12px;
+    text-align:center;
+    color: var(--ink);
+  }
+  table.cmp-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 20px;
+  }
+  table.cmp-table td:first-child{
+    font-weight:700;
+  }
+  .footer-note{
+    text-align:center;
+    font-family:'Caveat', cursive;
+    font-size: 22px;
+    color: var(--ink-soft);
+    margin-top: 26px;
+  }
+  .assign-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 12px 18px;
+    background: rgba(255,255,255,0.45);
+    margin-top: 8px;
+  }
+  .assign-num{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--accent);
+    font-size: 22px;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Adders, Subtractors &amp; Hierarchy 📒</h1>
+    <div class="subtitle">All About VLSI · Gate-Level Modeling — Arithmetic Circuits</div>
+
+    <div class="intro">
+      A practical walkthrough of <mark class="blue">combinational arithmetic circuits</mark> using gate-level Verilog — building a <mark class="green">Full Adder from Half Adders</mark>, then designing <mark class="pink">Half &amp; Full Subtractors</mark>, all using <mark class="orange">hierarchy and modular design</mark>.
+    </div>
+
+    <!-- FULL ADDER USING HALF ADDERS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">✅</span>
+        <span class="topic-title">Full Adder using Half Adders</span>
+      </div>
+      <p>Instead of writing a full adder from scratch with raw gates, we <mark>reuse</mark> two already-built <mark class="blue">Half Adder</mark> modules and connect them with one extra <mark class="green">OR gate</mark>.</p>
+      <ul class="indent">
+        <li>Inputs: <mark class="pink">A, B, Cin</mark></li>
+        <li>First half adder takes A and B → produces intermediate <mark class="orange">Sum (W1)</mark> and <mark class="orange">Carry (W2)</mark>.</li>
+        <li>Second half adder takes W1 and Cin → produces final <mark class="green">Sum</mark> and another carry <mark class="orange">W3</mark>.</li>
+        <li>Final <mark class="blue">Carry-out</mark> = OR of W2 and W3.</li>
+      </ul>
+      <div class="code-snip">module full_adder_hier (input a, b, cin, output sum, cout);
+  wire w1, w2, w3;
+
+  half_adder ha1 (.a(a),  .b(b),   .sum(w1), .cout(w2));
+  half_adder ha2 (.a(w1), .b(cin), .sum(sum),.cout(w3));
+
+  or o1 (cout, w2, w3);
+endmodule</div>
+      <p><span class="star">★</span> This is the classic example of <mark class="green">hierarchical design</mark> — build once, reuse everywhere.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- HALF SUBTRACTOR -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">✅</span>
+        <span class="topic-title">Half Subtractor</span>
+      </div>
+      <p>Computes <mark>Difference</mark> and <mark>Borrow</mark> for two single-bit inputs using just <mark class="blue">XOR</mark>, <mark class="green">AND</mark>, and <mark class="pink">NOT</mark> gates.</p>
+      <ul class="indent">
+        <li><mark class="blue">Difference</mark> = A XOR B</li>
+        <li><mark class="orange">Borrow</mark> = (NOT A) AND B</li>
+      </ul>
+      <div class="code-snip">module half_subtractor (input a, b, output diff, bout);
+  wire a_n;
+
+  not n1 (a_n, a);
+  xor x1 (diff, a, b);
+  and a1 (bout, a_n, b);
+endmodule</div>
+
+      <table class="cmp-table">
+        <tr><th>A</th><th>B</th><th>Diff</th><th>Borrow</th></tr>
+        <tr><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>0</td><td>1</td><td>1</td><td>1</td></tr>
+        <tr><td>1</td><td>0</td><td>1</td><td>0</td></tr>
+        <tr><td>1</td><td>1</td><td>0</td><td>0</td></tr>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- FULL SUBTRACTOR -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">✅</span>
+        <span class="topic-title">Full Subtractor</span>
+      </div>
+      <p>Handles subtraction with a <mark class="pink">borrow-in</mark> too — needs <mark class="blue">2 XOR</mark>, <mark class="green">2 AND</mark>, <mark class="orange">2 NOT</mark>, and <mark>1 OR</mark> gate, with <mark>5 internal wires</mark> connecting everything.</p>
+      <div class="code-snip">module full_subtractor (input a, b, bin, output diff, bout);
+  wire w1, w2, w3, w4, w5;
+
+  xor x1 (w1, a, b);
+  xor x2 (diff, w1, bin);
+
+  not n1 (w2, a);
+  and a1 (w3, w2, b);
+
+  not n2 (w4, w1);
+  and a2 (w5, w4, bin);
+
+  or  o1 (bout, w3, w5);
+endmodule</div>
+      <p><span class="star">★</span> Notice the structural similarity to the <mark class="green">Full Adder</mark> — same gate count pattern, just with extra <mark class="pink">NOT gates</mark> to handle borrow logic instead of carry logic.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- IMPORTANT CONCEPTS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">✅</span>
+        <span class="topic-title">Important Concepts &amp; Tips</span>
+      </div>
+
+      <div class="sub-head">🔹 Hierarchy</div>
+      <p>Reusing previously defined modules (like Half Adder) inside bigger designs (Full Adder) avoids <mark class="pink">redundant code</mark>, improves <mark class="green">readability</mark>, and makes designs easier to <mark class="blue">debug and maintain</mark>.</p>
+
+      <div class="sub-head">🔹 Tool Usage</div>
+      <p>Use <mark class="orange">Elaborated Schematics</mark> in the design tool to visually confirm gate-level connections and verify that the module hierarchy is wired up correctly before simulation.</p>
+
+      <div class="sub-head">🔹 Assignments for Practice</div>
+      <div class="assign-box">
+        <p><span class="assign-num">1.</span> Design a <mark>Full Subtractor</mark> using <mark class="blue">two Half Subtractors</mark> (just like Full Adder was built from two Half Adders).</p>
+        <p><span class="assign-num">2.</span> Re-implement these circuits using <mark class="green">only NAND gates</mark>.</p>
+        <p><span class="assign-num">3.</span> Re-implement these circuits using <mark class="pink">only NOR gates</mark>.</p>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- EXTRA NOTES -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">✅</span>
+        <span class="topic-title">Extra Notes — Universal Gates</span>
+      </div>
+      <ul>
+        <li><mark class="blue">NAND</mark> and <mark class="green">NOR</mark> are called <mark>universal gates</mark> — any logic function (AND, OR, NOT, XOR, etc.) can be built using only one of them.</li>
+        <li>This is why the practice assignment is valuable: it builds intuition for <mark class="orange">gate minimization</mark>, important in real ASIC/FPGA standard-cell libraries.</li>
+        <li>Quick conversions: <span class="doodle-box">NOT(A) = NAND(A,A)</span>, <span class="doodle-box">AND(A,B) = NOT(NAND(A,B))</span>, <span class="doodle-box">OR(A,B) = NAND(NOT A, NOT B)</span>.</li>
+        <li>Comparing <mark class="pink">Full Adder vs Full Subtractor</mark>: both use the same XOR-based core for Sum/Difference — the only structural difference is how Carry vs Borrow logic is generated.</li>
+      </ul>
+    </div>
+
+    <div class="footer-note">~ Build small, reuse often — that's hierarchy in action! ~</div>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — Multiplexer &amp; Demultiplexer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 42px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.8;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #16324f;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .warn-title .icon{ font-size:22px; }
+  .star{ color:#e0a800; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.vector-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+  }
+  table.vector-table td, table.vector-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 6px 14px;
+    text-align:center;
+    color: var(--ink);
+  }
+  table.vector-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Multiplexer &amp; Demultiplexer 🔀</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes — Part 9: Combinational Building Blocks</div>
+
+    <!-- MUX THEORY -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Multiplexer — The Basics</span>
+      </div>
+      <p>A <mark>MUX</mark> selects <mark class="blue">one of several inputs</mark> and routes it to a single output, based on a <mark class="green">select</mark> signal — think of it as a data selector, or a many-to-one switch.</p>
+      <p>An <mark class="orange">n-bit select</mark> line can choose among <mark class="pink">2ⁿ</mark> inputs — 1 select bit → 2:1 MUX, 2 select bits → 4:1 MUX, and so on.</p>
+
+      <table class="vector-table">
+        <tr><th>sel</th><th>Output = </th></tr>
+        <tr><td>00</td><td>in0</td></tr>
+        <tr><td>01</td><td>in1</td></tr>
+        <tr><td>10</td><td>in2</td></tr>
+        <tr><td>11</td><td>in3</td></tr>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- MUX CODE - CASE -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">4:1 MUX — Behavioral, Using case</span>
+      </div>
+      <div class="code-snip">module mux4to1 (
+    input  wire [7:0] in0, in1, in2, in3,
+    input  wire [1:0] sel,
+    output reg  [7:0] y
+);
+
+  always @(*) begin
+    case (sel)
+      2'b00:   y = in0;
+      2'b01:   y = in1;
+      2'b10:   y = in2;
+      2'b11:   y = in3;
+      default: y = 8'bx;   // unreachable, but keeps tools happy
+    endcase
+  end
+
+endmodule</div>
+
+      <div class="sub-head">🔹 Key Points</div>
+      <ul class="indent">
+        <li>Since <mark class="blue">sel</mark> is 2 bits, all four combinations are already covered — the <mark class="green">default</mark> is technically unreachable but still good practice.</li>
+        <li>This style scales cleanly to wider MUXes just by adding more case branches — no nested if-else needed.</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <!-- MUX CODE - TERNARY -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">2:1 MUX — Dataflow, Using the Ternary Operator</span>
+      </div>
+      <p>For a simple <mark class="blue">2:1 MUX</mark>, a one-line <mark class="green">assign</mark> with the ternary (<mark>?:</mark>) operator is often cleaner than a full always/case block.</p>
+
+      <div class="code-snip">module mux2to1 (
+    input  wire       sel,
+    input  wire [7:0] in0, in1,
+    output wire [7:0] y
+);
+
+  assign y = sel ? in1 : in0;   // sel=1 -&gt; in1, sel=0 -&gt; in0
+
+endmodule</div>
+
+      <p><span class="star">★</span> Ternary operators can be <mark class="orange">nested</mark> to build wider MUXes (<mark class="pink">sel[1] ? (sel[0] ? in3 : in2) : (sel[0] ? in1 : in0)</mark>), but this gets unreadable fast — case statements are usually clearer beyond 2:1.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- MUX CODE - PARAMETERIZED -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Parameterized N:1 MUX — Using a for Loop</span>
+      </div>
+      <p>Combining Part 8's <mark class="blue">for loop</mark> with an array of inputs lets you build a MUX of <mark class="green">any width</mark> without hardcoding each branch.</p>
+
+      <div class="code-snip">module mux_n #(
+    parameter WIDTH = 8,
+    parameter N     = 4,
+    parameter SELW  = 2
+)(
+    input  wire [WIDTH-1:0] in [0:N-1],
+    input  wire [SELW-1:0]  sel,
+    output reg  [WIDTH-1:0] y
+);
+
+  integer k;
+
+  always @(*) begin
+    y = {WIDTH{1'bx}};
+    for (k = 0; k &lt; N; k = k + 1) begin
+      if (sel == k)
+        y = in[k];
+    end
+  end
+
+endmodule</div>
+      <p><span class="star">★</span> <mark class="orange">in</mark> here is an <mark>unpacked array</mark> of N vectors — each in[k] is a full WIDTH-bit bus, letting one module definition serve as a 2:1, 4:1, or 8:1 MUX just by changing parameters.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- DEMUX THEORY -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Demultiplexer — The Basics</span>
+      </div>
+      <p>A <mark>DEMUX</mark> is the mirror image of a MUX — it takes <mark class="blue">one input</mark> and routes it to <mark class="green">exactly one of several outputs</mark>, chosen by the select line; every unselected output is driven to <mark class="orange">0</mark> (or held inactive).</p>
+
+      <table class="vector-table">
+        <tr><th>sel</th><th>Active Output</th></tr>
+        <tr><td>00</td><td>out0 = in, others = 0</td></tr>
+        <tr><td>01</td><td>out1 = in, others = 0</td></tr>
+        <tr><td>10</td><td>out2 = in, others = 0</td></tr>
+        <tr><td>11</td><td>out3 = in, others = 0</td></tr>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- DEMUX CODE -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">1:4 DEMUX — Behavioral, Using case</span>
+      </div>
+      <div class="code-snip">module demux1to4 (
+    input  wire       in,
+    input  wire [1:0] sel,
+    output reg        out0, out1, out2, out3
+);
+
+  always @(*) begin
+    // default: everything OFF, avoids inferred latches
+    out0 = 1'b0;
+    out1 = 1'b0;
+    out2 = 1'b0;
+    out3 = 1'b0;
+
+    case (sel)
+      2'b00: out0 = in;
+      2'b01: out1 = in;
+      2'b10: out2 = in;
+      2'b11: out3 = in;
+    endcase
+  end
+
+endmodule</div>
+
+      <div class="sub-head">🔹 Key Points</div>
+      <ul class="indent">
+        <li>All four outputs are <mark class="blue">pre-assigned to 0</mark> before the case statement — this guarantees every output has a defined value for every sel combination, so no default branch is even needed inside the case itself.</li>
+        <li>Only the <mark class="green">selected</mark> output gets overwritten with <mark class="orange">in</mark>; every other output keeps its pre-assigned 0.</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <!-- DEMUX BUS VERSION -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">1:4 DEMUX — Bus-Style Output (Common Alternative)</span>
+      </div>
+      <p>Instead of four separate output ports, many designs bundle the outputs into a single <mark class="blue">bus</mark> — this is especially convenient with a shift-based one-hot trick.</p>
+
+      <div class="code-snip">module demux1to4_bus (
+    input  wire       in,
+    input  wire [1:0] sel,
+    output reg  [3:0] out
+);
+
+  always @(*) begin
+    out = 4'b0000;
+    out[sel] = in;     // only the selected bit gets driven
+  end
+
+endmodule</div>
+      <p><span class="star">★</span> <mark class="pink">out[sel]</mark> is a great example of a <mark>variable bit-select</mark> — Verilog allows the index itself to be a signal, not just a constant, exactly like the shift-amount trick from the very first notes on shift operators.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- QUICK CONTRAST -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">MUX vs DEMUX — Don't Mix Them Up</span>
+      </div>
+      <table class="vector-table">
+        <tr><th>Aspect</th><th>MUX</th><th>DEMUX</th></tr>
+        <tr><td>Inputs</td><td>Many (2ⁿ)</td><td>One</td></tr>
+        <tr><td>Outputs</td><td>One</td><td>Many (2ⁿ)</td></tr>
+        <tr><td>Select role</td><td>Chooses which input passes through</td><td>Chooses which output receives the input</td></tr>
+        <tr><td>Analogy</td><td>Many-to-one switch</td><td>One-to-many switch</td></tr>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WARNINGS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Important Warnings</span>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> DEMUX Needs Every Output Pre-Assigned</div>
+        <p>Because a DEMUX has <mark class="blue">multiple outputs</mark> but only one is written per branch, forgetting to <mark class="green">pre-assign all outputs to 0</mark> before the case statement causes every unselected output to infer a <mark class="pink">latch</mark> — this is easy to miss compared to a MUX, which only has one output to worry about.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Unpacked Arrays as Ports Need Tool Support</div>
+        <p>The parameterized <mark class="blue">mux_n</mark> style using <mark class="green">input wire [WIDTH-1:0] in [0:N-1]</mark> (an array port) is valid SystemVerilog/Verilog-2001 but not all tools/flows accept array ports cleanly — check your simulator/synthesizer before relying on it in a real IP.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Nested Ternaries Get Unreadable Fast</div>
+        <p>While a <mark class="blue">nested ternary</mark> can technically build any width of MUX in one assign statement, beyond 2:1 it becomes hard to verify by eye — prefer a <mark class="orange">case</mark> statement in an always block for anything wider.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> out[sel] Needs sel to Be In-Range</div>
+        <p>Using a variable index like <mark class="blue">out[sel]</mark> relies on <mark class="green">sel</mark> always being a valid index for the output width — an out-of-range sel value (possible if sel is wider than needed) simply has no effect rather than throwing an error, which can hide bugs in simulation.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

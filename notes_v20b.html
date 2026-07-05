@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — PISO &amp; PIPO Shift Registers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 42px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.8;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #16324f;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .warn-title .icon{ font-size:22px; }
+  .star{ color:#e0a800; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.vector-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+  }
+  table.vector-table td, table.vector-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 6px 14px;
+    text-align:center;
+    color: var(--ink);
+  }
+  table.vector-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">PISO &amp; PIPO Shift Registers ⬅️➡️</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes — Part 14: Shift Registers</div>
+
+    <!-- INTRO -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Completing the Shift Register Family</span>
+      </div>
+      <p>Part 13 covered the two <mark class="blue">serial-input</mark> types — SISO and SIPO. This note covers the two <mark class="green">parallel-input</mark> types — <mark class="orange">PISO</mark> (parallel-in, serial-out) and <mark class="pink">PIPO</mark> (parallel-in, parallel-out) — completing all four combinations.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- PISO -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">PISO — Parallel-In, Serial-Out</span>
+      </div>
+      <p>An entire <mark class="blue">N-bit word</mark> is loaded in one clock cycle, then shifted out <mark class="green">one bit per cycle</mark> afterward — this is exactly the core of a <mark class="orange">UART transmitter</mark>, which loads a byte in parallel and serializes it bit by bit onto a single TX line.</p>
+
+      <div class="code-snip">module piso #(
+    parameter N = 8
+)(
+    input  wire         clk, rst_n,
+    input  wire         load,          // 1 = parallel load, 0 = shift
+    input  wire [N-1:0] pin,           // parallel data in
+    output wire         sout           // serial data out
+);
+
+  reg [N-1:0] shreg;
+
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n)
+      shreg &lt;= {N{1'b0}};
+    else if (load)
+      shreg &lt;= pin;                    // parallel load, overrides shifting
+    else
+      shreg &lt;= {shreg[N-2:0], 1'b0};   // shift left, fill with 0
+  end
+
+  assign sout = shreg[N-1];   // MSB shifts out first
+
+endmodule</div>
+
+      <div class="sub-head">🔹 Key Points</div>
+      <ul class="indent">
+        <li><mark class="blue">load</mark> is a mode-select input — when high, the whole register snapshots pin in a single cycle instead of shifting.</li>
+        <li>The <mark class="green">if-else if</mark> priority means load always wins over shifting — a very common and intentional pattern for control signals.</li>
+        <li>After loading, it takes exactly <mark class="orange">N clock cycles</mark> (with load held low) to fully shift the word out through sout.</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <!-- PISO WITH COUNTER -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">PISO with a "Transmission Done" Flag</span>
+      </div>
+      <p>Just like Part 13's SIPO with a valid flag, a real PISO usually needs to signal when it has <mark class="blue">finished shifting out</mark> the whole word, so the controller knows when it's safe to load new data.</p>
+
+      <div class="code-snip">module piso_done #(
+    parameter N = 8
+)(
+    input  wire         clk, rst_n,
+    input  wire         load,
+    input  wire [N-1:0] pin,
+    output wire         sout,
+    output reg           done
+);
+
+  reg [N-1:0]       shreg;
+  reg [$clog2(N):0] count;
+
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+      shreg &lt;= {N{1'b0}};
+      count &lt;= 0;
+      done  &lt;= 1'b1;
+    end else if (load) begin
+      shreg &lt;= pin;
+      count &lt;= 0;
+      done  &lt;= 1'b0;
+    end else if (!done) begin
+      shreg &lt;= {shreg[N-2:0], 1'b0};
+      if (count == N-1)
+        done &lt;= 1'b1;
+      else
+        count &lt;= count + 1;
+    end
+  end
+
+  assign sout = shreg[N-1];
+
+endmodule</div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- PIPO -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">PIPO — Parallel-In, Parallel-Out</span>
+      </div>
+      <p>The simplest of the four — an entire word loads in on one clock edge, and the entire word is visible on the output immediately after, with <mark class="blue">no serial shifting</mark> at all. This is really just an <mark class="green">N-bit register</mark> with a load enable.</p>
+
+      <div class="code-snip">module pipo #(
+    parameter N = 8
+)(
+    input  wire         clk, rst_n,
+    input  wire         load,
+    input  wire [N-1:0] pin,
+    output reg  [N-1:0] pout
+);
+
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n)
+      pout &lt;= {N{1'b0}};
+    else if (load)
+      pout &lt;= pin;
+    // load == 0: pout holds its value (no shifting happens in PIPO)
+  end
+
+endmodule</div>
+
+      <p><span class="star">★</span> A <mark class="orange">PIPO</mark> register doesn't technically "shift" anything internally — it earns its place in the shift-register family purely because it's built from the <mark class="pink">same flip-flop array</mark> and is often reused/multiplexed as part of a universal shift register (see the next note).</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- CONTRAST TABLE ALL 4 -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">All Four Shift Register Types — Full Comparison</span>
+      </div>
+      <table class="vector-table">
+        <tr><th>Type</th><th>Input</th><th>Output</th><th>Typical Use</th></tr>
+        <tr><td>SISO</td><td>Serial</td><td>Serial</td><td>Delay line</td></tr>
+        <tr><td>SIPO</td><td>Serial</td><td>Parallel</td><td>UART receiver</td></tr>
+        <tr><td>PISO</td><td>Parallel</td><td>Serial</td><td>UART transmitter</td></tr>
+        <tr><td>PIPO</td><td>Parallel</td><td>Parallel</td><td>General-purpose data register / pipeline stage</td></tr>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WARNINGS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Important Warnings</span>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> load Must Have Clear Priority Over Shift</div>
+        <p>In a <mark class="blue">PISO</mark>, writing the if-else chain in the wrong order (checking the shift condition before load) can cause a requested parallel load to be silently skipped for one cycle — always give <mark class="green">load</mark> the highest priority branch.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Loading Mid-Shift Discards Unsent Bits</div>
+        <p>If <mark class="blue">load</mark> is asserted before a PISO has finished shifting out its previous word, whatever bits hadn't been transmitted yet are <mark class="green">silently overwritten</mark> — always check a done/busy flag before triggering a new load in a real transmitter.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> PIPO Is Not "Doing Nothing" Just Because It Doesn't Shift</div>
+        <p>It's tempting to think a <mark class="blue">PIPO</mark> register is trivial since there's no shifting — but it still needs the same careful <mark class="green">reset</mark> and <mark class="orange">enable/load</mark> handling as any other flip-flop bank, and is the piece every universal shift register's "parallel load mode" ultimately reduces to.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Non-Blocking Assignments, Same Rule as Always</div>
+        <p>Every register here lives inside a <mark class="blue">posedge clk</mark> always block, so — same golden rule from Part 3 — all assignments must use <mark class="green">&lt;=</mark>, keeping load and shift operations race-free relative to each other.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

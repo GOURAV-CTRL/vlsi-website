@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — Gate Level Modeling &amp; Vivado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 40px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.9;
+  }
+  .intro{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin-bottom: 26px;
+    background: rgba(255,255,255,0.4);
+    border-left: 4px solid var(--accent);
+    padding: 10px 16px;
+    border-radius: 4px;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  .checkmark{ font-size:22px; }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #0a1f3d;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .star{ color:#cf9300; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.cmp-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+    width: 100%;
+  }
+  table.cmp-table td, table.cmp-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 8px 14px;
+    text-align:center;
+    color: var(--ink);
+  }
+  table.cmp-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 21px;
+  }
+  table.cmp-table td:first-child{
+    font-weight:700;
+    white-space:nowrap;
+    text-align:left;
+  }
+  .footer-note{
+    text-align:center;
+    font-family:'Caveat', cursive;
+    font-size: 22px;
+    color: var(--ink-soft);
+    margin-top: 26px;
+  }
+  .gate-grid{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin: 10px 0 14px 0;
+  }
+  .gate-chip{
+    border: 2px solid var(--accent);
+    border-radius: 20px;
+    padding: 5px 16px;
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:20px;
+    background: rgba(255,255,255,0.5);
+    color: var(--ink);
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Gate Level Modeling &amp; Vivado 📒</h1>
+    <div class="subtitle">All About VLSI · Verilog + Tool Walkthrough Notes</div>
+
+    <div class="intro">
+      An introduction to <mark class="blue">Gate Level Modeling</mark> in Verilog, plus a practical walkthrough of the <mark class="green">Xilinx Vivado</mark> design tool interface — from writing primitive-based code to viewing the synthesized schematic.
+    </div>
+
+    <!-- PRIMITIVES -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">✅</span>
+        <span class="topic-title">Primitives</span>
+      </div>
+      <p>Gate level modeling uses Verilog's <mark>built-in library components</mark> called <mark class="green">primitives</mark> to build digital designs directly out of logic gates — no custom logic equations needed.</p>
+
+      <div class="gate-grid">
+        <span class="gate-chip">and</span>
+        <span class="gate-chip">or</span>
+        <span class="gate-chip">not</span>
+        <span class="gate-chip">nand</span>
+        <span class="gate-chip">nor</span>
+        <span class="gate-chip">xor</span>
+        <span class="gate-chip">xnor</span>
+        <span class="gate-chip">buf</span>
+      </div>
+
+      <p>Verilog also provides <mark class="pink">tri-state primitives</mark>, used to model buffers that can be enabled/disabled:</p>
+      <ul class="indent">
+        <li><mark class="orange">buffif1</mark> → passes input to output when control = 1</li>
+        <li><mark class="orange">buffif0</mark> → passes input to output when control = 0</li>
+        <li><mark class="orange">notif1</mark> → passes inverted input when control = 1</li>
+        <li><mark class="orange">notif0</mark> → passes inverted input when control = 0</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <!-- SYNTAX RULES -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">✅</span>
+        <span class="topic-title">Syntax Rules</span>
+      </div>
+      <p>General primitive instantiation syntax:</p>
+      <div class="code-snip">primitive_name instance_name (output, input1, input2, ...);</div>
+      <p>Example — a basic 2-input AND gate:</p>
+      <div class="code-snip">and a1 (y, a, b);   // y = a &amp; b</div>
+
+      <p>For <mark class="pink">tri-state logic</mark>, the order changes slightly — it follows <mark class="blue">output, input, control</mark>:</p>
+      <div class="code-snip">bufif1 b1 (out, in, ctrl);
+// out = in only when ctrl = 1, else high-impedance 'z'</div>
+
+      <p><span class="star">★</span> The <mark class="green">instance name</mark> is optional for some simulators, but it's good practice to always name your gate instances for readability and debugging.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- DESIGN EXAMPLES -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">✅</span>
+        <span class="topic-title">Design Examples</span>
+      </div>
+
+      <div class="sub-head">🔹 Half Adder</div>
+      <p>Built using just <mark class="blue">one xor</mark> gate (for Sum) and <mark class="green">one and</mark> gate (for Carry).</p>
+      <div class="code-snip">module half_adder (input a, b, output sum, cout);
+  xor x1 (sum, a, b);
+  and a1 (cout, a, b);
+endmodule</div>
+
+      <div class="sub-head">🔹 Full Adder</div>
+      <p>A more complex design — combines multiple gates with <mark class="pink">internal wire declarations</mark> to connect intermediate signals between gates, improving readability.</p>
+      <div class="code-snip">module full_adder (input a, b, cin, output sum, cout);
+  wire w1, w2, w3;
+
+  xor x1 (w1, a, b);
+  xor x2 (sum, w1, cin);
+
+  and a1 (w2, a, b);
+  and a2 (w3, w1, cin);
+  or  o1 (cout, w2, w3);
+endmodule</div>
+      <p><span class="star">★</span> Notice how <mark class="orange">internal wires</mark> (w1, w2, w3) carry signals between gates that aren't directly exposed as ports — this is key to structuring readable gate-level code.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- VIVADO WALKTHROUGH -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">✅</span>
+        <span class="topic-title">Vivado Tool Interface Walkthrough</span>
+      </div>
+
+      <div class="sub-head">🔹 Project Setup</div>
+      <ul class="indent">
+        <li>Create a new <mark class="blue">RTL Project</mark> from the Vivado welcome screen.</li>
+        <li>Add and select your <mark class="green">project sources</mark> (Verilog files) during setup.</li>
+        <li>Configure the <mark class="pink">design environment</mark> — target part/board, default language, etc.</li>
+      </ul>
+
+      <div class="sub-head">🔹 Workflow Management</div>
+      <ul class="indent">
+        <li><mark class="blue">Flow Navigator</mark> → the left-side panel guiding you through the full flow (synthesis → implementation → bitstream).</li>
+        <li><mark class="green">Project Manager</mark> → window where sources, constraints, and settings are managed.</li>
+        <li><mark class="orange">Design Sources</mark> vs <mark class="pink">Simulation Sources</mark> → Design Sources are the actual RTL for synthesis; Simulation Sources (e.g. testbenches) are only used for simulation, not synthesized into hardware.</li>
+      </ul>
+
+      <div class="sub-head">🔹 Synthesis and Schematic</div>
+      <ul class="indent">
+        <li>Run <mark class="blue">Elaborated Design</mark> to generate and visualize the <mark>schematic view</mark> of your RTL before full synthesis.</li>
+        <li>If multiple modules exist, set the correct module as <mark class="green">'Top'</mark> of the hierarchy — this tells Vivado which module is the actual top-level design to synthesize and display.</li>
+        <li><span class="doodle-box">Right-click module → Set as Top</span></li>
+      </ul>
+
+      <table class="cmp-table">
+        <tr><th>Source Type</th><th>Used For</th><th>Synthesized?</th></tr>
+        <tr><td>Design Sources</td><td>Actual RTL design</td><td>Yes</td></tr>
+        <tr><td>Simulation Sources</td><td>Testbenches</td><td>No</td></tr>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- EXTRA: WHY USE GATE LEVEL MODELING -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">✅</span>
+        <span class="topic-title">Extra Tips — When to Use Gate Level Modeling</span>
+      </div>
+      <ul>
+        <li>Useful for understanding the <mark class="blue">low-level structure</mark> of digital circuits and bridging schematic-to-code thinking.</li>
+        <li>Rarely used for <mark class="green">large designs</mark> in industry — RTL (behavioral/dataflow) coding with <span class="doodle-box">always</span>/<span class="doodle-box">assign</span> is preferred for scalability.</li>
+        <li>Still important for <mark class="pink">interviews</mark> and for understanding what synthesis tools generate "under the hood".</li>
+        <li>Pairs well with <mark class="orange">schematic viewing</mark> in Vivado — a great way to visually confirm your gate-level code matches intended logic.</li>
+      </ul>
+    </div>
+
+    <div class="footer-note">~ Build it gate by gate, then let the tool show you the picture! ~</div>
+
+  </div>
+</body>
+</html>

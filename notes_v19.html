@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — D, JK &amp; T Flip-Flops</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 42px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.8;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #16324f;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .warn-title .icon{ font-size:22px; }
+  .star{ color:#e0a800; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.vector-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+  }
+  table.vector-table td, table.vector-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 6px 14px;
+    text-align:center;
+    color: var(--ink);
+  }
+  table.vector-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">D, JK &amp; T Flip-Flops ⏲️</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes — Part 12: Sequential Building Blocks</div>
+
+    <!-- LATCH VS FF -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Flip-Flop vs Latch — Quick Recap</span>
+      </div>
+      <p>Where Part 11's <mark>SR latch</mark> was <mark class="blue">level-sensitive</mark> (transparent whenever enabled), every flip-flop here is <mark class="green">edge-sensitive</mark> — it only samples its input at the exact instant of a clock edge (<span class="doodle-box">posedge clk</span>), and holds that value rock-solid the rest of the cycle.</p>
+      <p>This is exactly why flip-flops, not latches, are the standard storage element in <mark class="orange">synchronous RTL design</mark> — they're immune to the glitch-through-while-enabled problem latches have.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- D FLIP-FLOP -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">D Flip-Flop — Behavior &amp; Code</span>
+      </div>
+      <p>The simplest and most common flip-flop — output <mark class="blue">q</mark> simply copies input <mark class="green">d</mark> on every rising clock edge. No other logic involved.</p>
+
+      <table class="vector-table">
+        <tr><th>clk</th><th>d</th><th>q (next)</th></tr>
+        <tr><td>↑ (rising edge)</td><td>0</td><td>0</td></tr>
+        <tr><td>↑ (rising edge)</td><td>1</td><td>1</td></tr>
+        <tr><td>no edge</td><td>x</td><td>holds previous q</td></tr>
+      </table>
+
+      <div class="code-snip">module d_ff (
+    input  wire clk, rst_n, d,
+    output reg  q
+);
+
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n)
+      q &lt;= 1'b0;     // async active-low reset
+    else
+      q &lt;= d;         // sample d on every rising edge
+  end
+
+endmodule</div>
+
+      <p><span class="star">★</span> Note the <mark class="blue">non-blocking (&lt;=)</mark> assignment — required per the golden rule from Part 3, since this is a clocked/sequential always block.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- T FLIP-FLOP -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">T Flip-Flop — Behavior &amp; Code</span>
+      </div>
+      <p>The <mark>toggle</mark> flip-flop — when <mark class="blue">T = 1</mark>, q flips to its opposite value on every clock edge; when <mark class="green">T = 0</mark>, q holds. This is the natural building block for <mark class="orange">counters</mark>, since each bit toggles at half the frequency of the one before it.</p>
+
+      <table class="vector-table">
+        <tr><th>T</th><th>q (next)</th></tr>
+        <tr><td>0</td><td>q (no change)</td></tr>
+        <tr><td>1</td><td>~q (toggle)</td></tr>
+      </table>
+
+      <div class="code-snip">module t_ff (
+    input  wire clk, rst_n, t,
+    output reg  q
+);
+
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n)
+      q &lt;= 1'b0;
+    else if (t)
+      q &lt;= ~q;        // toggle
+    // t == 0: no assignment -&gt; q keeps its value (still a proper FF, not a latch,
+    // because this is inside a clocked always block, not combinational)
+  end
+
+endmodule</div>
+
+      <p><span class="star">★</span> A T flip-flop is really just a <mark class="pink">D flip-flop with d = q ⊕ t</mark> wired in front of it — many textbooks build T-FFs exactly that way instead of writing new sequential logic.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- JK FLIP-FLOP -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">JK Flip-Flop — Behavior &amp; Code</span>
+      </div>
+      <p>The most flexible classic flip-flop — it behaves like an <mark class="blue">SR latch's edge-triggered cousin</mark>, but fixes the forbidden-state problem: when both inputs are 1, instead of being invalid, it <mark class="green">toggles</mark>.</p>
+
+      <table class="vector-table">
+        <tr><th>J</th><th>K</th><th>q (next)</th><th>Meaning</th></tr>
+        <tr><td>0</td><td>0</td><td>q</td><td>Hold</td></tr>
+        <tr><td>0</td><td>1</td><td>0</td><td>Reset</td></tr>
+        <tr><td>1</td><td>0</td><td>1</td><td>Set</td></tr>
+        <tr><td>1</td><td>1</td><td>~q</td><td>Toggle — no longer forbidden!</td></tr>
+      </table>
+
+      <div class="code-snip">module jk_ff (
+    input  wire clk, rst_n, j, k,
+    output reg  q
+);
+
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n)
+      q &lt;= 1'b0;
+    else begin
+      case ({j, k})
+        2'b00: q &lt;= q;      // hold
+        2'b01: q &lt;= 1'b0;   // reset
+        2'b10: q &lt;= 1'b1;   // set
+        2'b11: q &lt;= ~q;     // toggle
+      endcase
+    end
+  end
+
+endmodule</div>
+
+      <p><span class="star">★</span> Unlike the SR latch's <mark class="pink">S=R=1</mark> hazard from Part 11, the JK flip-flop's <mark class="orange">J=K=1</mark> case is perfectly well-defined and safe — this is precisely the historical motivation for inventing the JK flip-flop.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- CONVERSION TABLE -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Flip-Flop Family Tree — How They Relate</span>
+      </div>
+      <table class="vector-table">
+        <tr><th>Target FF</th><th>Built From</th><th>Equation</th></tr>
+        <tr><td>T from D</td><td>D flip-flop</td><td>d = q ⊕ t</td></tr>
+        <tr><td>D from JK</td><td>JK flip-flop</td><td>j = d, k = ~d</td></tr>
+        <tr><td>T from JK</td><td>JK flip-flop</td><td>j = t, k = t</td></tr>
+      </table>
+      <p>This is a classic digital design exercise — since all flip-flops ultimately store <mark class="blue">one bit</mark>, any type can be converted into any other purely by feeding the right combinational logic into its inputs.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WARNINGS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Important Warnings</span>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Async Reset Belongs in the Sensitivity List</div>
+        <p>An <mark class="blue">asynchronous reset</mark> like <mark class="green">negedge rst_n</mark> must appear in the always block's event list alongside <mark class="orange">posedge clk</mark> — leaving it out means reset would only take effect on the next clock edge, defeating the purpose of "asynchronous."</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Always Use Non-Blocking Here</div>
+        <p>Every flip-flop above lives inside a <mark class="blue">posedge clk</mark> always block, so per Part 3's golden rule, all assignments must use <mark class="green">&lt;=</mark> — using = here would create the classic race-condition risk between chained flip-flops covered back in Part 4's event scheduler notes.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> A T Flip-Flop with T Tied High Is Just a Toggle Counter Bit</div>
+        <p>Tying <mark class="blue">t = 1</mark> permanently turns the T-FF into a simple <mark class="green">divide-by-2</mark> circuit — chaining several such bits together, each driven by the previous stage's q, is exactly how a basic <mark class="orange">ripple counter</mark> is built.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> JK's Toggle Case Still Needs a Stable Clock Edge</div>
+        <p>Even though <mark class="blue">J=K=1</mark> is well-defined (unlike the SR latch hazard), a JK flip-flop still only toggles <mark class="green">once per clock edge</mark> — holding J=K=1 across many clock cycles produces a clean toggle sequence, not runaway oscillation, because sampling is edge-triggered, not level-triggered.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

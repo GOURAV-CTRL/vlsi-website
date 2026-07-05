@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — $display, $monitor, $strobe, $write</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 42px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.8;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #16324f;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .warn-title .icon{ font-size:22px; }
+  .star{ color:#e0a800; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.vector-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+  }
+  table.vector-table td, table.vector-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 6px 14px;
+    text-align:center;
+    color: var(--ink);
+  }
+  table.vector-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">$display, $monitor, $strobe &amp; $write 🖨️</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes — Part 5: Display Tasks</div>
+
+    <!-- OVERVIEW -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">The Family of Display Tasks</span>
+      </div>
+      <p>All four are <mark>system tasks</mark> used to print simulation output to the console/log — but they differ in <mark class="blue">when</mark> they print, <mark class="green">how often</mark> they print, and whether they add a <mark class="orange">newline</mark>. Picking the wrong one is a very common source of confusing debug output.</p>
+
+      <table class="vector-table">
+        <tr><th>Task</th><th>Newline?</th><th>When It Fires</th><th>Fires Repeatedly?</th></tr>
+        <tr><td>$display</td><td>Yes</td><td>Immediately (Active region)</td><td>No — one-shot</td></tr>
+        <tr><td>$write</td><td>No</td><td>Immediately (Active region)</td><td>No — one-shot</td></tr>
+        <tr><td>$strobe</td><td>Yes</td><td>End of time step (Postponed region)</td><td>No — one-shot</td></tr>
+        <tr><td>$monitor</td><td>Yes</td><td>End of time step (Postponed region)</td><td>Yes — auto, on any listed signal change</td></tr>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- $display -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">$display — Print Right Now</span>
+      </div>
+      <p>Executes exactly where it appears in the code, in the <mark>Active region</mark>, just like a blocking assignment. Automatically appends a <mark class="blue">newline</mark> after printing.</p>
+
+      <div class="code-snip">initial begin
+  a = 4'd5;
+  $display("a = %d", a);   // prints "a = 5" immediately
+end</div>
+
+      <p><span class="star">★</span> If a <mark class="pink">non-blocking assignment</mark> updates a signal on the same line/timestep just before a $display, the printed value can be the <mark>old</mark> one — because $display doesn't wait for the NBA Update region.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- $write -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">$write — Print Without a Newline</span>
+      </div>
+      <p>Behaves <mark class="green">identically to $display</mark> in terms of timing (Active region, one-shot) — the only difference is it does <mark class="orange">not</mark> add a trailing newline, so multiple calls print on the same line.</p>
+
+      <div class="code-snip">$write("a = %d", a);
+$write(", b = %d", b);
+// output on ONE line: a = 5, b = 3</div>
+
+      <ul class="indent">
+        <li>Handy for building up a <mark class="blue">custom formatted row</mark> across several calls.</li>
+        <li>Remember to manually insert <span class="doodle-box">\n</span> if you want a line break — it won't happen automatically.</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <!-- $strobe -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">$strobe — Print the Final, Settled Value</span>
+      </div>
+      <p>Same syntax as $display, but scheduled to execute in the <mark class="pink">Postponed region</mark> — meaning it waits until <mark class="blue">every other event in that time step has finished</mark>, including all pending non-blocking updates, before actually printing.</p>
+
+      <div class="code-snip">always @(posedge clk) begin
+  q &lt;= d;
+  $display("display: q = %b", q);  // OLD q  (Active region)
+  $strobe ("strobe : q = %b", q);  // NEW q  (Postponed region)
+end</div>
+
+      <p><span class="star">★</span> Use <mark class="green">$strobe</mark> whenever you want to confirm the <mark>truly final</mark> value of a signal after a non-blocking assignment in the same block — it's the safe, race-free way to log post-update state.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- $monitor -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">$monitor — Auto-Print on Every Change</span>
+      </div>
+      <p>Called <mark class="blue">once</mark> in the code, but keeps firing <mark class="green">automatically</mark> for the rest of simulation, once per time step, whenever <mark class="orange">any signal in its argument list changes value</mark>. Also lives in the Postponed region, so it always shows settled values.</p>
+
+      <div class="code-snip">initial
+  $monitor("time=%0t a=%b b=%b sum=%b", $time, a, b, sum);
+// no need to call this again — it "watches" a, b, sum
+// forever, printing one line whenever any of them changes</div>
+
+      <div class="sub-head">🔹 Key Behaviors</div>
+      <ul class="indent">
+        <li>Only <mark class="blue">one active $monitor</mark> is allowed at a time — calling it again replaces the previous argument list, it doesn't stack.</li>
+        <li><span class="doodle-box">$monitoron</span> / <span class="doodle-box">$monitoroff</span> can temporarily pause and resume it without losing the argument list.</li>
+        <li>If <mark class="pink">multiple</mark> signals in the list change in the same time step, it still prints just <mark>once</mark> for that step — not once per signal.</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <!-- QUICK CONTRAST -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Choosing the Right One</span>
+      </div>
+      <table class="vector-table">
+        <tr><th>Goal</th><th>Best Task</th></tr>
+        <tr><td>One-time debug print, right now</td><td>$display</td></tr>
+        <tr><td>Build a line piece by piece</td><td>$write</td></tr>
+        <tr><td>Confirm the settled value after &lt;=</td><td>$strobe</td></tr>
+        <tr><td>Continuously log signals as they change</td><td>$monitor</td></tr>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WARNINGS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Important Warnings</span>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> $display Right After &lt;= Is a Trap</div>
+        <p>Printing a signal with <mark class="blue">$display</mark> immediately after assigning it with <mark class="green">&lt;=</mark> in the same always block will show the <mark class="orange">pre-update</mark> value, confusing beginners into thinking the non-blocking assignment "didn't work."</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Calling $monitor Twice Doesn't Stack</div>
+        <p>A second <mark class="blue">$monitor</mark> call with a different argument list <mark>replaces</mark> the first — it does not run both in parallel. If you need to watch two separate signal groups, combine them into a single $monitor call.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> $write Needs Manual Newlines</div>
+        <p>Forgetting to add <span class="doodle-box">\n</span> with <mark class="pink">$write</mark> causes output from unrelated parts of the testbench to run together on one unreadable line — easy to miss until the log gets messy.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> These Are Simulation-Only</div>
+        <p>All four tasks are <mark class="blue">non-synthesizable</mark> — they exist purely to help with simulation/debug and are stripped out (or flagged as unsynthesizable) by synthesis tools, so they can be used freely without affecting the final hardware.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

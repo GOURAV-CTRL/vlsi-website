@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — Half Adder &amp; Full Adder (Behavioral)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 42px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.8;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #16324f;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .warn-title .icon{ font-size:22px; }
+  .star{ color:#e0a800; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.vector-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+  }
+  table.vector-table td, table.vector-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 6px 14px;
+    text-align:center;
+    color: var(--ink);
+  }
+  table.vector-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Half Adder &amp; Full Adder — Behavioral 🧮</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes — Part 6: Combinational Building Blocks</div>
+
+    <!-- HALF ADDER THEORY -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Half Adder — The Basics</span>
+      </div>
+      <p>Adds <mark>two single bits</mark> (a, b) and produces a <mark class="blue">sum</mark> and a <mark class="green">carry</mark> — but cannot accept an incoming carry, which is exactly why it's called "half."</p>
+
+      <table class="vector-table">
+        <tr><th>a</th><th>b</th><th>sum</th><th>carry</th></tr>
+        <tr><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>0</td><td>1</td><td>1</td><td>0</td></tr>
+        <tr><td>1</td><td>0</td><td>1</td><td>0</td></tr>
+        <tr><td>1</td><td>1</td><td>0</td><td>1</td></tr>
+      </table>
+
+      <p>Boolean equations: <mark class="orange">sum = a ⊕ b</mark>, <mark class="pink">carry = a · b</mark>.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- HALF ADDER CODE -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Half Adder — Behavioral Code</span>
+      </div>
+      <p>Behavioral modeling describes <mark>what</mark> the circuit should do, using an <mark class="blue">always block</mark>, instead of wiring individual gates (that would be structural/dataflow style).</p>
+
+      <div class="code-snip">module half_adder (
+    input  wire a, b,
+    output reg  sum, carry
+);
+
+  always @(*) begin
+    sum   = a ^ b;   // XOR gives sum
+    carry = a &amp; b;   // AND gives carry
+  end
+
+endmodule</div>
+
+      <div class="sub-head">🔹 Key Points</div>
+      <ul class="indent">
+        <li>Outputs are declared <mark class="blue">reg</mark> because they're assigned inside an always block — this does <mark>not</mark> imply a physical register, it's purely a Verilog data-type rule.</li>
+        <li><span class="doodle-box">always @(*)</span> is a combinational block — it automatically re-evaluates whenever <mark class="green">a or b</mark> changes.</li>
+        <li>Both assignments use <mark class="orange">blocking (=)</mark>, correct for combinational logic per the golden rule from Part 3.</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <!-- FULL ADDER THEORY -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Full Adder — The Basics</span>
+      </div>
+      <p>Adds <mark>three bits</mark> — two operands (a, b) plus an incoming carry (<mark class="blue">cin</mark>) — producing <mark class="green">sum</mark> and <mark class="orange">cout</mark>. This is the building block that lets adders be <mark class="pink">chained</mark> to form multi-bit ripple-carry adders.</p>
+
+      <table class="vector-table">
+        <tr><th>a</th><th>b</th><th>cin</th><th>sum</th><th>cout</th></tr>
+        <tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+        <tr><td>0</td><td>0</td><td>1</td><td>1</td><td>0</td></tr>
+        <tr><td>0</td><td>1</td><td>0</td><td>1</td><td>0</td></tr>
+        <tr><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td></tr>
+        <tr><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+        <tr><td>1</td><td>0</td><td>1</td><td>0</td><td>1</td></tr>
+        <tr><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+        <tr><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+      </table>
+
+      <p>Boolean equations: <mark class="orange">sum = a ⊕ b ⊕ cin</mark>, <mark class="pink">cout = (a·b) + (b·cin) + (a·cin)</mark>.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- FULL ADDER CODE - METHOD 1 -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Full Adder — Method 1: Direct Boolean Equations</span>
+      </div>
+      <div class="code-snip">module full_adder (
+    input  wire a, b, cin,
+    output reg  sum, cout
+);
+
+  always @(*) begin
+    sum  = a ^ b ^ cin;
+    cout = (a &amp; b) | (b &amp; cin) | (a &amp; cin);
+  end
+
+endmodule</div>
+      <p><span class="star">★</span> This is the most <mark class="blue">direct translation</mark> of the truth table's Boolean equations — clean and easy to verify against the table above.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- FULL ADDER CODE - METHOD 2 -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Full Adder — Method 2: Using a Case Statement</span>
+      </div>
+      <p>Instead of writing equations, you can describe the full adder purely from its <mark class="green">truth table</mark> using a <mark class="blue">case</mark> statement on the concatenated inputs — useful for visualizing the table directly in code.</p>
+
+      <div class="code-snip">module full_adder_case (
+    input  wire a, b, cin,
+    output reg  sum, cout
+);
+
+  always @(*) begin
+    case ({a, b, cin})
+      3'b000: {cout, sum} = 2'b00;
+      3'b001: {cout, sum} = 2'b01;
+      3'b010: {cout, sum} = 2'b01;
+      3'b011: {cout, sum} = 2'b10;
+      3'b100: {cout, sum} = 2'b01;
+      3'b101: {cout, sum} = 2'b10;
+      3'b110: {cout, sum} = 2'b10;
+      3'b111: {cout, sum} = 2'b11;
+      default: {cout, sum} = 2'bxx;
+    endcase
+  end
+
+endmodule</div>
+
+      <ul class="indent">
+        <li><mark class="orange">{a, b, cin}</mark> concatenates the three inputs into one 3-bit selector for the case statement.</li>
+        <li><mark class="pink">{cout, sum}</mark> on the left assigns both outputs together in one shot per case.</li>
+        <li>A <span class="doodle-box">default</span> branch is included to avoid an unintended <mark>latch</mark> — see the warning below.</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <!-- FULL ADDER CODE - METHOD 3 -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Full Adder — Method 3: Built from Two Half Adders</span>
+      </div>
+      <p>Structurally, a full adder is famously built by <mark class="blue">chaining two half adders</mark> plus an OR gate — this version instantiates the half_adder module already written above, and layers a small always block on top for the final OR.</p>
+
+      <div class="code-snip">module full_adder_from_ha (
+    input  wire a, b, cin,
+    output wire sum, cout
+);
+
+  wire s1, c1, c2;
+
+  half_adder HA1 (.a(a),  .b(b),   .sum(s1), .carry(c1));
+  half_adder HA2 (.a(s1), .b(cin), .sum(sum), .carry(c2));
+
+  assign cout = c1 | c2;
+
+endmodule</div>
+
+      <p><span class="star">★</span> This is technically a <mark class="green">structural/mixed</mark> style (module instantiation), included here because it's the classic way full adders are taught — the first two methods above are the pure <mark class="orange">behavioral</mark> versions.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WARNINGS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Important Warnings</span>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Missing default in case → Unwanted Latch</div>
+        <p>Leaving out the <mark class="blue">default</mark> branch in the case-statement version means the synthesizer can't guarantee <mark class="green">sum</mark> and <mark class="orange">cout</mark> are assigned for every possible input combination — this infers an unintended <mark class="pink">latch</mark> instead of pure combinational logic.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> reg Does Not Mean Register</div>
+        <p>Declaring <mark class="blue">sum</mark> and <mark class="green">cout</mark> as <mark>reg</mark> inside a combinational always block does not create flip-flops — reg is just the data type required for anything assigned inside a procedural block; the actual hardware here is pure combinational logic.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Sensitivity List Must Be Complete</div>
+        <p>Using <span class="doodle-box">always @(*)</span> instead of manually listing <mark class="orange">a, b, cin</mark> avoids the classic bug of forgetting a signal in the sensitivity list, which would make the block simulate incorrectly even though the logic equations are right.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Half Adder Cannot Be Chained Alone</div>
+        <p>Because a <mark class="blue">half adder</mark> has no cin input, chaining half adders directly (without the extra OR gate for combining carries) cannot correctly form a multi-bit adder — this is exactly why the <mark class="pink">full adder</mark> exists as the real chainable building block.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

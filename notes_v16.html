@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — BCD Adder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 42px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.8;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #16324f;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .warn-title .icon{ font-size:22px; }
+  .star{ color:#e0a800; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.vector-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+  }
+  table.vector-table td, table.vector-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 6px 14px;
+    text-align:center;
+    color: var(--ink);
+  }
+  table.vector-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">BCD Adder 🔢</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes — Part 7: Combinational Building Blocks</div>
+
+    <!-- WHAT IS BCD -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">What Is BCD, and Why Adding It Is Tricky</span>
+      </div>
+      <p><mark>BCD (Binary-Coded Decimal)</mark> represents each decimal digit (0–9) using its own <mark class="blue">4-bit binary</mark> pattern — so a 2-digit decimal number needs 8 bits, one nibble per digit, never using the values <mark class="pink">1010–1111</mark>.</p>
+      <p>A plain 4-bit binary adder happily produces sums from <mark class="green">0000 to 1111</mark> — but any BCD digit sum above <mark class="orange">1001 (9)</mark> is <mark>invalid</mark> and must be corrected back into proper decimal form.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- THE CORRECTION RULE -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">The Correction Rule</span>
+      </div>
+      <p>First add the two 4-bit BCD digits (plus any carry-in) as an <mark class="blue">ordinary binary adder</mark>, giving a 5-bit result. Then check:</p>
+      <ul class="indent">
+        <li>If the binary sum is <mark class="green">≤ 9</mark> and there's <mark class="green">no carry-out</mark> — it's already valid BCD, no correction needed.</li>
+        <li>If the binary sum is <mark class="orange">≥ 10</mark>, or the binary addition produced a <mark class="orange">carry-out</mark> — the result is invalid BCD, and you must <mark class="pink">add 6 (0110)</mark> to skip over the unused codes 1010–1111.</li>
+      </ul>
+      <p>Adding 6 either creates a new carry-out (the correct decimal carry) or pushes the result back into the valid 0–9 range — this is the entire trick behind a BCD adder.</p>
+
+      <table class="vector-table">
+        <tr><th>Binary Sum</th><th>Carry from Stage 1</th><th>Correction</th><th>Result</th></tr>
+        <tr><td>0000 – 1001 (0–9)</td><td>0</td><td>None</td><td>Valid BCD digit</td></tr>
+        <tr><td>1010 – 1111 (10–15)</td><td>0</td><td>+ 0110</td><td>Valid BCD digit, cout = 1</td></tr>
+        <tr><td>0000 – 1001 (16–25 total)</td><td>1</td><td>+ 0110</td><td>Valid BCD digit, cout = 1</td></tr>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- METHOD 1: PURE BEHAVIORAL -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Method 1 — Pure Behavioral (Single Digit)</span>
+      </div>
+      <p>The most direct way to describe a <mark class="blue">single-digit BCD adder</mark>: do the binary add, check the correction condition, then add 6 if needed — all inside one always block.</p>
+
+      <div class="code-snip">module bcd_adder (
+    input  wire [3:0] a, b,      // two BCD digits (0-9 each)
+    input  wire       cin,       // carry-in from previous digit
+    output reg  [3:0] sum,       // corrected BCD digit
+    output reg        cout       // carry-out to next digit
+);
+
+  reg [4:0] bin_sum;   // 5-bit binary sum, room for overflow
+
+  always @(*) begin
+    bin_sum = a + b + cin;              // step 1: plain binary add
+
+    if (bin_sum &gt; 9) begin
+      sum  = bin_sum + 6;               // step 2: correction
+      cout = 1'b1;
+    end else begin
+      sum  = bin_sum[3:0];              // already valid, just truncate
+      cout = 1'b0;
+    end
+  end
+
+endmodule</div>
+
+      <div class="sub-head">🔹 Key Points</div>
+      <ul class="indent">
+        <li><mark class="blue">bin_sum</mark> is 5 bits wide so it can hold values up to 9+9+1 = 19 without overflow.</li>
+        <li>The condition <mark class="green">bin_sum &gt; 9</mark> alone is enough — it automatically also covers the case where the plain binary add produced its own carry-out, since that pushes bin_sum ≥ 16.</li>
+        <li><mark class="orange">sum</mark> only needs the lower 4 bits after correction, since a valid BCD digit always fits in 4 bits.</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <!-- METHOD 2: STRUCTURAL FROM ADDERS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Method 2 — Built from Two 4-Bit Adders</span>
+      </div>
+      <p>This mirrors the classic textbook diagram: a <mark class="blue">4-bit binary adder</mark> computes the raw sum, a small piece of logic decides whether correction is needed, and a <mark class="green">second 4-bit adder</mark> adds 6 conditionally.</p>
+
+      <div class="code-snip">module bcd_adder_structural (
+    input  wire [3:0] a, b,
+    input  wire       cin,
+    output wire [3:0] sum,
+    output wire       cout
+);
+
+  wire [3:0] bin_sum;
+  wire       c1;                 // carry out of first binary add
+  wire       correction_needed;
+  wire [3:0] corrected_sum;
+  wire       c2;                 // carry out of correction add
+
+  // Stage 1: plain 4-bit binary add
+  assign {c1, bin_sum} = a + b + cin;
+
+  // Decide correction: needed if c1=1, or bin_sum &gt; 9 (i.e. bits 3&amp;2 or 3&amp;1 set)
+  assign correction_needed = c1 | (bin_sum[3] &amp; (bin_sum[2] | bin_sum[1]));
+
+  // Stage 2: conditionally add 0110
+  assign {c2, corrected_sum} = bin_sum + (correction_needed ? 4'b0110 : 4'b0000);
+
+  assign sum  = corrected_sum;
+  assign cout = correction_needed;   // final decimal carry-out
+
+endmodule</div>
+
+      <p><span class="star">★</span> The Boolean expression <mark class="pink">c1 | (bin_sum[3] &amp; (bin_sum[2] | bin_sum[1]))</mark> is the standard gate-level shortcut for detecting <mark>"sum &gt; 9"</mark> without doing a full magnitude comparison — it's derived directly from which bit patterns 10–15 share.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- MULTI-DIGIT -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Chaining for Multi-Digit BCD Numbers</span>
+      </div>
+      <p>Just like a ripple-carry binary adder, a multi-digit BCD adder is built by <mark class="blue">chaining single-digit bcd_adder modules</mark>, feeding each stage's cout into the next stage's cin.</p>
+
+      <div class="code-snip">module bcd_adder_2digit (
+    input  wire [7:0] a, b,   // two 2-digit BCD numbers
+    input  wire       cin,
+    output wire [7:0] sum,
+    output wire       cout
+);
+
+  wire c_mid;
+
+  bcd_adder digit0 (.a(a[3:0]), .b(b[3:0]), .cin(cin),   .sum(sum[3:0]), .cout(c_mid));
+  bcd_adder digit1 (.a(a[7:4]), .b(b[7:4]), .cin(c_mid), .sum(sum[7:4]), .cout(cout));
+
+endmodule</div>
+
+      <p><span class="star">★</span> Each nibble of <mark class="green">a</mark> and <mark class="green">b</mark> must independently represent a valid digit <mark class="orange">0–9</mark> — feeding in raw non-BCD binary values through this chain gives meaningless results.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WARNINGS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Important Warnings</span>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> bin_sum Must Be Wide Enough</div>
+        <p>Declaring the intermediate sum as only <mark class="blue">4 bits</mark> silently truncates values above 15, making the <mark class="green">&gt; 9</mark> correction check see wrapped-around garbage instead of the real sum — always give it at least <mark class="orange">5 bits</mark>.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> cout Is Not the Same as the Binary Adder's Carry</div>
+        <p>The final <mark class="blue">cout</mark> of a BCD digit means "carry into the next decimal digit," not "the raw binary adder overflowed" — these coincide in some cases but the correction step can also generate cout on its own, so always drive cout from the <mark class="pink">correction logic</mark>, not the Stage-1 adder directly.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Invalid BCD Inputs Break Everything</div>
+        <p>If <mark class="blue">a</mark> or <mark class="green">b</mark> is ever a code from <mark class="orange">1010–1111</mark> (not a valid decimal digit), the correction logic has no way to detect or fix that — validate/constrain inputs upstream, especially in a testbench driving random 4-bit values.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> This Is Still Combinational</div>
+        <p>Despite "adder" sounding sequential, a <mark class="blue">BCD adder</mark> (single or multi-digit, ripple style) is pure combinational logic — no clock is involved, and propagation delay simply <mark class="pink">ripples</mark> through each chained digit just like a binary ripple-carry adder.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

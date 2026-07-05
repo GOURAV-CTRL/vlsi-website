@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — Modules, Number Systems, Comments</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --margin-red: #e08a8a;
+    --ink: #1f3a5f;
+    --ink-soft: #2c4a73;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 800px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 80px;
+    position: relative;
+    overflow:hidden;
+  }
+  .page::before{
+    content:"";
+    position:absolute;
+    top:0; bottom:0; left:55px;
+    width:2px;
+    background: var(--margin-red);
+    opacity:0.6;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 44px;
+    margin: 0 0 4px 0;
+    text-align:center;
+    text-decoration: underline wavy var(--margin-red);
+    text-underline-offset: 8px;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 28px;
+    opacity:0.8;
+  }
+  .topic{
+    margin-bottom: 34px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .topic-num{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:30px;
+    color: var(--margin-red);
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:30px;
+    color: var(--ink);
+  }
+  .checkmark{
+    color:#3f9142;
+    font-size:24px;
+  }
+  p, li{
+    font-size: 21px;
+    line-height: 1.55;
+    color: var(--ink);
+    margin: 0 0 10px 0;
+  }
+  ul{
+    margin: 8px 0 0 0;
+    padding-left: 26px;
+  }
+  li{ margin-bottom: 8px; }
+  li::marker{ color: var(--margin-red); }
+
+  /* highlighter effect */
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #16324f;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--margin-red);
+    border-radius: 10px;
+    padding: 10px 16px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+  }
+  .star{
+    color:#e0a800;
+  }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 18px 0 24px 0;
+  }
+  .footer-note{
+    text-align:center;
+    font-family:'Caveat', cursive;
+    font-size: 22px;
+    color: var(--ink-soft);
+    margin-top: 30px;
+    opacity:0.85;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Verilog Basics — Notes 📒</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes</div>
+
+    <!-- TOPIC 1 -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">✅</span>
+        <span class="topic-title">Modules in Verilog</span>
+      </div>
+      <p>A <mark>module</mark> is the <mark class="blue">basic building block</mark> of every Verilog design — it's like a "box" that performs a specific function.</p>
+      <ul>
+        <li>Every module has a <mark class="pink">name</mark>, a list of <mark class="pink">ports</mark> (inputs/outputs), and a <mark class="green">body</mark> with logic inside.</li>
+        <li>Modules can be connected together — this is called <mark>instantiation</mark>, where one module is used inside another (hierarchy).</li>
+        <li>Defined using the keywords <mark class="blue">module ... endmodule</mark>.</li>
+      </ul>
+      <div class="code-snip">module and_gate (input a, input b, output y);
+  assign y = a &amp; b;
+endmodule</div>
+      <p><span class="star">★</span> Think of a module as a <mark class="green">reusable component</mark> — just like a LEGO block you can reuse in bigger designs.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- TOPIC 2 -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">✅</span>
+        <span class="topic-title">Number Representations</span>
+      </div>
+      <p>Verilog supports multiple <mark>number bases</mark> to represent values — useful for writing testbenches and constants clearly.</p>
+      <ul>
+        <li><mark class="blue">Binary (b)</mark> — base 2, only 0s and 1s. Example: <span class="doodle-box">4'b1010</span></li>
+        <li><mark class="green">Octal (o)</mark> — base 8, digits 0–7. Example: <span class="doodle-box">3'o17</span></li>
+        <li><mark class="pink">Decimal (d)</mark> — base 10, normal counting numbers. Example: <span class="doodle-box">8'd25</span></li>
+        <li><mark>Hexadecimal (h)</mark> — base 16, digits 0–9 and A–F. Example: <span class="doodle-box">8'hFA</span></li>
+      </ul>
+      <p>General format → <mark class="blue">&lt;size&gt;'&lt;base&gt;&lt;value&gt;</mark> — the <mark>size</mark> tells the number of bits, and the <mark>base letter</mark> tells how to read the value.</p>
+      <p><span class="star">★</span> If size is not given, Verilog assumes a <mark class="green">default width</mark> (simulator dependent) — always better to specify it!</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- TOPIC 3 -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">✅</span>
+        <span class="topic-title">Comments in Verilog</span>
+      </div>
+      <p><mark>Comments</mark> help document code so it's easier to read and understand — they are ignored by the simulator/compiler.</p>
+      <ul>
+        <li><mark class="blue">Single-line comment</mark> → starts with <span class="doodle-box">//</span> and continues till the end of the line.</li>
+        <li><mark class="green">Multi-line comment</mark> → starts with <span class="doodle-box">/*</span> and ends with <span class="doodle-box">*/</span>, can span many lines.</li>
+      </ul>
+      <div class="code-snip">// this is a single-line comment
+/* this is a
+   multi-line comment */</div>
+      <p><span class="star">★</span> Good comments explain the <mark class="pink">"why"</mark> not just the "what" — helps a lot when revisiting old RTL code!</p>
+    </div>
+
+  </div>
+</body>
+</html>

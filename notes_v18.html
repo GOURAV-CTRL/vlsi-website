@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — SR Latch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 42px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.8;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #16324f;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .warn-title .icon{ font-size:22px; }
+  .star{ color:#e0a800; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.vector-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+  }
+  table.vector-table td, table.vector-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 6px 14px;
+    text-align:center;
+    color: var(--ink);
+  }
+  table.vector-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">SR Latch 🔒</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes — Part 11: Sequential Building Blocks</div>
+
+    <!-- LATCH VS FF INTRO -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">What Makes a Latch a Latch</span>
+      </div>
+      <p>A <mark>latch</mark> is the simplest possible <mark class="blue">memory element</mark> — a circuit that can hold (store) one bit of state even after its inputs go away, unlike pure combinational logic which only reflects its current inputs.</p>
+      <p>Unlike a <mark class="green">flip-flop</mark> (covered in Part 12), a latch is <mark class="orange">level-sensitive</mark>, not edge-sensitive — it stays "transparent" and follows its inputs the entire time its enable is active, only "latching" the last value once enable goes low.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- SR LATCH THEORY -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">SR Latch — Behavior</span>
+      </div>
+      <p>The <mark>SR latch</mark> (Set-Reset latch) has two inputs, <mark class="blue">S (set)</mark> and <mark class="green">R (reset)</mark>, and one stored output <mark class="orange">q</mark> (plus its complement, <mark class="pink">qn</mark>).</p>
+
+      <table class="vector-table">
+        <tr><th>S</th><th>R</th><th>q (next state)</th><th>Meaning</th></tr>
+        <tr><td>0</td><td>0</td><td>hold (no change)</td><td>Latch keeps its previous value</td></tr>
+        <tr><td>0</td><td>1</td><td>0</td><td>Reset — q forced low</td></tr>
+        <tr><td>1</td><td>0</td><td>1</td><td>Set — q forced high</td></tr>
+        <tr><td>1</td><td>1</td><td>invalid</td><td>Forbidden — both outputs forced same value</td></tr>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- SR LATCH CODE -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">SR Latch — Behavioral Code</span>
+      </div>
+      <p>Because this circuit must <mark class="blue">remember</mark> its state, the always block deliberately leaves <mark class="green">q</mark> unassigned in the "hold" case — this is the one place in RTL where an inferred latch is <mark class="orange">intentional</mark>, not a bug.</p>
+
+      <div class="code-snip">module sr_latch (
+    input  wire s, r,
+    output reg  q,
+    output wire qn
+);
+
+  always @(*) begin
+    if (s &amp;&amp; !r)
+      q = 1'b1;        // Set
+    else if (!s &amp;&amp; r)
+      q = 1'b0;        // Reset
+    else if (!s &amp;&amp; !r)
+      q = q;           // Hold — deliberately no change, latch inferred
+    else
+      q = 1'bx;        // S=R=1: invalid/undefined state
+  end
+
+  assign qn = ~q;
+
+endmodule</div>
+
+      <div class="sub-head">🔹 Key Points</div>
+      <ul class="indent">
+        <li><mark class="blue">q = q;</mark> in the hold branch is what makes the synthesizer infer <mark class="green">storage</mark> (a latch) instead of pure combinational logic — normally this exact pattern is a bug (Part 8's warning), but here it's the entire point.</li>
+        <li>The <mark class="orange">S=R=1</mark> case is marked invalid because in real cross-coupled gate hardware, both q and qn would be forced to the same value, breaking the qn = ~q relationship.</li>
+        <li><mark class="pink">qn</mark> is derived combinationally from q here for simplicity — a true gate-level SR latch generates qn directly from cross-coupled NOR/NAND gates instead.</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <!-- GATED SR LATCH -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Gated SR Latch — Adding an Enable</span>
+      </div>
+      <p>A <mark class="blue">gated (clocked) SR latch</mark> adds an <mark class="green">enable</mark> input — while enable is high the latch is transparent and behaves like the plain SR latch above; while enable is low, q holds its value regardless of S and R.</p>
+
+      <div class="code-snip">module sr_latch_gated (
+    input  wire s, r, en,
+    output reg  q
+);
+
+  always @(*) begin
+    if (en) begin
+      if (s &amp;&amp; !r)      q = 1'b1;
+      else if (!s &amp;&amp; r) q = 1'b0;
+      else if (!s &amp;&amp; !r) q = q;   // hold within active window
+      else               q = 1'bx;
+    end
+    // en == 0: no assignment at all -&gt; q holds (latch)
+  end
+
+endmodule</div>
+
+      <p><span class="star">★</span> Notice there's <mark class="green">no else branch</mark> for <mark class="orange">en == 0</mark> at all — leaving q completely unassigned in that case is exactly what makes the enable behave like a real gated latch, freezing q the instant en drops.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- NAND vs NOR VERSION -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Gate-Level View — NOR vs NAND SR Latch</span>
+      </div>
+      <table class="vector-table">
+        <tr><th>Implementation</th><th>Inputs Active</th><th>Default (idle) input level</th></tr>
+        <tr><td>Cross-coupled NOR gates</td><td>Active-high S, R</td><td>S = R = 0</td></tr>
+        <tr><td>Cross-coupled NAND gates</td><td>Active-low S̄, R̄</td><td>S̄ = R̄ = 1</td></tr>
+      </table>
+      <p>The behavioral code above models the <mark class="blue">active-high NOR-based</mark> version. For the <mark class="green">NAND-based</mark> version, simply invert the sense of S and R in the conditions (or rename them s_n, r_n) and swap the idle/forbidden rows accordingly.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WARNINGS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Important Warnings</span>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> S = R = 1 Is Genuinely Forbidden</div>
+        <p>Unlike a "don't care" case, the <mark class="blue">S=R=1</mark> input combination is a real hardware hazard in a basic SR latch — both q and qn get forced toward the same logic level, and when the inputs return to S=R=0 together, the final state becomes <mark class="orange">unpredictable (a race)</mark> depending on gate delays.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> This Is One of the Few Places a Latch Is Intentional</div>
+        <p>Every earlier lecture (Parts 6–10) warned that a missing assignment or a <mark class="blue">q = q;</mark> self-hold pattern causes an unwanted inferred latch — here it's flipped: the SR latch's entire purpose <mark class="green">is</mark> that inferred storage, so don't "fix" it by adding a default case that always assigns q.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Latches Are Level-Sensitive, Not Edge-Sensitive</div>
+        <p>A gated SR latch stays <mark class="blue">transparent</mark> for the entire time <mark class="green">en</mark> is high — any glitch on s or r during that window passes straight through to q — this is very different from a flip-flop, which only samples inputs at a clock edge (see Part 12).</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Latches Are Generally Avoided in Synchronous RTL</div>
+        <p>Because of their level-sensitive, glitch-prone nature, most digital design flows explicitly <mark class="blue">avoid inferring latches</mark> in synthesizable RTL except in very specific, deliberate cases like this one — most synthesis tools will flag inferred latches with a warning precisely so they don't slip in by accident.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

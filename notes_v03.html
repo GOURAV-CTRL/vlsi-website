@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — Port Connection Rules</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 42px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.9;
+  }
+  .intro{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin-bottom: 26px;
+    background: rgba(255,255,255,0.4);
+    border-left: 4px solid var(--accent);
+    padding: 10px 16px;
+    border-radius: 4px;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  .checkmark{ font-size:22px; }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #0a1f3d;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .star{ color:#cf9300; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.cmp-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+    width: 100%;
+  }
+  table.cmp-table td, table.cmp-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 8px 14px;
+    text-align:left;
+    color: var(--ink);
+  }
+  table.cmp-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 21px;
+    text-align:center;
+  }
+  table.cmp-table td:first-child{
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .footer-note{
+    text-align:center;
+    font-family:'Caveat', cursive;
+    font-size: 22px;
+    color: var(--ink-soft);
+    margin-top: 26px;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Port Connection Rules 📒</h1>
+    <div class="subtitle">All About VLSI · Verilog Interfacing Notes</div>
+
+    <div class="intro">
+      A guide to correctly <mark class="blue">interfacing between modules and testbenches</mark> — how ports are typed, how connections are made, and the rules/pitfalls every beginner should know before <mark class="green">VLSI / FPGA interviews</mark>.
+    </div>
+
+    <!-- PORT DATA TYPES -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">✅</span>
+        <span class="topic-title">Port Data Types</span>
+      </div>
+
+      <div class="sub-head">🔹 Input Ports</div>
+      <ul class="indent">
+        <li>Always of type <mark>net</mark> (wire) — never declared as <mark class="pink">reg</mark> inside the module.</li>
+        <li>Declaring an input as <mark class="pink">reg</mark> causes a <mark class="orange">compilation error</mark>, because inputs must be <mark class="green">continuously driven</mark> from outside.</li>
+      </ul>
+
+      <div class="sub-head">🔹 Output Ports</div>
+      <ul class="indent">
+        <li>Can be declared as either <mark class="blue">net (wire)</mark> or <mark class="blue">reg</mark>.</li>
+        <li>Use <mark>reg</mark> if the output value needs to be <mark class="green">stored/held inside a procedural block</mark> (e.g. assigned inside <span class="doodle-box">always</span>).</li>
+        <li>Use <mark>wire</mark> if it's just a continuous combinational output (e.g. via <span class="doodle-box">assign</span>).</li>
+      </ul>
+
+      <div class="sub-head">🔹 Testbench ↔ Design Connections</div>
+      <ul class="indent">
+        <li>Signals that <mark class="pink">drive the design's inputs</mark> from the testbench → can be <mark>reg</mark> or <mark>net</mark>.</li>
+        <li>Signals that <mark class="green">receive the design's outputs</mark> back into the testbench → must be <mark>net</mark> (wire) only.</li>
+      </ul>
+
+      <table class="cmp-table">
+        <tr><th>Port</th><th>Allowed type inside module</th><th>Allowed type in testbench</th></tr>
+        <tr><td>input</td><td>net (wire) only</td><td>reg or net</td></tr>
+        <tr><td>output</td><td>net or reg</td><td>net only</td></tr>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- METHODS OF PORT CONNECTION -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">✅</span>
+        <span class="topic-title">Methods of Port Connection</span>
+      </div>
+
+      <div class="sub-head">🔹 Connection by Name (Named Association)</div>
+      <ul class="indent">
+        <li>Uses the <mark class="blue">. syntax</mark> → <span class="doodle-box">.port_name(signal)</span></li>
+        <li><mark class="green">Recommended practice</mark> — readable and <mark>order-independent</mark> (won't break if port order changes in the module).</li>
+      </ul>
+      <div class="code-snip">and_gate u1 (
+  .a(sig_a),
+  .b(sig_b),
+  .y(sig_y)
+);</div>
+
+      <div class="sub-head">🔹 Connection by Order (Positional Association)</div>
+      <ul class="indent">
+        <li>Connects signals purely based on the <mark class="pink">order</mark> they appear in the module's port list.</li>
+        <li><mark class="orange">Error-prone</mark> — risky as designs grow larger or port order changes.</li>
+      </ul>
+      <div class="code-snip">and_gate u1 (sig_a, sig_b, sig_y);</div>
+
+      <p><span class="star">★</span> Rule of thumb → always prefer <mark class="green">named association</mark> in real projects; positional is okay only for very small/simple modules.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- COMMON PITFALLS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">⚠️</span>
+        <span class="topic-title">Common Pitfalls &amp; Rules</span>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title">⚡ Width Mismatch</div>
+        <p>If the port width and connected signal width differ, Verilog only connects the <mark class="orange">LSBs</mark> — extra bits are silently dropped/truncated. <mark class="pink">No error is thrown</mark>, so this is considered poor practice and should be avoided.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title">⚡ Unconnected Inputs</div>
+        <p>Leaving an <mark>input port unconnected</mark> during instantiation triggers a <mark class="pink">compilation error</mark> — inputs must always have a driving source.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title">⚡ Unconnected Outputs</div>
+        <p>Leaving an <mark>output port unconnected</mark> is <mark class="green">allowed</mark> and will not cause an error — useful when you don't need to observe that particular output.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title">⚡ Argument Mismatch</div>
+        <p>Providing the <mark class="orange">wrong number of arguments</mark> during instantiation (too many/too few) leads to a compilation error — the connection list must match the module's port list.</p>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- EXTRA: GOOD PRACTICES -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">✅</span>
+        <span class="topic-title">Extra Tips — Good Practice Checklist</span>
+      </div>
+      <ul>
+        <li>Always use <mark class="blue">named port connections</mark> for designs with more than a handful of ports.</li>
+        <li>Match port <mark class="green">widths exactly</mark> — don't rely on implicit LSB truncation.</li>
+        <li>Double-check that every <mark class="pink">input</mark> is driven before instantiation — simulators will stop you, but it's good to catch early.</li>
+        <li>It's fine to leave unused <mark class="orange">outputs</mark> unconnected — use an underscore <span class="doodle-box">.port_name()</span> or simply omit it when using named association.</li>
+        <li>When connecting from a testbench, remember: <mark>DUT inputs ← reg/wire</mark>, <mark>DUT outputs → wire only</mark>.</li>
+      </ul>
+    </div>
+
+    <div class="footer-note">~ Keep these rules handy before your next interview! ~</div>
+
+  </div>
+</body>
+</html>

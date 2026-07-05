@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — Sequence Detector 101 (Mealy &amp; Moore, Overlapping)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb; --paper-line: #c7e0f0; --accent: #2c5f8a;
+    --ink: #0a1f3d; --ink-soft: #142d52;
+    --highlight-yellow: #fff176; --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1; --highlight-blue: #9ad1ff; --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{ margin:0; padding: 40px 20px; background: #cfe6f5; font-family: 'Patrick Hand', cursive; display:flex; justify-content:center; }
+  .page{ position:relative; width: 820px; max-width: 100%;
+    background: repeating-linear-gradient(var(--paper), var(--paper) 38px, var(--paper-line) 39px, var(--paper) 40px);
+    border-radius: 6px; box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px; overflow:hidden; }
+  .page::after{ content:""; position:absolute; top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%); pointer-events:none; }
+  h1.title{ font-family:'Caveat', cursive; font-weight:700; color: var(--ink); font-size: 42px; margin: 0 0 4px 0; text-align:center; }
+  .subtitle{ text-align:center; color: var(--ink-soft); font-size:18px; margin-bottom: 26px; opacity:0.8; }
+  .part-banner{ font-family:'Caveat', cursive; font-weight:700; font-size: 34px; color: var(--accent); text-align:center; margin: 40px 0 18px 0; }
+  .topic{ margin-bottom: 30px; }
+  .topic-head{ display:flex; align-items:baseline; gap:10px; margin-bottom:8px; flex-wrap:wrap; }
+  .topic-title{ font-family:'Caveat', cursive; font-weight:700; font-size:29px; color: var(--ink); }
+  p, li{ font-size: 20px; line-height: 1.55; color: var(--ink); font-weight: 500; margin: 0 0 9px 0; }
+  ul{ margin: 6px 0 0 0; padding-left: 24px; }
+  li{ margin-bottom: 7px; } li::marker{ color: var(--accent); }
+  mark{ background: var(--highlight-yellow); padding: 1px 4px; border-radius: 2px; box-decoration-break: clone; -webkit-box-decoration-break: clone; font-weight: 600; }
+  mark.pink{ background: var(--highlight-pink); } mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); } mark.orange{ background: var(--highlight-orange); }
+  .code-snip{ font-family: 'Patrick Hand', cursive; background: #f8fbff; border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px; padding: 10px 14px; margin: 10px 0; color: #16324f; font-size: 19px; white-space: pre-wrap; display:inline-block; }
+  .warn-box{ border: 2px dashed #b35900; background: rgba(255, 244, 224, 0.6); border-radius: 10px; padding: 12px 16px; margin: 12px 0; }
+  .warn-title{ font-family:'Caveat', cursive; font-weight:700; font-size: 24px; color: #b35900; }
+  .warn-title .icon{ font-size:22px; }
+  .divider{ border:none; border-top: 2px dashed var(--ink-soft); opacity:0.35; margin: 16px 0 22px 0; }
+  .divider.thick{ border-top: 3px solid var(--accent); opacity:0.5; margin: 30px 0 10px 0; }
+  table.vector-table{ border-collapse: collapse; margin: 10px 0; font-size: 19px; }
+  table.vector-table td, table.vector-table th{ border: 1.5px solid var(--ink-soft); padding: 6px 14px; text-align:center; color: var(--ink); }
+  table.vector-table th{ background: rgba(154, 209, 255, 0.4); font-family:'Caveat', cursive; font-size: 20px; }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Sequence Detector "101" — Overlapping 🔍</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes — Part 23: Mealy &amp; Moore, Side by Side</div>
+
+    <div class="topic">
+      <div class="topic-head"><span class="topic-title">Problem Statement</span></div>
+      <p>Design a detector for the bit pattern <mark class="blue">101</mark> on a serial input <mark class="green">din</mark>, with <mark class="orange">overlapping</mark> detection allowed — meaning the last bit of one match can be reused as the first bit of the next match (e.g. input <mark class="pink">10101</mark> should detect 101 twice, at positions 2 and 4).</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- ============ MOORE ============ -->
+    <div class="part-banner">Moore Machine — Output Depends Only on State</div>
+
+    <div class="topic">
+      <div class="topic-head"><span class="topic-title">State Diagram Logic</span></div>
+      <ul>
+        <li><mark class="blue">S0</mark> — idle / no match so far</li>
+        <li><mark class="green">S1</mark> — saw "1"</li>
+        <li><mark class="orange">S2</mark> — saw "10"</li>
+        <li><mark class="pink">S3</mark> — saw "101" → detected=1 this cycle</li>
+      </ul>
+      <p>For <mark class="blue">overlapping</mark> detection, from S3 (just matched "101"), the last bit "1" is reused — so on the next input, S3 behaves like S1 (already has one "1" queued), not like resetting fully to S0.</p>
+    </div>
+
+    <div class="topic">
+      <div class="topic-head"><span class="topic-title">Moore FSM — Verilog Code</span></div>
+      <div class="code-snip">module seq_detect_101_moore (
+    input  wire clk,
+    input  wire rst_n,
+    input  wire din,
+    output reg  detected
+);
+
+    localparam S0 = 2'b00,   // idle
+               S1 = 2'b01,   // saw "1"
+               S2 = 2'b10,   // saw "10"
+               S3 = 2'b11;   // saw "101" -> match
+
+    reg [1:0] state, next_state;
+
+    // Block 1: State register (sequential, non-blocking)
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            state &lt;= S0;
+        else
+            state &lt;= next_state;
+    end
+
+    // Block 2: Next-state logic (combinational, blocking)
+    always @(*) begin
+        case (state)
+            S0: next_state = din ? S1 : S0;
+            S1: next_state = din ? S1 : S2;
+            S2: next_state = din ? S3 : S0;
+            S3: next_state = din ? S1 : S2;   // overlap: reuse last '1' as new S1
+            default: next_state = S0;
+        endcase
+    end
+
+    // Block 3: Output logic (Moore -> depends only on state)
+    always @(*) begin
+        detected = (state == S3);
+    end
+
+endmodule</div>
+      <p>Note the <mark class="green">S3 → din=1 → S1</mark> transition: instead of dropping to S0, the machine treats the reused "1" as the start of a fresh potential match — this is exactly what makes overlapping detection work.</p>
+    </div>
+
+    <hr class="divider thick">
+
+    <!-- ============ MEALY ============ -->
+    <div class="part-banner">Mealy Machine — Output Depends on State + Input</div>
+
+    <div class="topic">
+      <div class="topic-head"><span class="topic-title">Key Difference from Moore</span></div>
+      <p>A Mealy machine needs <mark class="blue">only 3 states</mark> for this problem (no separate "match" state) since the <mark class="green">detected</mark> output can fire immediately, combinationally, on the transition <mark class="orange">S2 --din=1--></mark> back toward S1 — the output is asserted <mark class="pink">during</mark> the transition rather than needing its own state.</p>
+    </div>
+
+    <div class="topic">
+      <div class="topic-head"><span class="topic-title">Mealy FSM — Verilog Code</span></div>
+      <div class="code-snip">module seq_detect_101_mealy (
+    input  wire clk,
+    input  wire rst_n,
+    input  wire din,
+    output reg  detected
+);
+
+    localparam S0 = 2'b00,   // idle
+               S1 = 2'b01,   // saw "1"
+               S2 = 2'b10;   // saw "10"
+
+    reg [1:0] state, next_state;
+
+    // Block 1: State register (sequential, non-blocking)
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            state &lt;= S0;
+        else
+            state &lt;= next_state;
+    end
+
+    // Block 2: Next-state logic (combinational, blocking)
+    always @(*) begin
+        case (state)
+            S0: next_state = din ? S1 : S0;
+            S1: next_state = din ? S1 : S2;
+            S2: next_state = din ? S1 : S0;   // overlap: reuse '1' as new S1
+            default: next_state = S0;
+        endcase
+    end
+
+    // Block 3: Output logic (Mealy -> depends on state AND input)
+    always @(*) begin
+        detected = (state == S2) &amp;&amp; din;   // fires the instant '1' completes "101"
+    end
+
+endmodule</div>
+      <p>The <mark class="pink">detected</mark> signal here is a function of <mark class="blue">state == S2 and din == 1</mark> simultaneously — it asserts one cycle earlier relative to the clock than the Moore version's registered output, which is the classic Mealy-vs-Moore timing difference.</p>
+    </div>
+
+    <hr class="divider thick">
+
+    <!-- ============ COMPARISON ============ -->
+    <div class="part-banner">Mealy vs Moore — Comparison for This Design</div>
+
+    <div class="topic">
+      <table class="vector-table">
+        <tr><th>Aspect</th><th>Moore</th><th>Mealy</th></tr>
+        <tr><td>Number of states</td><td>4 (S0–S3)</td><td>3 (S0–S2)</td></tr>
+        <tr><td>Output depends on</td><td>Current state only</td><td>Current state + din</td></tr>
+        <tr><td>Output timing</td><td>Registered, one cycle after pattern completes</td><td>Combinational, same cycle as final bit</td></tr>
+        <tr><td>Overlap handling</td><td>S3 → din=1 → S1</td><td>S2 → din=1 → S1 (with detected=1 pulse)</td></tr>
+        <tr><td>Glitch sensitivity</td><td>Low (output tied to state)</td><td>Higher (output is purely combinational)</td></tr>
+      </table>
+    </div>
+
+    <div class="warn-box">
+      <div class="warn-title"><span class="icon">⚠️</span> Simulate Both on the Same Input Stream to See the Timing Shift</div>
+      <p>Feed both modules the identical bitstream <mark class="blue">1 0 1 0 1</mark> and compare <mark class="green">detected</mark> waveforms — the Mealy output will assert <mark class="orange">one clock cycle earlier</mark> than the Moore output for the same detected pattern, even though both correctly flag two overlapping matches.</p>
+    </div>
+
+  </div>
+</body>
+</html>

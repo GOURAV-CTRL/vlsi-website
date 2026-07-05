@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — For Loops &amp; Case Statements</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 42px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.8;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #16324f;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .warn-title .icon{ font-size:22px; }
+  .star{ color:#e0a800; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.vector-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+  }
+  table.vector-table td, table.vector-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 6px 14px;
+    text-align:center;
+    color: var(--ink);
+  }
+  table.vector-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">For Loops &amp; Case Statements 🔁</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes — Part 8: Procedural Constructs</div>
+
+    <!-- FOR LOOP BASICS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">The for Loop — Syntax</span>
+      </div>
+      <p>Just like C, a <mark>for loop</mark> repeats a statement (or block) a fixed number of times, controlled by an <mark class="blue">initialization</mark>, a <mark class="green">condition</mark>, and a <mark class="orange">step</mark> — but here it must live inside a <mark class="pink">procedural block</mark> (initial/always), never on its own.</p>
+
+      <div class="code-snip">integer i;
+
+always @(*) begin
+  for (i = 0; i &lt; 8; i = i + 1) begin
+    // body executes once per iteration
+  end
+end</div>
+
+      <div class="sub-head">🔹 Key Points</div>
+      <ul class="indent">
+        <li>The loop variable (<mark class="blue">i</mark> here) is usually declared as <mark>integer</mark> — a 32-bit signed type — not as a wire/reg vector.</li>
+        <li>Unlike software, a Verilog for loop inside combinational logic is <mark class="green">unrolled at compile/elaboration time</mark> — it doesn't create real hardware "looping," it just repeats the described logic N times.</li>
+        <li>Always wrap multi-statement bodies in <span class="doodle-box">begin ... end</span>, exactly like any other procedural block.</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <!-- FOR LOOP EXAMPLE 1: PARITY -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Example 1 — Parity Generator (Reduction via Loop)</span>
+      </div>
+      <p>A for loop can XOR together every bit of a bus one at a time — useful before you learn the shorthand <mark class="blue">reduction operator</mark> (^data), and still handy for more complex per-bit processing.</p>
+
+      <div class="code-snip">module parity_gen (
+    input  wire [7:0] data,
+    output reg        parity
+);
+  integer i;
+
+  always @(*) begin
+    parity = 1'b0;
+    for (i = 0; i &lt; 8; i = i + 1) begin
+      parity = parity ^ data[i];   // accumulate XOR of all bits
+    end
+  end
+endmodule</div>
+
+      <p><span class="star">★</span> Notice <mark class="green">parity</mark> is reset to 0 before the loop starts — forgetting this initialization is one of the most common for-loop bugs, since it would otherwise hold a stale value from the previous evaluation.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- FOR LOOP EXAMPLE 2: PRIORITY ENCODER -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Example 2 — Priority Encoder Using a Loop</span>
+      </div>
+      <div class="code-snip">module priority_enc8 (
+    input  wire [7:0] req,
+    output reg  [2:0] grant_idx,
+    output reg        valid
+);
+  integer i;
+
+  always @(*) begin
+    grant_idx = 3'd0;
+    valid     = 1'b0;
+    for (i = 7; i &gt;= 0; i = i - 1) begin
+      if (req[i] &amp;&amp; !valid) begin
+        grant_idx = i[2:0];
+        valid     = 1'b1;
+      end
+    end
+  end
+endmodule</div>
+      <p>Looping from <mark class="blue">MSB down to LSB</mark> and using a <mark class="orange">valid</mark> flag to "lock in" the first match found is a classic pattern for building priority logic without a long if-else chain.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- CASE STATEMENT BASICS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">The case Statement — Syntax</span>
+      </div>
+      <p>Selects one branch to execute based on <mark>matching a control expression</mark> against a list of possible values — much cleaner than a long chain of if-else-if for multi-way decisions.</p>
+
+      <div class="code-snip">reg [1:0] sel;
+reg [7:0] y;
+
+always @(*) begin
+  case (sel)
+    2'b00:  y = a;
+    2'b01:  y = b;
+    2'b10:  y = c;
+    default: y = d;
+  endcase
+end</div>
+
+      <div class="sub-head">🔹 Key Points</div>
+      <ul class="indent">
+        <li>Each branch is checked <mark class="blue">top to bottom</mark>; the first match wins and the rest are skipped.</li>
+        <li>A <span class="doodle-box">default</span> branch should almost always be included — see the warning below on latch inference.</li>
+        <li>Multiple values can share one branch: <mark class="green">2'b01, 2'b10: y = x;</mark> using a comma-separated list.</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <!-- CASEZ CASEX -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">casez and casex — Wildcard Matching</span>
+      </div>
+      <table class="vector-table">
+        <tr><th>Statement</th><th>Treats as "don't care"</th></tr>
+        <tr><td>case</td><td>Nothing — exact match only, including x/z</td></tr>
+        <tr><td>casez</td><td>z bits (written as ?) in the case item</td></tr>
+        <tr><td>casex</td><td>Both x and z bits in the case item</td></tr>
+      </table>
+
+      <div class="code-snip">always @(*) begin
+  casez (opcode)
+    4'b1???: instr_type = ADD;   // any value with MSB=1 matches
+    4'b01??: instr_type = SUB;
+    default: instr_type = NOP;
+  endcase
+end</div>
+
+      <p><span class="star">★</span> <mark class="pink">casex</mark> is generally discouraged in synthesizable RTL — treating actual unknown <mark class="orange">x</mark> values in simulation as "don't care" can mask real bugs that <mark class="green">casez</mark> would not hide.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- COMBINING BOTH: BCD to 7-SEG -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Putting Them Together — BCD to 7-Segment Decoder</span>
+      </div>
+      <p>A great real example that uses a <mark class="blue">case</mark> statement to map each digit, entirely inside an <mark class="green">always</mark> block:</p>
+
+      <div class="code-snip">module bcd_to_7seg (
+    input  wire [3:0] digit,
+    output reg  [6:0] seg   // {g,f,e,d,c,b,a}
+);
+  always @(*) begin
+    case (digit)
+      4'd0: seg = 7'b0111111;
+      4'd1: seg = 7'b0000110;
+      4'd2: seg = 7'b1011011;
+      4'd3: seg = 7'b1001111;
+      4'd4: seg = 7'b1100110;
+      4'd5: seg = 7'b1101101;
+      4'd6: seg = 7'b1111101;
+      4'd7: seg = 7'b0000111;
+      4'd8: seg = 7'b1111111;
+      4'd9: seg = 7'b1101111;
+      default: seg = 7'b0000000;  // blank for invalid BCD
+    endcase
+  end
+endmodule</div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WARNINGS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Important Warnings</span>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Missing default → Inferred Latch</div>
+        <p>Just like Part 6's full adder example, a <mark class="blue">case</mark> statement without a <mark class="green">default</mark> branch (or that doesn't cover every possible value) leaves outputs unassigned for some inputs, causing the synthesizer to infer an unwanted <mark class="pink">latch</mark> instead of combinational logic.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Loop Variable Must Be Reset Each Time</div>
+        <p>Any accumulator variable used inside a <mark class="blue">for loop</mark> (like the running XOR in the parity example) must be explicitly initialized <mark class="orange">before</mark> the loop on every invocation of the always block — otherwise it silently carries over its previous value.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> for Loops Don't Create Real Hardware Loops</div>
+        <p>A synthesizable <mark class="blue">for loop</mark> is fully <mark class="green">unrolled</mark> into repeated combinational logic at synthesis time — it is not a runtime loop like in software, so loop bounds must be fixed at compile time (no data-dependent bounds).</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> casex Can Hide Real Bugs</div>
+        <p>Because <mark class="blue">casex</mark> treats both <mark class="orange">x</mark> and <mark class="pink">z</mark> as wildcards, an actual unintended unknown value in simulation can accidentally match a branch instead of flagging a bug — prefer <mark class="green">casez</mark> (or plain case) in most RTL code.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

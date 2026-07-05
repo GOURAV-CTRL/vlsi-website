@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes - RCA & BCD Adder</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Indie+Flower&display=swap" rel="stylesheet">
+<style>
+  body {
+    background: #f4ecd8;
+    background-image:
+      linear-gradient(90deg, transparent 79px, #d8b9b9 79px, #d8b9b9 81px, transparent 81px),
+      linear-gradient(#e7dcc3 1px, transparent 1px);
+    background-size: 100% 38px, 100% 38px;
+    margin: 0;
+    padding: 40px 20px;
+    font-family: 'Indie Flower', cursive;
+  }
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    background: #fdf8ec;
+    padding: 50px 60px 50px 90px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    border-radius: 4px;
+    position: relative;
+    transform: rotate(-0.3deg);
+  }
+  h1 {
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 46px;
+    color: #1e3a8a;
+    text-align: center;
+    margin-bottom: 4px;
+    text-decoration: underline wavy #c0392b;
+  }
+  .subtitle {
+    text-align: center;
+    color: #555;
+    font-size: 20px;
+    margin-bottom: 30px;
+    font-style: italic;
+  }
+  h2 {
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 32px;
+    color: #b5292b;
+    border-bottom: 2px dashed #b5292b;
+    display: inline-block;
+    margin-top: 35px;
+    margin-bottom: 12px;
+    transform: rotate(-0.5deg);
+  }
+  h3 {
+    font-family: 'Caveat', cursive;
+    font-size: 25px;
+    color: #1e6b3a;
+    margin-bottom: 6px;
+    margin-top: 18px;
+  }
+  p, li {
+    font-size: 20px;
+    line-height: 1.7;
+    color: #2b2b2b;
+  }
+  ul {
+    margin-top: 4px;
+    padding-left: 25px;
+  }
+  li {
+    margin-bottom: 8px;
+  }
+  .highlight {
+    background: linear-gradient(120deg, #fff79a 0%, #fff79a 100%);
+    background-repeat: no-repeat;
+    background-size: 100% 45%;
+    background-position: 0 75%;
+    padding: 0 2px;
+  }
+  .keyword {
+    color: #1e3a8a;
+    font-weight: bold;
+  }
+  .code {
+    font-family: 'Courier New', monospace;
+    background: #eee6cf;
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: #6a1b9a;
+    font-size: 17px;
+  }
+  .note-box {
+    border: 2px dashed #2b6cb0;
+    border-radius: 10px;
+    padding: 12px 18px;
+    margin: 18px 0;
+    background: rgba(43,108,176,0.05);
+    transform: rotate(0.4deg);
+  }
+  .note-box::before {
+    content: "★ NOTE";
+    display: block;
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    color: #2b6cb0;
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+  .star {
+    color: #c0392b;
+  }
+  .doodle {
+    position: absolute;
+    font-size: 28px;
+  }
+  .doodle.tl { top: 15px; left: 18px; transform: rotate(-15deg); }
+  .arrow {
+    font-size: 22px;
+    color: #b5292b;
+  }
+  .margin-tag {
+    position: absolute;
+    left: -78px;
+    top: 0;
+    font-family: 'Caveat', cursive;
+    font-size: 16px;
+    color: #888;
+    width: 65px;
+    text-align: right;
+  }
+  .section {
+    position: relative;
+  }
+  hr {
+    border: none;
+    border-top: 2px dotted #aaa;
+    margin: 30px 0;
+  }
+  .footer-note {
+    text-align: center;
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    color: #1e6b3a;
+    margin-top: 35px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <span class="doodle tl">✏️</span>
+  <h1>Verilog Notes 📘</h1>
+  <p class="subtitle">Gate Level Modeling — 4-bit Ripple Carry Adder &amp; BCD Adder</p>
+
+  <hr>
+
+  <div class="section">
+    <h2>1️⃣ Ripple Carry Adder (RCA) Design</h2>
+
+    <h3>→ Concept</h3>
+    <ul>
+      <li>An RCA is built using <span class="keyword">four full adders</span> connected in series.</li>
+      <li>The <span class="highlight">carry-out</span> of each stage becomes the <span class="highlight">carry-in</span> of the next stage — hence the name "ripple" carry.</li>
+      <li>This is the simplest way to build a multi-bit adder, but it's <span class="star">slow</span> for large bit-widths since the carry must "ripple" through every stage before the final sum is correct.</li>
+    </ul>
+
+    <h3>→ Implementation</h3>
+    <ul>
+      <li>Each <span class="code">full_adder</span> module is instantiated individually (Gate Level style — built from basic logic gates like AND, OR, XOR).</li>
+      <li><span class="keyword">Vectors</span> are used to handle multi-bit inputs A[3:0], B[3:0] and outputs Sum[3:0], Carry.</li>
+      <li>Internal wires are declared to connect the carry-out of one full adder to the carry-in of the next.</li>
+    </ul>
+
+    <div class="note-box">
+      Remember: in GLM, you connect <i>gates</i> directly — no behavioral always blocks. It's like wiring a real circuit on paper!
+    </div>
+
+    <h3>→ Verification</h3>
+    <ul>
+      <li>The RCA module is set as the <span class="keyword">top module</span> in the simulator/synthesis tool.</li>
+      <li>The <span class="highlight">elaborated schematic</span> is checked to confirm all gate-level connections (wires, ports) are correctly wired.</li>
+      <li>This is a structural check only — it confirms wiring, not logical correctness.</li>
+    </ul>
+  </div>
+
+  <hr>
+
+  <div class="section">
+    <h2>2️⃣ BCD (Binary Coded Decimal) Adder Design</h2>
+
+    <h3>→ Concept</h3>
+    <ul>
+      <li>A BCD adder takes two <span class="keyword">4-bit binary adders</span> + extra correction logic.</li>
+      <li>Since BCD digits only go from 0–9, any binary sum greater than 9 needs to be <span class="highlight">corrected</span> back into valid BCD form.</li>
+      <li>Correction = adding <span class="star">6 (0110)</span> to the result whenever the sum exceeds 9 or a carry is generated.</li>
+    </ul>
+
+    <h3>→ Implementation Steps</h3>
+    <ul>
+      <li><b>Step 1:</b> First RCA adds the two 4-bit binary inputs → produces an initial sum (S3 S2 S1 S0) and carry.</li>
+      <li><b>Step 2:</b> Logic gates (AND, OR) examine output bits <span class="code">S3, S2, S1</span> to detect if the result is greater than 9.
+        <br><span class="arrow">↳</span> Condition typically checks for combinations like (S3 AND S2) OR (S3 AND S1) OR Carry-out.</li>
+      <li><b>Step 3:</b> If the condition is true, a correction value of 6 is added using a second 4-bit adder.</li>
+    </ul>
+
+    <h3>→ Design Nuances</h3>
+    <ul>
+      <li>Some bits of the correction adder's input are fixed at <span class="code">0</span>, others come directly from the logic gates' outputs.</li>
+      <li>The <span class="keyword">assign</span> keyword is used in Verilog to wire constants or gate outputs directly to specific bit positions (continuous assignment).</li>
+      <li>Example pattern: <span class="code">assign correction[3:0] = {1'b0, carry_detect, carry_detect, 1'b0};</span></li>
+    </ul>
+
+    <div class="note-box">
+      The correction logic is the "brain" of the BCD adder — without it, the circuit is just a plain binary adder!
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="section">
+    <h2>3️⃣ Key Takeaways</h2>
+    <ul>
+      <li><b>Visualization ≠ Functionality:</b> A correct-looking schematic only proves the <i>structure</i> is wired properly — it does NOT prove the logic <i>behaves</i> correctly.</li>
+      <li><b>Test Benches are essential:</b> To truly verify functional correctness, you must simulate the design using test benches that apply input vectors and check outputs.</li>
+      <li>Future sessions will focus on writing test benches for these adder designs.</li>
+    </ul>
+  </div>
+
+  <hr>
+
+  <div class="section">
+    <h2>📝 Extra Concepts Worth Remembering</h2>
+    <ul>
+      <li><b>Full Adder basics:</b> Sum = A ⊕ B ⊕ Cin, Carry = (A·B) + (Cin·(A⊕B))</li>
+      <li><b>Gate Level Modeling (GLM):</b> Lowest level of abstraction in Verilog — describes circuits using primitive gates (and, or, xor, not, nand, nor, xnor) instead of behavioral code.</li>
+      <li><b>Why BCD matters:</b> Used in digital clocks, calculators, and display systems where decimal representation is required.</li>
+      <li><b>Ripple delay tradeoff:</b> RCA is simple but has propagation delay ∝ number of bits. Carry Look-Ahead Adders solve this speed issue (good topic to explore next!).</li>
+      <li><b>Module reuse:</b> Notice how the same full_adder / 4-bit adder module is instantiated multiple times — a key idea of modular, reusable hardware design.</li>
+    </ul>
+  </div>
+
+  <p class="footer-note">— End of Notes — Keep practicing! 🔧⚡</p>
+</div>
+</body>
+</html>

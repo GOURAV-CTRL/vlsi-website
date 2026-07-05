@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — The Event Scheduler</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 42px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.8;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #16324f;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .warn-title .icon{ font-size:22px; }
+  .star{ color:#e0a800; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.vector-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+  }
+  table.vector-table td, table.vector-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 6px 14px;
+    text-align:center;
+    color: var(--ink);
+  }
+  table.vector-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 20px;
+  }
+  .flow-box{
+    border: 1.5px solid var(--ink-soft);
+    border-radius: 8px;
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.5);
+    display:block;
+    margin: 6px 0;
+  }
+  .flow-arrow{
+    text-align:center;
+    font-size:22px;
+    color: var(--accent);
+    margin: 0;
+    line-height:1.1;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">The Verilog Event Scheduler ⏱️</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes — Part 4: Simulation Semantics</div>
+
+    <!-- WHY IT EXISTS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Why a Scheduler Even Exists</span>
+      </div>
+      <p>Real hardware is <mark>massively parallel</mark> — every gate and flip-flop updates at once. A simulator, though, runs on a <mark class="blue">single CPU thread</mark>, so it needs a disciplined way to decide <mark class="green">what order to process events in</mark> at any given simulation time, without breaking the illusion of parallelism.</p>
+      <p>The <mark class="orange">event scheduler</mark> is that referee. Simulation time is split into discrete <mark class="pink">time steps</mark>, and each time step is further split into ordered <mark>regions</mark> — this is what makes blocking vs non-blocking behavior deterministic and repeatable.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- THE FOUR REGIONS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">The Four Main Regions (per time step)</span>
+      </div>
+      <p>Within one simulation time step, events are processed in this <mark class="blue">strict order</mark> — a region only starts once the one before it is completely empty:</p>
+
+      <span class="flow-box">① <mark class="green">Active</mark> region</span>
+      <p class="flow-arrow">↓</p>
+      <span class="flow-box">② <mark class="blue">Inactive</mark> region</span>
+      <p class="flow-arrow">↓</p>
+      <span class="flow-box">③ <mark class="orange">NBA (Non-Blocking Assign) Update</mark> region</span>
+      <p class="flow-arrow">↓</p>
+      <span class="flow-box">④ <mark class="pink">Postponed</mark> region</span>
+
+      <div class="sub-head">🔹 What Happens in Each Region</div>
+      <ul class="indent">
+        <li><mark class="green">Active</mark> — blocking assignments (=), continuous assign evaluation, and $display execute here, immediately and in program order.</li>
+        <li><mark class="blue">Inactive</mark> — statements scheduled with an explicit <span class="doodle-box">#0</span> delay land here, processed right after the Active region empties.</li>
+        <li><mark class="orange">NBA Update</mark> — this is where every <mark>&lt;=</mark> right-hand side (already sampled back in the Active region) is finally written to its left-hand side, all together.</li>
+        <li><mark class="pink">Postponed</mark> — read-only region for <span class="doodle-box">$strobe</span> and $monitor, guaranteed to see final, settled values after everything else this time step is done.</li>
+      </ul>
+
+      <p><span class="star">★</span> If new events get added to an <mark>earlier</mark> region while a later one is running (e.g. a blocking assignment triggers another Active-region event), the simulator loops back — it never skips ahead until a region is truly empty.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- STEP THROUGH EXAMPLE -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Walking Through an Example</span>
+      </div>
+      <div class="code-snip">module dff2 (input clk, d, output reg q1, q2);
+  always @(posedge clk) begin
+    q1 &lt;= d;
+    q2 &lt;= q1;
+  end
+endmodule</div>
+
+      <div class="sub-head">🔹 At the Clock Edge</div>
+      <ul class="indent">
+        <li><mark class="green">Active region:</mark> both RHS expressions (<mark class="blue">d</mark> and <mark class="blue">q1</mark>) are evaluated using their values from just before the edge — but the actual writes to q1/q2 are only scheduled, not yet performed.</li>
+        <li><mark class="orange">NBA region:</mark> now q1 is written with the sampled d, and q2 is written with the <mark class="pink">old</mark> q1 — not the brand-new one — because that value was captured back in the Active region.</li>
+      </ul>
+      <p>This is exactly <mark>why</mark> a 2-stage non-blocking shift register works correctly regardless of statement order — the scheduler, not the code order, guarantees the "read old, write new" semantics.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- BLOCKING VS NBA IN SCHEDULER TERMS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Blocking vs Non-Blocking, in Scheduler Terms</span>
+      </div>
+      <table class="vector-table">
+        <tr><th>Aspect</th><th>Blocking ( = )</th><th>Non-Blocking ( &lt;= )</th></tr>
+        <tr><td>Region</td><td>Active</td><td>RHS sampled in Active, LHS written in NBA Update</td></tr>
+        <tr><td>Visible to later Active statements?</td><td>Yes, immediately</td><td>No — value not visible until NBA region</td></tr>
+        <tr><td>Multiple assignments race?</td><td>Possible (order-dependent)</td><td>Race-free (deterministic)</td></tr>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- $monitor / $strobe -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Why $monitor and $strobe Live in Postponed</span>
+      </div>
+      <p><mark class="blue">$display</mark> prints immediately, in the Active region, so it can show <mark class="green">stale</mark> values if it runs before an NBA update lands. <mark class="orange">$monitor</mark> and <mark class="pink">$strobe</mark> are deliberately delayed to the <mark>Postponed</mark> region so they always report the final, fully-settled value of every signal for that time step.</p>
+
+      <div class="code-snip">always @(posedge clk) begin
+  q &lt;= d;
+  $display("q = %b", q);   // prints OLD q (Active region)
+  $strobe ("q = %b", q);   // prints NEW q (Postponed region)
+end</div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WARNINGS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Important Warnings</span>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> $display Can Lie to You</div>
+        <p>Because <mark class="blue">$display</mark> executes in the Active region, printing a signal right after a non-blocking assignment to it will show the <mark class="orange">old</mark> value, not the one you just scheduled — use <mark class="pink">$strobe</mark> if you need the post-update value in the same statement.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Race Conditions Between Blocks</div>
+        <p>Two separate <mark class="blue">always @(posedge clk)</mark> blocks both using blocking assignments to communicate with each other can produce <mark>simulator-order-dependent</mark> results — this is the classic textbook race condition that non-blocking assignments were introduced to eliminate.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> #0 Delays Are a Code Smell</div>
+        <p>Relying on <span class="doodle-box">#0</span> to "push" a statement into the Inactive region and dodge a race condition usually signals a <mark class="pink">deeper ordering bug</mark> in the design — real RTL should never depend on Inactive-region timing tricks to behave correctly.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Synthesis Tools Don't Simulate</div>
+        <p>The event scheduler is a <mark class="blue">simulation-only</mark> concept — synthesis tools infer hardware structure directly from blocking/non-blocking usage patterns instead, which is exactly why <mark>mismatched styles</mark> (Part 3's golden rule) cause simulation-vs-synthesis mismatches rather than scheduler confusion in silicon.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

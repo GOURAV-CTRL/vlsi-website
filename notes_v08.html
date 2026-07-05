@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — 2-Bit Comparator (Gate Level)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 42px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.8;
+  }
+  .timestamp{
+    font-family:'Caveat', cursive;
+    font-size: 18px;
+    color: var(--accent);
+    font-weight:600;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  .checkmark{ font-size:22px; }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #16324f;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .star{ color:#e0a800; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.vector-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+  }
+  table.vector-table td, table.vector-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 6px 14px;
+    text-align:center;
+    color: var(--ink);
+  }
+  table.vector-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">2-Bit Comparator — Gate Level Modelling 📒</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes</div>
+
+    <!-- WHAT IS A COMPARATOR -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">What is a Magnitude Comparator?</span>
+      </div>
+      <p>A <mark>magnitude comparator</mark> compares two binary numbers, <mark class="blue">A</mark> and <mark class="green">B</mark>, and tells us which one is <mark class="orange">bigger, smaller, or equal</mark>.</p>
+      <ul>
+        <li>Has <mark class="pink">3 outputs</mark>: <span class="doodle-box">A&gt;B</span>, <span class="doodle-box">A&lt;B</span>, <span class="doodle-box">A=B</span> — exactly one is high at a time.</li>
+        <li>A <mark>2-bit comparator</mark> takes two 2-bit inputs → <mark class="blue">A = A1 A0</mark> and <mark class="green">B = B1 B0</mark>.</li>
+        <li>Built purely from <mark>basic gates</mark> (XNOR, AND, OR, NOT) here — no always block, no behavioural code.</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <!-- BOOLEAN LOGIC -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Boolean Expressions</span>
+      </div>
+      <p>First, define <mark>equality bits</mark> for each position using <mark class="blue">XNOR</mark> (since XNOR = 1 only when both bits match):</p>
+      <div class="code-snip">x0 = ~(A0 ^ B0);   // A0 == B0
+x1 = ~(A1 ^ B1);   // A1 == B1</div>
+
+      <div class="sub-head">🔹 A = B (Equal)</div>
+      <p>Both bit positions must match → <mark class="green">AND the two equality bits</mark>:</p>
+      <div class="code-snip">A_eq_B = x1 &amp; x0;</div>
+
+      <div class="sub-head">🔹 A &gt; B (Greater)</div>
+      <p>A is bigger if its <mark class="orange">MSB is bigger</mark>, OR the MSBs are equal and its <mark class="pink">LSB is bigger</mark>:</p>
+      <div class="code-snip">A_gt_B = (A1 &amp; ~B1) | (x1 &amp; A0 &amp; ~B0);</div>
+
+      <div class="sub-head">🔹 A &lt; B (Less)</div>
+      <p>By symmetry — swap the roles of A and B from the greater-than expression:</p>
+      <div class="code-snip">A_lt_B = (~A1 &amp; B1) | (x1 &amp; ~A0 &amp; B0);</div>
+
+      <p><span class="star">★</span> These three outputs are <mark>mutually exclusive</mark> — exactly one of them is 1 for any given A and B.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- GATE LEVEL VERILOG CODE -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Verilog Code (Gate Level)</span>
+      </div>
+      <div class="code-snip">module comparator_2bit (
+  input  A1, A0, B1, B0,
+  output A_gt_B, A_lt_B, A_eq_B
+);
+
+  wire x0, x1;
+  wire n_A1, n_A0, n_B1, n_B0;
+  wire t1, t2, t3, t4;
+
+  // equality of each bit pair
+  xnor (x0, A0, B0);
+  xnor (x1, A1, B1);
+
+  // A = B
+  and  (A_eq_B, x1, x0);
+
+  // inverted signals for the compare logic
+  not (n_A1, A1);
+  not (n_A0, A0);
+  not (n_B1, B1);
+  not (n_B0, B0);
+
+  // A &gt; B
+  and (t1, A1, n_B1);
+  and (t2, x1, A0, n_B0);
+  or  (A_gt_B, t1, t2);
+
+  // A &lt; B
+  and (t3, n_A1, B1);
+  and (t4, x1, n_A0, B0);
+  or  (A_lt_B, t3, t4);
+
+endmodule</div>
+      <p><span class="star">★</span> Every line here is a <mark class="blue">primitive gate instantiation</mark> (and, or, not, xnor) — this is the whole point of <mark>gate level modelling</mark>: build the circuit exactly the way you'd wire it on a breadboard.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- TRUTH TABLE -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Sample Truth Table</span>
+      </div>
+      <table class="vector-table">
+        <tr><th>A (A1A0)</th><th>B (B1B0)</th><th>A&gt;B</th><th>A&lt;B</th><th>A=B</th></tr>
+        <tr><td>00</td><td>00</td><td>0</td><td>0</td><td>1</td></tr>
+        <tr><td>01</td><td>00</td><td>1</td><td>0</td><td>0</td></tr>
+        <tr><td>10</td><td>11</td><td>0</td><td>1</td><td>0</td></tr>
+        <tr><td>11</td><td>10</td><td>1</td><td>0</td><td>0</td></tr>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WARNINGS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">⚠️</span>
+        <span class="topic-title">Important Warnings</span>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title">⚡ Don't Mix Modelling Styles</div>
+        <p>In pure <mark class="blue">gate level modelling</mark>, avoid using <mark>assign</mark> or <mark class="orange">always</mark> blocks — only primitive gates (and, or, not, xor, xnor, nand, nor) are allowed. Mixing styles defeats the purpose of the exercise.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title">⚡ Gate Instance Names are Optional</div>
+        <p>You can write <span class="doodle-box">and(y, a, b);</span> without an instance name — Verilog auto-generates one. Named instances like <span class="doodle-box">and g1(y, a, b);</span> just make debugging easier in waveform viewers.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title">⚡ Watch the Output Port Order</div>
+        <p>In gate primitives, the <mark class="pink">output always comes first</mark> in the port list, followed by the inputs — e.g. <mark>and(out, in1, in2)</mark>, not the other way around. Easy to mix up when converting from equations.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

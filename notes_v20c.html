@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — Universal Shift Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 42px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.8;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #16324f;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .warn-title .icon{ font-size:22px; }
+  .star{ color:#e0a800; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.vector-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+  }
+  table.vector-table td, table.vector-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 6px 14px;
+    text-align:center;
+    color: var(--ink);
+  }
+  table.vector-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Universal Shift Register 🔄</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes — Part 15: Shift Registers</div>
+
+    <!-- CONCEPT -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">What Makes It "Universal"</span>
+      </div>
+      <p>A <mark>universal shift register</mark> combines <mark class="blue">every mode</mark> from Parts 13–14 — SISO, SIPO, PISO, and PIPO — into a single module, selectable at runtime via a <mark class="green">mode-select</mark> input. Instead of building four separate modules, one flexible register handles them all.</p>
+
+      <table class="vector-table">
+        <tr><th>mode</th><th>Operation</th></tr>
+        <tr><td>00</td><td>Hold (no change)</td></tr>
+        <tr><td>01</td><td>Shift right (serial in from the right)</td></tr>
+        <tr><td>10</td><td>Shift left (serial in from the left)</td></tr>
+        <tr><td>11</td><td>Parallel load</td></tr>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- CODE -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">4-Bit Universal Shift Register — Behavioral Code</span>
+      </div>
+      <p>This directly combines Part 8's <mark class="blue">case statement</mark> style with the shift idioms from Parts 13–14 — one <mark class="green">always @(posedge clk)</mark> block, one case on mode, four possible next-states for the register.</p>
+
+      <div class="code-snip">module universal_shift_reg #(
+    parameter N = 4
+)(
+    input  wire         clk, rst_n,
+    input  wire [1:0]   mode,       // 00=hold 01=shift-right 10=shift-left 11=load
+    input  wire         sin_right,  // serial in for right-shift
+    input  wire         sin_left,   // serial in for left-shift
+    input  wire [N-1:0] pin,        // parallel data in
+    output reg  [N-1:0] q           // current register value (also PIPO output)
+);
+
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+      q &lt;= {N{1'b0}};
+    end else begin
+      case (mode)
+        2'b00: q &lt;= q;                          // hold
+        2'b01: q &lt;= {sin_right, q[N-1:1]};       // shift right, new bit enters MSB
+        2'b10: q &lt;= {q[N-2:0], sin_left};        // shift left, new bit enters LSB
+        2'b11: q &lt;= pin;                         // parallel load
+      endcase
+    end
+  end
+
+endmodule</div>
+
+      <div class="sub-head">🔹 Key Points</div>
+      <ul class="indent">
+        <li>All four modes live in <mark class="blue">one always block</mark>, selected by a clean <mark class="green">case</mark> statement — exactly the pattern from Part 8.</li>
+        <li>Both shift idioms from Part 13 reappear here, just now <mark class="orange">selectable</mark> rather than hardwired to a single direction.</li>
+        <li><mark class="pink">q</mark> doubles as both the shifting register and the parallel output — no separate output port needed, since q is already the full internal state.</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <!-- HOW IT COVERS ALL 4 TYPES -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">How One Module Replaces All Four Types</span>
+      </div>
+      <table class="vector-table">
+        <tr><th>Desired Behavior</th><th>How to Get It</th></tr>
+        <tr><td>SISO</td><td>Hold mode=01 (or 10) continuously; read q[0] or q[N-1] as serial out</td></tr>
+        <tr><td>SIPO</td><td>Hold mode=01/10 for N cycles, then read entire q as parallel output</td></tr>
+        <tr><td>PISO</td><td>Pulse mode=11 once to load, then switch to mode=01/10 to shift out</td></tr>
+        <tr><td>PIPO</td><td>Pulse mode=11 to load; read q immediately as parallel output</td></tr>
+      </table>
+      <p><span class="star">★</span> This is exactly why real hardware designs favor a <mark class="blue">universal shift register</mark> over four separate modules — one block, controlled purely by <mark class="green">mode</mark>, can be reused across completely different datapath roles.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- EXTENDED: WITH ENABLE -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Adding a Global Enable (Common Real-World Addition)</span>
+      </div>
+      <p>Many practical universal shift registers add a top-level <mark class="blue">enable</mark> signal so the entire register can be frozen regardless of mode — useful for pausing a datapath without touching the mode control lines.</p>
+
+      <div class="code-snip">always @(posedge clk or negedge rst_n) begin
+  if (!rst_n)
+    q &lt;= {N{1'b0}};
+  else if (en) begin
+    case (mode)
+      2'b00: q &lt;= q;
+      2'b01: q &lt;= {sin_right, q[N-1:1]};
+      2'b10: q &lt;= {q[N-2:0], sin_left};
+      2'b11: q &lt;= pin;
+    endcase
+  end
+  // en == 0: q holds automatically, no case needed
+end</div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WARNINGS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Important Warnings</span>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Mode Encoding Must Be Documented Clearly</div>
+        <p>Because <mark class="blue">mode</mark> is just a 2-bit code with no inherent meaning, every user of this module needs a clear reference for which value means <mark class="green">shift-left</mark> vs <mark class="orange">shift-right</mark> vs <mark class="pink">load</mark> — mixing up the encoding is a very common integration bug.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> case Already Covers All 4 Combinations</div>
+        <p>Since <mark class="blue">mode</mark> is exactly 2 bits, all <mark class="green">2² = 4</mark> combinations are enumerated in the case statement above — no default branch is strictly required, but adding one is still good defensive practice if mode could ever be driven to x/z.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Simultaneously Changing mode and Expecting Same-Cycle Effect</div>
+        <p>Because this is a <mark class="blue">clocked, non-blocking</mark> always block, changing mode combinationally takes effect starting from the <mark class="green">next</mark> clock edge, not instantly — this is standard synchronous behavior, but worth remembering when writing a testbench that toggles mode.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Still Just Flip-Flops Underneath</div>
+        <p>Despite the added flexibility, a universal shift register is still built from the same <mark class="blue">D flip-flop</mark> array from Part 12 — the "universal" part is entirely in the <mark class="green">combinational mux logic</mark> feeding each flip-flop's D input, selected by mode.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

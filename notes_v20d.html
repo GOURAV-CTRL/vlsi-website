@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — Why Blocking for Comb, Non-Blocking for Seq</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 42px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.8;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #16324f;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .warn-title .icon{ font-size:22px; }
+  .star{ color:#e0a800; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.vector-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+  }
+  table.vector-table td, table.vector-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 6px 14px;
+    text-align:center;
+    color: var(--ink);
+  }
+  table.vector-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 20px;
+  }
+  .flow-box{
+    border: 1.5px solid var(--ink-soft);
+    border-radius: 8px;
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.5);
+    display:block;
+    margin: 6px 0;
+  }
+  .flow-arrow{
+    text-align:center;
+    font-size:22px;
+    color: var(--accent);
+    margin: 0;
+    line-height:1.1;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Why = for Combinational, &lt;= for Sequential 🤔</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes — Part 16: The Golden Rule, Explained</div>
+
+    <!-- THE RULE RECAP -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">The Rule, Quickly Recapped</span>
+      </div>
+      <p>Part 3 introduced this as the <mark class="orange">"golden rule"</mark>: use <mark class="blue">blocking (=)</mark> in combinational always blocks, and <mark class="green">non-blocking (&lt;=)</mark> in clocked/sequential always blocks. This note explains <mark class="pink">why</mark> that rule exists, instead of just stating it.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- REASON 1: MODELS THE PHYSICS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Reason 1 — Each Style Models Different Real Hardware</span>
+      </div>
+      <p>Combinational logic (gates, muxes, adders) has <mark class="blue">no memory</mark> — its output is a pure function of its current inputs, updating "instantly" (well, after gate delay) whenever any input changes. <mark class="green">Blocking</mark> assignment mirrors this: each statement finishes completely before the next runs, exactly like signals propagating through a chain of gates.</p>
+      <p>Sequential logic (flip-flops) is fundamentally different — every flop <mark class="orange">samples its input at the same instant</mark> (the clock edge) and holds it until the next edge. <mark class="pink">Non-blocking</mark> assignment mirrors this: every right-hand side is sampled from the "before-edge" world, and every left-hand side updates together, as if all flip-flops in the circuit are edge-triggered simultaneously — because in real hardware, they are.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- REASON 2: THE SHIFT REGISTER PROOF -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Reason 2 — The Classic Shift Register Proof</span>
+      </div>
+      <p>This is the clearest demonstration. Recall the 2-flop chain from Part 4:</p>
+
+      <div class="code-snip">// Non-blocking version — CORRECT for flip-flops
+always @(posedge clk) begin
+  q1 &lt;= d;
+  q2 &lt;= q1;   // uses OLD q1 (from before this edge)
+end</div>
+
+      <div class="code-snip">// Blocking version — WRONG for flip-flops
+always @(posedge clk) begin
+  q1 = d;
+  q2 = q1;   // uses NEW q1 (just updated above!)
+end</div>
+
+      <p>With <mark class="blue">&lt;=</mark>, q2 correctly gets the value q1 held <mark class="green">before</mark> the clock edge — true 2-stage shift-register behavior, matching two real flip-flops in series. With <mark class="orange">=</mark>, q2 instantly gets q1's <mark class="pink">brand-new</mark> value in the same edge — collapsing two flops' worth of delay into one, which is not what the hardware actually does.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- REASON 3: SCHEDULER REGIONS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Reason 3 — It's Baked Into the Event Scheduler</span>
+      </div>
+      <p>Part 4 covered this in depth: <mark class="blue">blocking</mark> assignments execute in the <mark class="green">Active</mark> region, immediately, in program order. <mark class="orange">Non-blocking</mark> right-hand sides are sampled in Active, but their left-hand sides are only written in the later <mark class="pink">NBA Update</mark> region — after every always block in that time step has been evaluated.</p>
+
+      <span class="flow-box">Active region — blocking (=) executes here</span>
+      <p class="flow-arrow">↓</p>
+      <span class="flow-box">NBA Update region — non-blocking (&lt;=) writes happen here</span>
+
+      <p>This scheduler design isn't arbitrary — it's precisely engineered to give sequential logic its "read-old, write-new, all-at-once" behavior, and to give combinational logic its "immediate, in-order" behavior.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- REASON 4: RACE CONDITIONS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Reason 4 — Non-Blocking Eliminates Race Conditions Between Blocks</span>
+      </div>
+      <p>Imagine two separate <mark class="blue">always @(posedge clk)</mark> blocks, each reading a signal the other writes. With <mark class="green">blocking</mark> assignments, the result depends on which block the simulator happens to execute first in that time step — a genuine <mark class="orange">race condition</mark>, since Verilog doesn't guarantee execution order between separate always blocks.</p>
+
+      <div class="code-snip">// Block A
+always @(posedge clk) a = b;   // race! depends on execution order
+
+// Block B
+always @(posedge clk) b = a;</div>
+
+      <p>With <mark class="pink">non-blocking</mark>, both blocks sample the pre-edge values of a and b in the Active region, then write in the NBA region — the result is <mark class="green">deterministic</mark> regardless of which always block the simulator happens to visit first.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- REASON 5: SYNTHESIS MATCH -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Reason 5 — Keeps Simulation and Synthesis in Agreement</span>
+      </div>
+      <p>Synthesis tools infer hardware structure from coding style — <mark class="blue">blocking</mark> assignments in a sensitivity-complete always block infer <mark class="green">combinational gates</mark>; <mark class="orange">non-blocking</mark> assignments in a clocked always block infer <mark class="pink">flip-flops</mark>. Following the golden rule means the mental model you get from simulation (waveforms) matches the actual gate/flop-level circuit that gets built — mixing styles risks a mismatch where simulation "looks right" but synthesized hardware behaves differently, or vice versa.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- SUMMARY TABLE -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Summary — The Full Chain of Reasoning</span>
+      </div>
+      <table class="vector-table">
+        <tr><th>Reason</th><th>Blocking (=) in Comb</th><th>Non-Blocking (&lt;=) in Seq</th></tr>
+        <tr><td>Models</td><td>Instant gate propagation</td><td>Simultaneous flip-flop sampling</td></tr>
+        <tr><td>Scheduler region</td><td>Active (immediate)</td><td>Active sample + NBA Update write</td></tr>
+        <tr><td>Multi-stage chains</td><td>Each stage sees updated value (correct for comb chains)</td><td>Each stage sees old value (correct for shift regs)</td></tr>
+        <tr><td>Cross-block races</td><td>Possible if misused sequentially</td><td>Eliminated between clocked blocks</td></tr>
+        <tr><td>Synthesis match</td><td>Matches inferred combinational gates</td><td>Matches inferred flip-flops</td></tr>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WARNINGS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="topic-title">Important Warnings</span>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> "It Simulates Fine" Isn't Proof It's Correct</div>
+        <p>A design using <mark class="blue">blocking</mark> assignments in sequential logic can sometimes appear to simulate correctly in simple testbenches, purely by luck of statement/block ordering — this is exactly the kind of <mark class="green">race condition</mark> that only shows up when block order changes or under different tool versions.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> The Rule Is About the Block Type, Not the Signal Name</div>
+        <p>The golden rule depends on whether the <mark class="blue">always block</mark> is combinational (@*) or clocked (@posedge clk) — not on any property of the signal itself. The same signal name could theoretically appear in either kind of block in different modules, and the assignment style must match the block it's actually written in.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title"><span class="icon">⚠️</span> Breaking the Rule Doesn't Always Error Out</div>
+        <p>Verilog will happily <mark class="blue">compile and simulate</mark> code that breaks the golden rule — there's no built-in error for using = in a clocked block or &lt;= in a combinational one. The consequences (races, synthesis mismatch) are <mark class="orange">silent</mark> until they cause a real functional bug, which is exactly why this rule is worth internalizing rather than relying on tools to catch it.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

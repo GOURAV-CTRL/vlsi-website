@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — Data Types, Vectors &amp; Best Practices</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb;
+    --paper-line: #c7e0f0;
+    --accent: #2c5f8a;
+    --ink: #0a1f3d;
+    --ink-soft: #142d52;
+    --highlight-yellow: #fff176;
+    --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1;
+    --highlight-blue: #9ad1ff;
+    --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    padding: 40px 20px;
+    background: #cfe6f5;
+    font-family: 'Patrick Hand', cursive;
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    position:relative;
+    width: 820px;
+    max-width: 100%;
+    background:
+      repeating-linear-gradient(
+        var(--paper),
+        var(--paper) 38px,
+        var(--paper-line) 39px,
+        var(--paper) 40px
+      );
+    border-radius: 6px;
+    box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px;
+    overflow:hidden;
+  }
+  .page::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%);
+    pointer-events:none;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    color: var(--ink);
+    font-size: 42px;
+    margin: 0 0 4px 0;
+    text-align:center;
+  }
+  .subtitle{
+    text-align:center;
+    color: var(--ink-soft);
+    font-size:18px;
+    margin-bottom: 26px;
+    opacity:0.8;
+  }
+  .timestamp{
+    font-family:'Caveat', cursive;
+    font-size: 18px;
+    color: var(--accent);
+    font-weight:600;
+  }
+  .topic{
+    margin-bottom: 30px;
+  }
+  .topic-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+    flex-wrap:wrap;
+  }
+  .topic-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:29px;
+    color: var(--ink);
+  }
+  .sub-head{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:24px;
+    color: var(--ink-soft);
+    margin: 14px 0 6px 18px;
+  }
+  .checkmark{ font-size:22px; }
+  p, li{
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 500;
+    margin: 0 0 9px 0;
+  }
+  ul{
+    margin: 6px 0 0 0;
+    padding-left: 24px;
+  }
+  ul.indent{ margin-left: 18px; }
+  li{ margin-bottom: 7px; }
+  li::marker{ color: var(--accent); }
+
+  mark{
+    background: var(--highlight-yellow);
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    font-weight: 600;
+  }
+  mark.pink{ background: var(--highlight-pink); }
+  mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); }
+  mark.orange{ background: var(--highlight-orange); }
+
+  .code-snip{
+    font-family: 'Patrick Hand', cursive;
+    background: #f8fbff;
+    border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    color: #16324f;
+    font-size: 19px;
+    white-space: pre-wrap;
+    display:inline-block;
+  }
+  .doodle-box{
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display:inline-block;
+    transform: rotate(-1deg);
+    background: rgba(255,255,255,0.4);
+    margin: 4px 0;
+  }
+  .warn-box{
+    border: 2px dashed #b35900;
+    background: rgba(255, 244, 224, 0.6);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  .warn-title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size: 24px;
+    color: #b35900;
+  }
+  .star{ color:#e0a800; }
+  .divider{
+    border:none;
+    border-top: 2px dashed var(--ink-soft);
+    opacity:0.35;
+    margin: 16px 0 22px 0;
+  }
+  table.vector-table{
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 19px;
+  }
+  table.vector-table td, table.vector-table th{
+    border: 1.5px solid var(--ink-soft);
+    padding: 6px 14px;
+    text-align:center;
+    color: var(--ink);
+  }
+  table.vector-table th{
+    background: rgba(154, 209, 255, 0.4);
+    font-family:'Caveat', cursive;
+    font-size: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Verilog Data Types &amp; Vectors 📒</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes (Part 2)</div>
+
+    <!-- NET DATA TYPES -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">✅</span>
+        <span class="topic-title">Net Data Types</span>
+      </div>
+      <p>Used mainly to represent <mark>physical interconnections</mark> between modules — they don't store a value on their own, they just <mark class="blue">carry</mark> whatever is driven onto them.</p>
+
+      <div class="sub-head">🔹 wire</div>
+      <ul class="indent">
+        <li>The <mark>standard / default net type</mark> in Verilog.</li>
+        <li><mark class="green">Driven continuously</mark> — its value always follows whatever is connected to it (like a gate output or assign statement).</li>
+        <li>Default value = <mark class="pink">'z'</mark> (high impedance) when undriven.</li>
+        <li>It is an <mark class="orange">unsigned</mark> data type.</li>
+      </ul>
+      <div class="code-snip">wire a, b, y;
+assign y = a &amp; b;</div>
+
+      <div class="sub-head">🔹 wor &amp; wand</div>
+      <ul class="indent">
+        <li>Special nets used when <mark>multiple drivers</mark> are connected to the same net (multi-driver nets).</li>
+        <li><mark class="blue">wor</mark> → resolves conflicts by performing a logical <mark class="blue">OR</mark> of all driver values.</li>
+        <li><mark class="green">wand</mark> → resolves conflicts by performing a logical <mark class="green">AND</mark> of all driver values.</li>
+      </ul>
+      <p><span class="star">★</span> Without wor/wand, multiple drivers on a plain <mark>wire</mark> usually cause a <mark class="pink">contention (unknown 'x')</mark>.</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- REG DATA TYPE -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">✅</span>
+        <span class="topic-title">reg Data Type</span>
+      </div>
+      <ul>
+        <li>Used to <mark>store data</mark> inside <mark class="blue">procedural blocks</mark> (always / initial).</li>
+        <li>Despite the name, <mark class="orange">reg does not always mean a flip-flop</mark> — it just means "assigned inside a procedural block."</li>
+        <li>It is an <mark class="green">unsigned</mark> data type.</li>
+        <li>Default value = <mark class="pink">'x'</mark> (unknown).</li>
+      </ul>
+      <div class="code-snip">reg [3:0] count;
+always @(posedge clk)
+  count &lt;= count + 1;</div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- INTEGER & REAL -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">✅</span>
+        <span class="topic-title">Integer &amp; Real</span>
+      </div>
+      <ul>
+        <li><mark class="blue">integer</mark> → a <mark>32-bit signed</mark> data type. Used for <mark class="green">counting, looping, and indexing</mark>. Cannot hold fractional values.</li>
+        <li><mark class="orange">real</mark> → stores <mark>floating-point / decimal</mark> numbers, 64-bit. Generally <mark class="pink">non-synthesizable</mark> — used mainly for testbenches / calculations, not real hardware.</li>
+      </ul>
+      <div class="code-snip">integer i;
+for (i = 0; i &lt; 8; i = i + 1) ...
+
+real delay_time = 2.5;</div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- VECTORS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">✅</span>
+        <span class="topic-title">Vectors</span>
+      </div>
+      <p>A <mark>vector</mark> is simply a collection of bits grouped together under one signal name.</p>
+      <div class="code-snip">reg [2:0] a;   // 3-bit vector</div>
+
+      <ul>
+        <li><mark class="blue">Bit indexing</mark> → each bit of the vector can be accessed individually, e.g. <span class="doodle-box">a[0]</span>, <span class="doodle-box">a[2]</span>.</li>
+        <li><mark class="green">Big-endian</mark> → declared as <span class="doodle-box">[0:2]</span>, MSB is on the right (index 0 = leftmost/first bit declared).</li>
+        <li><mark class="orange">Little-endian</mark> → declared as <span class="doodle-box">[2:0]</span>, MSB is on the left — this is the <mark>more common convention</mark> used in practice.</li>
+        <li><mark class="pink">Vector slicing</mark> → lets you access a specific range of bits, e.g. <span class="doodle-box">a[2:1]</span> picks bits 2 and 1 only.</li>
+      </ul>
+
+      <table class="vector-table">
+        <tr><th>Declaration</th><th>Style</th><th>MSB position</th></tr>
+        <tr><td>[2:0]</td><td>Little-endian</td><td>Left (bit 2)</td></tr>
+        <tr><td>[0:2]</td><td>Big-endian</td><td>Right (bit 2)</td></tr>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WARNINGS -->
+    <div class="topic">
+      <div class="topic-head">
+        <span class="checkmark">⚠️</span>
+        <span class="topic-title">Important Warnings</span>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title">⚡ Verilog is Concurrent</div>
+        <p>All statements (outside sequential procedural blocks) execute <mark class="pink">in parallel</mark>, not top-to-bottom like software. This can cause <mark>conflicts</mark> if multiple drivers/blocks try to control the same signal without careful design.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title">⚡ Width Mismatches</div>
+        <p>Unlike <mark class="blue">VHDL</mark> (which throws a compile error), <mark>Verilog silently truncates</mark> — it will simply slice/keep the <mark class="orange">LSBs</mark> when assigning a bigger value to a smaller width signal. This is a very common <mark class="pink">beginner bug</mark> since no error or warning is given.</p>
+      </div>
+
+      <div class="warn-box">
+        <div class="warn-title">⚡ Always Size + Base Your Constants</div>
+        <p>Always write constants with their <mark>size</mark> and <mark>base</mark>, e.g. <span class="doodle-box">3'b011</span> instead of just <span class="doodle-box">3</span>. This avoids ambiguity and unexpected default-width behavior.</p>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

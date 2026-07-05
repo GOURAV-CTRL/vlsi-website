@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Notes — Introduction to Dataflow Modelling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #eaf4fb; --paper-line: #c7e0f0; --accent: #2c5f8a;
+    --ink: #0a1f3d; --ink-soft: #142d52;
+    --highlight-yellow: #fff176; --highlight-pink: #ff9eb5;
+    --highlight-green: #a8e6a1; --highlight-blue: #9ad1ff; --highlight-orange: #ffc285;
+  }
+  *{ box-sizing: border-box; }
+  body{ margin:0; padding: 40px 20px; background: #cfe6f5; font-family: 'Patrick Hand', cursive; display:flex; justify-content:center; }
+  .page{ position:relative; width: 820px; max-width: 100%;
+    background: repeating-linear-gradient(var(--paper), var(--paper) 38px, var(--paper-line) 39px, var(--paper) 40px);
+    border-radius: 6px; box-shadow: 0 12px 30px rgba(20,50,80,0.25), 0 2px 6px rgba(20,50,80,0.15);
+    padding: 50px 50px 60px 55px; overflow:hidden; }
+  .page::after{ content:""; position:absolute; top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.5), transparent 40%); pointer-events:none; }
+  h1.title{ font-family:'Caveat', cursive; font-weight:700; color: var(--ink); font-size: 42px; margin: 0 0 4px 0; text-align:center; }
+  .subtitle{ text-align:center; color: var(--ink-soft); font-size:18px; margin-bottom: 26px; opacity:0.8; }
+  .topic{ margin-bottom: 30px; }
+  .topic-head{ display:flex; align-items:baseline; gap:10px; margin-bottom:8px; flex-wrap:wrap; }
+  .topic-title{ font-family:'Caveat', cursive; font-weight:700; font-size:29px; color: var(--ink); }
+  p, li{ font-size: 20px; line-height: 1.55; color: var(--ink); font-weight: 500; margin: 0 0 9px 0; }
+  ul{ margin: 6px 0 0 0; padding-left: 24px; }
+  li{ margin-bottom: 7px; } li::marker{ color: var(--accent); }
+  mark{ background: var(--highlight-yellow); padding: 1px 4px; border-radius: 2px; box-decoration-break: clone; -webkit-box-decoration-break: clone; font-weight: 600; }
+  mark.pink{ background: var(--highlight-pink); } mark.green{ background: var(--highlight-green); }
+  mark.blue{ background: var(--highlight-blue); } mark.orange{ background: var(--highlight-orange); }
+  .code-snip{ font-family: 'Patrick Hand', cursive; background: #f8fbff; border: 1.5px dashed var(--ink-soft);
+    border-radius: 8px; padding: 10px 14px; margin: 10px 0; color: #16324f; font-size: 19px; white-space: pre-wrap; display:inline-block; }
+  .warn-box{ border: 2px dashed #b35900; background: rgba(255, 244, 224, 0.6); border-radius: 10px; padding: 12px 16px; margin: 12px 0; }
+  .warn-title{ font-family:'Caveat', cursive; font-weight:700; font-size: 24px; color: #b35900; }
+  .warn-title .icon{ font-size:22px; }
+  .divider{ border:none; border-top: 2px dashed var(--ink-soft); opacity:0.35; margin: 16px 0 22px 0; }
+  table.vector-table{ border-collapse: collapse; margin: 10px 0; font-size: 19px; }
+  table.vector-table td, table.vector-table th{ border: 1.5px solid var(--ink-soft); padding: 6px 14px; text-align:center; color: var(--ink); }
+  table.vector-table th{ background: rgba(154, 209, 255, 0.4); font-family:'Caveat', cursive; font-size: 20px; }
+</style>
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">Introduction to Dataflow Modelling 🌊</h1>
+    <div class="subtitle">All About VLSI · Lecture Notes — Part 21: assign-Based Design</div>
+
+    <div class="topic">
+      <div class="topic-head"><span class="topic-title">What Dataflow Modelling Is</span></div>
+      <p>Dataflow modelling describes hardware as <mark class="blue">continuous assignments</mark> between signals, using the <mark class="green">assign</mark> keyword — instead of gates (structural) or always blocks (behavioural). It directly expresses <mark class="orange">how data flows</mark> through combinational logic as Boolean/arithmetic expressions.</p>
+      <p>Key keyword: <mark class="pink">assign</mark> — the left-hand side must be a <mark class="blue">net (wire)</mark>, not a reg, and the assignment is continuously active — it re-evaluates any time a right-hand-side signal changes, just like real combinational hardware.</p>
+    </div>
+
+    <hr class="divider">
+
+    <div class="topic">
+      <div class="topic-head"><span class="topic-title">Basic Examples</span></div>
+      <div class="code-snip">// 2-to-1 MUX, dataflow style
+assign y = sel ? a : b;
+
+// Full adder, dataflow style
+assign sum   = a ^ b ^ cin;
+assign cout  = (a &amp; b) | (b &amp; cin) | (a &amp; cin);
+
+// 4-bit ripple carry using dataflow
+assign {cout, sum} = a + b + cin;</div>
+      <p>Notice there's <mark class="green">no always block, no sensitivity list, no procedural statements</mark> — just an expression that continuously drives a wire. This maps very directly to combinational gate-level hardware.</p>
+    </div>
+
+    <hr class="divider">
+
+    <div class="topic">
+      <div class="topic-head"><span class="topic-title">Dataflow vs Behavioural — Quick Contrast</span></div>
+      <table class="vector-table">
+        <tr><th>Aspect</th><th>Dataflow</th><th>Behavioural</th></tr>
+        <tr><td>Keyword</td><td>assign</td><td>always</td></tr>
+        <tr><td>Target type</td><td>wire</td><td>reg</td></tr>
+        <tr><td>Style</td><td>Expression-based</td><td>Procedural (if/case/loops)</td></tr>
+        <tr><td>Best for</td><td>Simple comb. logic (muxes, adders, gates)</td><td>Complex comb./sequential logic, FSMs</td></tr>
+      </table>
+    </div>
+
+    <div class="warn-box">
+      <div class="warn-title"><span class="icon">⚠️</span> Dataflow Is Combinational Only</div>
+      <p>Plain <mark class="blue">assign</mark> statements can only model combinational logic — there's no clock, no memory. Sequential elements (flip-flops, registers, FSMs) require <mark class="orange">behavioural</mark> modelling with clocked always blocks.</p>
+    </div>
+
+  </div>
+</body>
+</html>
