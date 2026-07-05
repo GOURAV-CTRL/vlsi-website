@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Verilog Bench — Module 1: Gate Level Modeling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0E14; --panel:#0F1420; --panel-2:#131A2A; --line:#1E2740;
+    --text:#C9D4E3; --muted:#5A6B85; --trace:#38BDF8; --trace-dim:#1B4A63;
+    --pass:#4ADE80; --warn:#F5A623; --fail:#F5576C;
+    --mono:'IBM Plex Mono',monospace; --sans:'IBM Plex Sans',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);height:100%;}
+  header{display:flex;align-items:center;justify-content:space-between;padding:12px 22px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0C111C,#0A0E14);}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-weight:600;color:#fff;font-size:14px;}
+  .brand .dot{width:8px;height:8px;border-radius:50%;background:var(--pass);box-shadow:0 0 8px var(--pass);animation:blink 2.4s infinite;}
+  @keyframes blink{0%,60%,100%{opacity:1}30%{opacity:.25}}
+  .brand small{color:var(--muted);font-weight:400;font-size:11px;margin-left:4px;}
+  .prog{font-family:var(--mono);font-size:12px;color:var(--muted);}
+  .prog b{color:var(--pass);}
+
+  .shell{display:grid;grid-template-columns:290px 1fr;height:calc(100vh - 49px);}
+  .sidebar{border-right:1px solid var(--line);overflow-y:auto;background:var(--panel);}
+  .grp-label{font-family:var(--mono);font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;padding:14px 16px 6px;}
+  .qitem{display:flex;align-items:center;gap:8px;padding:9px 16px;cursor:pointer;border-left:2px solid transparent;font-size:13px;}
+  .qitem:hover{background:var(--panel-2);}
+  .qitem.active{background:var(--panel-2);border-left-color:var(--trace);}
+  .qitem .st{width:14px;font-family:var(--mono);font-size:12px;color:var(--muted);flex-shrink:0;}
+  .qitem.solved .st{color:var(--pass);}
+  .qitem .qn{font-family:var(--mono);color:var(--muted);font-size:11.5px;width:20px;flex-shrink:0;}
+  .qitem .qt{flex:1;color:var(--text);}
+  .qitem .bd{font-family:var(--mono);font-size:9.5px;padding:2px 6px;border-radius:3px;flex-shrink:0;}
+  .bd.easy{color:var(--pass);background:#0c1f14;border:1px solid #1c3a26;}
+  .bd.medium{color:var(--warn);background:#1a1408;border:1px solid #3a2f16;}
+  .bd.hard{color:var(--fail);background:#210d10;border:1px solid #3a161b;}
+
+  .main{overflow-y:auto;padding:26px 34px 60px;}
+  .crumb{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+  .qhead{display:flex;align-items:center;gap:12px;margin:6px 0 14px;}
+  .qhead h1{font-size:20px;color:#fff;margin:0;}
+  .badge{font-family:var(--mono);font-size:10.5px;padding:3px 8px;border-radius:3px;letter-spacing:.03em;text-transform:uppercase;}
+  .badge.easy{color:var(--pass);background:#0c1f14;border:1px solid #1c3a26;}
+  .badge.medium{color:var(--warn);background:#1a1408;border:1px solid #3a2f16;}
+  .badge.hard{color:var(--fail);background:#210d10;border:1px solid #3a161b;}
+
+  p.desc{line-height:1.65;font-size:14.5px;max-width:820px;}
+  code.inline{font-family:var(--mono);background:var(--panel-2);color:var(--trace);padding:1px 6px;border-radius:3px;font-size:12.5px;}
+
+  .signals{margin:16px 0;border:1px solid var(--line);border-radius:6px;overflow:hidden;max-width:820px;}
+  table.siglist{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px;}
+  table.siglist td{padding:6px 12px;border-bottom:1px solid var(--line);}
+  table.siglist tr:last-child td{border-bottom:none;}
+  table.siglist td.name{color:var(--trace);width:110px;}
+
+  .editor-wrap{max-width:820px;margin-top:18px;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  .editor-head{display:flex;justify-content:space-between;align-items:center;padding:9px 16px;background:var(--panel);border-bottom:1px solid var(--line);}
+  .editor-head span{font-family:var(--mono);font-size:11.5px;color:var(--muted);}
+  textarea{width:100%;min-height:190px;background:var(--panel-2);color:var(--text);border:none;font-family:var(--mono);font-size:13px;line-height:1.6;padding:16px;resize:vertical;outline:none;}
+  .editor-actions{display:flex;justify-content:flex-end;gap:10px;padding:10px 16px;background:var(--panel);border-top:1px solid var(--line);}
+  button{font-family:var(--mono);font-size:12.5px;border-radius:4px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);padding:8px 16px;cursor:pointer;letter-spacing:.02em;}
+  button:hover{border-color:var(--trace-dim);}
+  button.run{color:var(--trace);border-color:var(--trace-dim);}
+  button.reveal{color:var(--muted);}
+
+  .console{max-width:820px;margin-top:14px;border:1px solid var(--line);border-radius:8px;display:none;}
+  .console.show{display:block;}
+  .console-head{padding:9px 16px;font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--line);background:var(--panel);}
+  .console-body{padding:14px 16px;font-family:var(--mono);font-size:12.5px;line-height:1.85;background:var(--panel-2);}
+  .result-row{display:flex;align-items:flex-start;gap:10px;padding:2px 0;}
+  .result-row .mark{width:14px;flex-shrink:0;}
+  .result-row.pass .mark{color:var(--pass);}
+  .result-row.fail .mark{color:var(--fail);}
+  .result-row .case{color:var(--muted);width:260px;flex-shrink:0;}
+  .result-row .note{color:var(--text);}
+  .summary{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-weight:600;}
+  .summary.good{color:var(--pass);}
+  .summary.bad{color:var(--fail);}
+  .disclaimer{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:10px;font-style:italic;}
+
+  .solution{max-width:820px;margin-top:14px;border:1px dashed var(--line);border-radius:8px;padding:14px 16px;display:none;}
+  .solution.show{display:block;}
+  .solution .snippet{font-family:var(--mono);font-size:12.5px;background:var(--panel-2);padding:12px 14px;border-radius:6px;margin-top:8px;white-space:pre;}
+  .why{font-size:13px;color:var(--muted);line-height:1.6;margin-top:10px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><span class="dot"></span>VERILOG_BENCH<small>// module 1 · gate level modeling · combinational scenarios</small></div>
+  <a href="verilog-course.html" style="color:var(--muted,#888); text-decoration:none; font-size:12px; margin-left:auto; margin-right:16px;">← Back to course</a>
+  <div class="prog"><b id="solvedCount">0</b>/20 solved</div>
+</header>
+
+<div class="shell">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main" id="main"></div>
+</div>
+
+<script>
+/* ============================================================
+   MINI VERILOG GATE-LEVEL NETLIST EVALUATOR (Module 1)
+   Module 1 problems ask for structural gate-primitive
+   instantiations only (and, or, not, nand, nor, xor, xnor, buf) —
+   no assign statements, no arithmetic. Every gate instance in the
+   student's code is located by regex, wired into a netlist keyed
+   by output net name, and evaluated by fixed-point propagation
+   against each test vector's input values — this is genuine
+   netlist simulation, not a string comparison against a stored
+   answer. Multi-input and/or/nand/nor/xor/xnor gates (3+ ports)
+   are supported, matching real Verilog gate primitives.
+   ============================================================ */
+
+const GATE_FN = {
+  and:  (ins) => ins.reduce((a,b)=>a & b, 1),
+  or:   (ins) => ins.reduce((a,b)=>a | b, 0),
+  nand: (ins) => ins.reduce((a,b)=>a & b, 1) === 0 ? 1 : 0,
+  nor:  (ins) => ins.reduce((a,b)=>a | b, 0) === 0 ? 1 : 0,
+  xor:  (ins) => ins.reduce((a,b)=>a ^ b, 0),
+  xnor: (ins) => ins.reduce((a,b)=>a ^ b, 0) === 0 ? 1 : 0,
+  not:  (ins) => ins[0] === 0 ? 1 : 0,
+  buf:  (ins) => ins[0]
+};
+
+// Extract every `<gateType> [instanceName] ( out, in1, in2, ... );` from student code.
+function extractGates(code){
+  // strip line comments
+  const stripped = code.replace(/\/\/.*$/gm, '');
+  const re = /\b(and|or|nand|nor|xor|xnor|not|buf)\s+(?:[A-Za-z_]\w*\s*)?\(([^)]*)\)\s*;/g;
+  const gates = [];
+  let m;
+  while((m = re.exec(stripped)) !== null){
+    const parts = m[2].split(',').map(s=>s.trim()).filter(s=>s.length);
+    if(parts.length < 2){
+      throw new Error(`gate '${m[1]}' needs an output and at least one input`);
+    }
+    gates.push({ type: m[1], out: parts[0], ins: parts.slice(1) });
+  }
+  return gates;
+}
+
+function evalGateLevel(code, outNames, sigs){
+  let gates;
+  try { gates = extractGates(code); }
+  catch(e){ return { ok:false, reason: 'Could not parse gate instances: ' + e.message }; }
+
+  if(gates.length === 0){
+    return { ok:false, reason: 'no gate instances (and/or/not/nand/nor/xor/xnor/buf) found' };
+  }
+
+  // index gates by output net
+  const byOut = {};
+  gates.forEach(g => { byOut[g.out] = g; });
+
+  for(const name of outNames){
+    if(!(name in byOut)){
+      return { ok:false, reason: `no gate drives output '${name}'` };
+    }
+  }
+
+  const pool = Object.assign({}, sigs);
+  const pending = new Set(gates.map(g => g.out));
+  let lastErr = null;
+
+  for(let pass = 0; pass < gates.length + 2 && pending.size > 0; pass++){
+    let progressed = false;
+    for(const g of gates){
+      if(!pending.has(g.out)) continue;
+      try {
+        const inputVals = g.ins.map(sig => {
+          if(sig === "1'b0" || sig === "0") return 0;
+          if(sig === "1'b1" || sig === "1") return 1;
+          if(!(sig in pool)) throw new Error(`unknown net '${sig}'`);
+          return pool[sig];
+        });
+        pool[g.out] = GATE_FN[g.type](inputVals);
+        pending.delete(g.out);
+        progressed = true;
+      } catch(e){
+        lastErr = e;
+      }
+    }
+    if(!progressed) break;
+  }
+
+  if(pending.size > 0){
+    const unresolved = Array.from(pending).join(', ');
+    return { ok:false, reason: `could not resolve net(s): ${unresolved}${lastErr ? ' (' + lastErr.message + ')' : ''}` };
+  }
+
+  const results = {};
+  for(const name of outNames){
+    results[name] = pool[name];
+  }
+  return { ok:true, values: results };
+}
+
+/* ══════════════════════════════════════════
+   QUESTION DATA
+══════════════════════════════════════════ */
+const Q = [{"id": 1, "topic": "Priority & Arbitration Logic", "title": "Elevator Direction Controller", "difficulty": "easy", "desc": "A 4-floor elevator has pending requests summarized as two flags: <code class='inline'>reqA</code> (a request exists on a floor above the current floor) and <code class='inline'>reqB</code> (a request exists below). Build gate-level logic that outputs <code class='inline'>moveUp</code> if there is any request above (checked first), otherwise <code class='inline'>moveDown</code> if there is a request below.", "signals": [["reqA", "1-bit, request pending above current floor"], ["reqB", "1-bit, request pending below current floor"], ["moveUp", "1-bit output, drive the car up"], ["moveDown", "1-bit output, drive the car down"]], "outWidths": {"moveUp": 1, "moveDown": 1}, "template": "module elevator_dir(input reqA, input reqB, output moveUp, output moveDown);\n  // instantiate basic gates only (and/or/not/nand/nor/xor/xnor)\n\nendmodule", "solutionB64": "bW9kdWxlIGVsZXZhdG9yX2RpcihpbnB1dCByZXFBLCBpbnB1dCByZXFCLCBvdXRwdXQgbW92ZVVwLCBvdXRwdXQgbW92ZURvd24pOwogIHdpcmUgbm90QTsKICBub3QgIG4xKG5vdEEsIHJlcUEpOwogIGJ1ZiAgYjEobW92ZVVwLCByZXFBKTsKICBhbmQgIGExKG1vdmVEb3duLCBub3RBLCByZXFCKTsKZW5kbW9kdWxl", "whyB64": "cmVxQSBpcyBjaGVja2VkIGZpcnN0LCBzbyBtb3ZlVXAgc2ltcGx5IGZvbGxvd3MgcmVxQSBkaXJlY3RseS4gbW92ZURvd24gbWF5IG9ubHkgYXNzZXJ0IHdoZW4gdGhlcmUgaXMgbm8gcmVxdWVzdCBhYm92ZSAoTk9UIHJlcUEpIEFORCBhIHJlcXVlc3QgZXhpc3RzIGJlbG93LCB3aGljaCBhIHNpbmdsZSBBTkQgZ2F0ZSBmZWQgYnkgYW4gaW52ZXJ0ZWQgcmVxQSBjYXB0dXJlcyBleGFjdGx5Lg==", "tests": [{"name": "reqA=1,reqB=0", "sigs": {"reqA": 1, "reqB": 0}, "expected": {"moveUp": 1, "moveDown": 0}}, {"name": "reqA=0,reqB=1", "sigs": {"reqA": 0, "reqB": 1}, "expected": {"moveUp": 0, "moveDown": 1}}, {"name": "reqA=1,reqB=1 (priority up)", "sigs": {"reqA": 1, "reqB": 1}, "expected": {"moveUp": 1, "moveDown": 0}}, {"name": "reqA=0,reqB=0 (idle)", "sigs": {"reqA": 0, "reqB": 0}, "expected": {"moveUp": 0, "moveDown": 0}}]}, {"id": 2, "topic": "Priority & Arbitration Logic", "title": "Traffic Junction Priority Logic", "difficulty": "medium", "desc": "A 4-way junction has vehicle-presence sensors N, E, S, W. Build gate-level logic that grants a 'Go' signal to exactly one road at a time, following strict priority N &gt; E &gt; S &gt; W, so a lower-priority road only gets Go when every higher-priority road is empty.", "signals": [["N", "1-bit, vehicle present North"], ["E", "1-bit, vehicle present East"], ["S", "1-bit, vehicle present South"], ["W", "1-bit, vehicle present West"], ["goN", "Go signal for North"], ["goE", "Go signal for East"], ["goS", "Go signal for South"], ["goW", "Go signal for West"]], "outWidths": {"goN": 1, "goE": 1, "goS": 1, "goW": 1}, "template": "module junction(input N, input E, input S, input W, output goN, output goE, output goS, output goW);\n  // instantiate basic gates only\n\nendmodule", "solutionB64": "bW9kdWxlIGp1bmN0aW9uKGlucHV0IE4sIGlucHV0IEUsIGlucHV0IFMsIGlucHV0IFcsIG91dHB1dCBnb04sIG91dHB1dCBnb0UsIG91dHB1dCBnb1MsIG91dHB1dCBnb1cpOwogIHdpcmUgbk4sIG5FLCBuUzsKICBub3QgbjEobk4sIE4pOwogIG5vdCBuMihuRSwgRSk7CiAgbm90IG4zKG5TLCBTKTsKICBidWYgYjEoZ29OLCBOKTsKICBhbmQgYTEoZ29FLCBuTiwgRSk7CiAgYW5kIGEyKGdvU190bXAxLCBuTiwgbkUpOwogIGFuZCBhMyhnb1MsIGdvU190bXAxLCBTKTsKICBhbmQgYTQoZ29XX3RtcDEsIG5OLCBuRSk7CiAgYW5kIGE1KGdvV190bXAyLCBnb1dfdG1wMSwgblMpOwogIGFuZCBhNihnb1csIGdvV190bXAyLCBXKTsKZW5kbW9kdWxl", "whyB64": "RWFjaCByb2FkJ3MgR28gbGluZSBpcyB0aGUgQU5EIG9mIGl0cyBvd24gc2Vuc29yIHdpdGggdGhlIGludmVydGVkIHNlbnNvcnMgb2YgZXZlcnkgaGlnaGVyLXByaW9yaXR5IHJvYWQsIGd1YXJhbnRlZWluZyBtdXR1YWwgZXhjbHVzaW9uOiBOIHdpbnMgb3V0cmlnaHQsIEUgbmVlZHMgTk9UIE4sIFMgbmVlZHMgTk9UIE4gYW5kIE5PVCBFLCBhbmQgVyBuZWVkcyBhbGwgdGhyZWUgaGlnaGVyIHJvYWRzIGVtcHR5Lg==", "tests": [{"name": "only N", "sigs": {"N": 1, "E": 0, "S": 0, "W": 0}, "expected": {"goN": 1, "goE": 0, "goS": 0, "goW": 0}}, {"name": "N and E both present", "sigs": {"N": 1, "E": 1, "S": 0, "W": 0}, "expected": {"goN": 1, "goE": 0, "goS": 0, "goW": 0}}, {"name": "E and S present, N clear", "sigs": {"N": 0, "E": 1, "S": 1, "W": 0}, "expected": {"goN": 0, "goE": 1, "goS": 0, "goW": 0}}, {"name": "only S and W", "sigs": {"N": 0, "E": 0, "S": 1, "W": 1}, "expected": {"goN": 0, "goE": 0, "goS": 1, "goW": 0}}, {"name": "only W", "sigs": {"N": 0, "E": 0, "S": 0, "W": 1}, "expected": {"goN": 0, "goE": 0, "goS": 0, "goW": 1}}, {"name": "all clear", "sigs": {"N": 0, "E": 0, "S": 0, "W": 0}, "expected": {"goN": 0, "goE": 0, "goS": 0, "goW": 0}}]}, {"id": 3, "topic": "Encoders & Selectors", "title": "Washing Machine Mode Selector", "difficulty": "medium", "desc": "Given <code class='inline'>load</code> (0=Light,1=Heavy), <code class='inline'>fabric</code> (0=Cotton,1=Delicate) and <code class='inline'>temp</code> (0=Cold,1=Hot), build gate-level logic selecting exactly one wash mode. Delicate fabric always forces Gentle regardless of the other inputs. Otherwise a Heavy load selects Heavy-Duty; a Light Cotton load selects Quick when cold and Normal when hot.", "signals": [["load", "0=Light,1=Heavy"], ["fabric", "0=Cotton,1=Delicate"], ["temp", "0=Cold,1=Hot"], ["gentle", "Gentle mode"], ["heavy", "Heavy-Duty mode"], ["quick", "Quick mode"], ["normal", "Normal mode"]], "outWidths": {"gentle": 1, "heavy": 1, "quick": 1, "normal": 1}, "template": "module wash_sel(input load, input fabric, input temp, output gentle, output heavy, output quick, output normal);\n  // instantiate basic gates only\n\nendmodule", "solutionB64": "bW9kdWxlIHdhc2hfc2VsKGlucHV0IGxvYWQsIGlucHV0IGZhYnJpYywgaW5wdXQgdGVtcCwgb3V0cHV0IGdlbnRsZSwgb3V0cHV0IGhlYXZ5LCBvdXRwdXQgcXVpY2ssIG91dHB1dCBub3JtYWwpOwogIHdpcmUgbkZhYnJpYywgbkxvYWQsIG5UZW1wOwogIG5vdCBuMShuRmFicmljLCBmYWJyaWMpOwogIG5vdCBuMihuTG9hZCwgbG9hZCk7CiAgbm90IG4zKG5UZW1wLCB0ZW1wKTsKICBidWYgYjEoZ2VudGxlLCBmYWJyaWMpOwogIGFuZCBhMShoZWF2eSwgbG9hZCwgbkZhYnJpYyk7CiAgYW5kIGEyKHF0bXAsIG5Mb2FkLCBuRmFicmljKTsKICBhbmQgYTMocXVpY2ssIHF0bXAsIG5UZW1wKTsKICBhbmQgYTQobnRtcCwgbkxvYWQsIG5GYWJyaWMpOwogIGFuZCBhNShub3JtYWwsIG50bXAsIHRlbXApOwplbmRtb2R1bGU=", "whyB64": "R2VudGxlIHNpbXBseSBtaXJyb3JzIHRoZSBmYWJyaWMgYml0IHNpbmNlIERlbGljYXRlIGFsd2F5cyB3aW5zLiBFdmVyeSBvdGhlciBtb2RlIGlzIG9ubHkgdmFsaWQgd2hlbiBmYWJyaWMgaXMgQ290dG9uIChOT1QgZmFicmljKSwgc28gaGVhdnkvcXVpY2svbm9ybWFsIGFsbCBnYXRlIHRocm91Z2ggbkZhYnJpYywgYW5kIHF1aWNrIHZzIG5vcm1hbCBpcyB0aGVuIGp1c3QgYSBzcGxpdCBvbiB0aGUgKGludmVydGVkKSB0ZW1wIGJpdC4=", "tests": [{"name": "delicate overrides everything", "sigs": {"load": 1, "fabric": 1, "temp": 1}, "expected": {"gentle": 1, "heavy": 0, "quick": 0, "normal": 0}}, {"name": "heavy cotton", "sigs": {"load": 1, "fabric": 0, "temp": 0}, "expected": {"gentle": 0, "heavy": 1, "quick": 0, "normal": 0}}, {"name": "light cotton cold -> quick", "sigs": {"load": 0, "fabric": 0, "temp": 0}, "expected": {"gentle": 0, "heavy": 0, "quick": 1, "normal": 0}}, {"name": "light cotton hot -> normal", "sigs": {"load": 0, "fabric": 0, "temp": 1}, "expected": {"gentle": 0, "heavy": 0, "quick": 0, "normal": 1}}]}, {"id": 4, "topic": "Priority & Arbitration Logic", "title": "Smart Parking Slot Allocator (4 slots)", "difficulty": "hard", "desc": "4 occupancy sensors <code class='inline'>s0..s3</code> (1=occupied) feed a priority-encoder circuit. Build gate-level logic that outputs the 2-bit binary address <code class='inline'>addr1,addr0</code> of the first free slot (lowest index wins), plus a <code class='inline'>full</code> flag asserted only when all four slots are occupied.", "signals": [["s0", "occupied flag, slot 0"], ["s1", "occupied flag, slot 1"], ["s2", "occupied flag, slot 2"], ["s3", "occupied flag, slot 3"], ["addr1", "MSB of first-free address"], ["addr0", "LSB of first-free address"], ["full", "1 when all slots occupied"]], "outWidths": {"addr1": 1, "addr0": 1, "full": 1}, "template": "module parking_alloc(input s0, input s1, input s2, input s3, output addr1, output addr0, output full);\n  // instantiate basic gates only\n\nendmodule", "solutionB64": "bW9kdWxlIHBhcmtpbmdfYWxsb2MoaW5wdXQgczAsIGlucHV0IHMxLCBpbnB1dCBzMiwgaW5wdXQgczMsIG91dHB1dCBhZGRyMSwgb3V0cHV0IGFkZHIwLCBvdXRwdXQgZnVsbCk7CiAgd2lyZSBuczEsIHQxLCB0MiwgdDMsIGZ0MSwgZnQyOwogIG5vdCBuMChuczEsIHMxKTsKICBhbmQgYTEoYWRkcjEsIHMwLCBzMSk7CiAgYW5kIGEyKHQxLCBzMCwgbnMxKTsKICBhbmQgYTModDIsIHMwLCBzMSk7CiAgYW5kIGE0KHQzLCB0MiwgczIpOwogIG9yICBvMShhZGRyMCwgdDEsIHQzKTsKICBhbmQgYTUoZnQxLCBzMCwgczEpOwogIGFuZCBhNihmdDIsIHMyLCBzMyk7CiAgYW5kIGE3KGZ1bGwsIGZ0MSwgZnQyKTsKZW5kbW9kdWxl", "whyB64": "YWRkcjAvYWRkcjEgZW5jb2RlIHdoaWNoIG9mIHNsb3QxLzIvMyBpcyB0aGUgZmlyc3QgZnJlZSBvbmUgd2hlbiBzbG90MCBpcyBvY2N1cGllZCwgYnVpbHQgYXMgc3VtcyBvZiBwcm9kdWN0cyBvdmVyIHRoZSAoaW52ZXJ0ZWQpIG9jY3VwYW5jeSBiaXRzOyBmdWxsIGlzIHNpbXBseSB0aGUgQU5EIG9mIGFsbCBmb3VyIG9jY3VwYW5jeSBmbGFncywgc2luY2UgdGhlIGxvdCBpcyBmdWxsIGV4YWN0bHkgd2hlbiBldmVyeSBzbG90IGlzIDEu", "tests": [{"name": "slot0 free", "sigs": {"s0": 0, "s1": 1, "s2": 1, "s3": 1}, "expected": {"addr1": 0, "addr0": 0, "full": 0}}, {"name": "slot1 free", "sigs": {"s0": 1, "s1": 0, "s2": 1, "s3": 1}, "expected": {"addr1": 0, "addr0": 1, "full": 0}}, {"name": "slot2 free", "sigs": {"s0": 1, "s1": 1, "s2": 0, "s3": 1}, "expected": {"addr1": 1, "addr0": 0, "full": 0}}, {"name": "slot3 free", "sigs": {"s0": 1, "s1": 1, "s2": 1, "s3": 0}, "expected": {"addr1": 1, "addr0": 1, "full": 0}}, {"name": "lot full", "sigs": {"s0": 1, "s1": 1, "s2": 1, "s3": 1}, "expected": {"addr1": 1, "addr0": 1, "full": 1}}]}, {"id": 5, "topic": "Voting & Decision Logic", "title": "Fire Alarm Multi-Sensor Voting System", "difficulty": "medium", "desc": "3 smoke sensors and 2 heat sensors feed a decision circuit. Build gate-level voting logic where the alarm triggers if at least 2 of the 3 smoke sensors agree, OR both heat sensors agree.", "signals": [["smk1", "smoke sensor 1"], ["smk2", "smoke sensor 2"], ["smk3", "smoke sensor 3"], ["heat1", "heat sensor 1"], ["heat2", "heat sensor 2"], ["alarm", "1-bit alarm output"]], "outWidths": {"alarm": 1}, "template": "module fire_vote(input smk1, input smk2, input smk3, input heat1, input heat2, output alarm);\n  // instantiate basic gates only\n\nendmodule", "solutionB64": "bW9kdWxlIGZpcmVfdm90ZShpbnB1dCBzbWsxLCBpbnB1dCBzbWsyLCBpbnB1dCBzbWszLCBpbnB1dCBoZWF0MSwgaW5wdXQgaGVhdDIsIG91dHB1dCBhbGFybSk7CiAgd2lyZSBwMTIsIHAyMywgcDEzLCBtMSwgbWFqb3JpdHksIGhlYXRBbmQ7CiAgYW5kIGExKHAxMiwgc21rMSwgc21rMik7CiAgYW5kIGEyKHAyMywgc21rMiwgc21rMyk7CiAgYW5kIGEzKHAxMywgc21rMSwgc21rMyk7CiAgb3IgIG8xKG0xLCBwMTIsIHAyMyk7CiAgb3IgIG8yKG1ham9yaXR5LCBtMSwgcDEzKTsKICBhbmQgYTQoaGVhdEFuZCwgaGVhdDEsIGhlYXQyKTsKICBvciAgbzMoYWxhcm0sIG1ham9yaXR5LCBoZWF0QW5kKTsKZW5kbW9kdWxl", "whyB64": "QSAyLW9mLTMgbWFqb3JpdHkgdm90ZSBpcyB0aGUgT1Igb2YgZXZlcnkgcGFpcndpc2UgQU5EIGNvbWJpbmF0aW9uIG9mIHRoZSB0aHJlZSBzbW9rZSBzZW5zb3JzLCBzaW5jZSBhbnkgcGFpciBhZ3JlZWluZyBhbHJlYWR5IHNhdGlzZmllcyAnYXQgbGVhc3QgMiBvZiAzJy4gVGhhdCBtYWpvcml0eSBzaWduYWwgaXMgdGhlbiBPUmVkIHdpdGggdGhlIGhlYXQtc2Vuc29yIEFORCwgc2luY2UgZWl0aGVyIGNvbmRpdGlvbiBhbG9uZSBzaG91bGQgcmFpc2UgdGhlIGFsYXJtLg==", "tests": [{"name": "no sensors", "sigs": {"smk1": 0, "smk2": 0, "smk3": 0, "heat1": 0, "heat2": 0}, "expected": {"alarm": 0}}, {"name": "1 smoke only", "sigs": {"smk1": 1, "smk2": 0, "smk3": 0, "heat1": 0, "heat2": 0}, "expected": {"alarm": 0}}, {"name": "2 smoke agree", "sigs": {"smk1": 1, "smk2": 1, "smk3": 0, "heat1": 0, "heat2": 0}, "expected": {"alarm": 1}}, {"name": "heat both agree", "sigs": {"smk1": 0, "smk2": 0, "smk3": 0, "heat1": 1, "heat2": 1}, "expected": {"alarm": 1}}, {"name": "1 heat only", "sigs": {"smk1": 0, "smk2": 0, "smk3": 0, "heat1": 1, "heat2": 0}, "expected": {"alarm": 0}}]}, {"id": 6, "topic": "Safety & Interlock Circuits", "title": "Elevator Door Safety Interlock", "difficulty": "easy", "desc": "Build gate-level logic that outputs <code class='inline'>allowStart</code> (permission to start the motor) only if the door is closed AND there is no obstacle AND the car is not overloaded AND a move command is active.", "signals": [["doorClosed", "1 when door is fully closed"], ["obstacle", "1 when IR beam detects an obstacle"], ["overload", "1 when weight sensor flags overload"], ["moveCmd", "1 when a move command is active"], ["allowStart", "1-bit output, permission to start motor"]], "outWidths": {"allowStart": 1}, "template": "module door_interlock(input doorClosed, input obstacle, input overload, input moveCmd, output allowStart);\n  // instantiate basic gates only\n\nendmodule", "solutionB64": "bW9kdWxlIGRvb3JfaW50ZXJsb2NrKGlucHV0IGRvb3JDbG9zZWQsIGlucHV0IG9ic3RhY2xlLCBpbnB1dCBvdmVybG9hZCwgaW5wdXQgbW92ZUNtZCwgb3V0cHV0IGFsbG93U3RhcnQpOwogIHdpcmUgbk9icywgbk92ZXIsIHQxLCB0MjsKICBub3QgbjEobk9icywgb2JzdGFjbGUpOwogIG5vdCBuMihuT3Zlciwgb3ZlcmxvYWQpOwogIGFuZCBhMSh0MSwgZG9vckNsb3NlZCwgbk9icyk7CiAgYW5kIGEyKHQyLCB0MSwgbk92ZXIpOwogIGFuZCBhMyhhbGxvd1N0YXJ0LCB0MiwgbW92ZUNtZCk7CmVuZG1vZHVsZQ==", "whyB64": "QWxsIGZvdXIgY29uZGl0aW9ucyBtdXN0IGhvbGQgc2ltdWx0YW5lb3VzbHksIHNvIGEgc3RyYWlnaHQgY2hhaW4gb2YgQU5EIGdhdGVzIC0tIHdpdGggdGhlIG9ic3RhY2xlIGFuZCBvdmVybG9hZCBmbGFncyBpbnZlcnRlZCBmaXJzdCwgc2luY2UgdGhlaXIgYXNzZXJ0ZWQgc3RhdGUgc2hvdWxkIGJsb2NrLCBub3QgYWxsb3cgLS0gcmVwcm9kdWNlcyB0aGUgcmVxdWlyZWQgaW50ZXJsb2NrIGV4YWN0bHku", "tests": [{"name": "all safe, move requested", "sigs": {"doorClosed": 1, "obstacle": 0, "overload": 0, "moveCmd": 1}, "expected": {"allowStart": 1}}, {"name": "door open", "sigs": {"doorClosed": 0, "obstacle": 0, "overload": 0, "moveCmd": 1}, "expected": {"allowStart": 0}}, {"name": "obstacle detected", "sigs": {"doorClosed": 1, "obstacle": 1, "overload": 0, "moveCmd": 1}, "expected": {"allowStart": 0}}, {"name": "overloaded", "sigs": {"doorClosed": 1, "obstacle": 0, "overload": 1, "moveCmd": 1}, "expected": {"allowStart": 0}}, {"name": "no move command", "sigs": {"doorClosed": 1, "obstacle": 0, "overload": 0, "moveCmd": 0}, "expected": {"allowStart": 0}}]}, {"id": 7, "topic": "Comparators & Merge Logic", "title": "Digital Combination Lock (4-bit)", "difficulty": "easy", "desc": "Build a gate-level lock circuit that outputs <code class='inline'>unlock=1</code> only for the specific 4-bit input pattern <code class='inline'>b3 b2 b1 b0 = 1 0 1 1</code>, using AND and NOT gates only (a pure minterm-matching lock).", "signals": [["b3", "bit 3 (MSB)"], ["b2", "bit 2"], ["b1", "bit 1"], ["b0", "bit 0 (LSB)"], ["unlock", "1 only when input == 1011"]], "outWidths": {"unlock": 1}, "template": "module lock4(input b3, input b2, input b1, input b0, output unlock);\n  // instantiate basic gates only (AND / NOT)\n\nendmodule", "solutionB64": "bW9kdWxlIGxvY2s0KGlucHV0IGIzLCBpbnB1dCBiMiwgaW5wdXQgYjEsIGlucHV0IGIwLCBvdXRwdXQgdW5sb2NrKTsKICB3aXJlIG5iMiwgdDEsIHQyOwogIG5vdCBuMShuYjIsIGIyKTsKICBhbmQgYTEodDEsIGIzLCBuYjIpOwogIGFuZCBhMih0MiwgdDEsIGIxKTsKICBhbmQgYTModW5sb2NrLCB0MiwgYjApOwplbmRtb2R1bGU=", "whyB64": "TWF0Y2hpbmcgb25lIHNwZWNpZmljIG1pbnRlcm0gaXMgYSBzdHJhaWdodCBBTkQgb2YgZXZlcnkgYml0IHRha2VuIGluIGl0cyByZXF1aXJlZCBwb2xhcml0eTogYjMgYW5kIGIxIGFuZCBiMCBhcmUgdXNlZCBkaXJlY3RseSAodGhleSBtdXN0IGJlIDEpLCB3aGlsZSBiMiBpcyBpbnZlcnRlZCBmaXJzdCBzaW5jZSBpdCBtdXN0IGJlIDAgZm9yIGEgbWF0Y2gu", "tests": [{"name": "correct code 1011", "sigs": {"b3": 1, "b2": 0, "b1": 1, "b0": 1}, "expected": {"unlock": 1}}, {"name": "one bit off (1001)", "sigs": {"b3": 1, "b2": 0, "b1": 0, "b0": 1}, "expected": {"unlock": 0}}, {"name": "one bit off (1111)", "sigs": {"b3": 1, "b2": 1, "b1": 1, "b0": 1}, "expected": {"unlock": 0}}, {"name": "all zero", "sigs": {"b3": 0, "b2": 0, "b1": 0, "b0": 0}, "expected": {"unlock": 0}}]}, {"id": 8, "topic": "Encoders & Selectors", "title": "Airport Runway Light Controller", "difficulty": "medium", "desc": "Based on <code class='inline'>fog</code>, <code class='inline'>night</code> and a traffic-control <code class='inline'>override</code>, build gate-level logic that drives a 2-bit runway light level <code class='inline'>lvl1,lvl0</code> (00=Off, 01=Low, 11=High). Override forces High. Otherwise: Fog and Night together also give High; Night alone or Fog alone gives Low; neither condition gives Off.", "signals": [["fog", "1 when foggy"], ["night", "1 when nighttime"], ["override", "1 when traffic control forces high intensity"], ["lvl1", "MSB of light-level output"], ["lvl0", "LSB of light-level output"]], "outWidths": {"lvl1": 1, "lvl0": 1}, "template": "module runway_lights(input fog, input night, input override, output lvl1, output lvl0);\n  // instantiate basic gates only\n\nendmodule", "solutionB64": "bW9kdWxlIHJ1bndheV9saWdodHMoaW5wdXQgZm9nLCBpbnB1dCBuaWdodCwgaW5wdXQgb3ZlcnJpZGUsIG91dHB1dCBsdmwxLCBvdXRwdXQgbHZsMCk7CiAgd2lyZSBmb2dOaWdodCwgaGlnaCwgeG9yRk47CiAgYW5kIGExKGZvZ05pZ2h0LCBmb2csIG5pZ2h0KTsKICBvciAgbzEoaGlnaCwgZm9nTmlnaHQsIG92ZXJyaWRlKTsKICBidWYgYjEobHZsMSwgaGlnaCk7CiAgeG9yIHgxKHhvckZOLCBmb2csIG5pZ2h0KTsKICBvciAgbzIobHZsMCwgeG9yRk4sIGhpZ2gpOwplbmRtb2R1bGU=", "whyB64": "bHZsMSAodGhlIEhpZ2ggZmxhZykgaXMgc2ltcGx5IE9SKG92ZXJyaWRlLCBmb2cgQU5EIG5pZ2h0KS4gbHZsMCBtdXN0IGJlIDEgZm9yIGJvdGggSGlnaCAoMTEpIGFuZCBMb3cgKDAxKSwgYW5kIExvdyBvY2N1cnMgZXhhY3RseSB3aGVuIGZvZyBhbmQgbmlnaHQgZGlmZmVyIChhbiBYT1IpLCBzbyBPUmluZyB0aGF0IFhPUiB3aXRoIHRoZSBIaWdoIGZsYWcgcmVwcm9kdWNlcyBsdmwwIGZvciBib3RoIHRoZSAwMSBhbmQgMTEgY2FzZXMgd2hpbGUgc3RheWluZyAwIGZvciAwMC4=", "tests": [{"name": "clear day, no override -> off", "sigs": {"fog": 0, "night": 0, "override": 0}, "expected": {"lvl1": 0, "lvl0": 0}}, {"name": "night only -> low", "sigs": {"fog": 0, "night": 1, "override": 0}, "expected": {"lvl1": 0, "lvl0": 1}}, {"name": "fog only -> low", "sigs": {"fog": 1, "night": 0, "override": 0}, "expected": {"lvl1": 0, "lvl0": 1}}, {"name": "fog and night -> high", "sigs": {"fog": 1, "night": 1, "override": 0}, "expected": {"lvl1": 1, "lvl0": 1}}, {"name": "override forces high", "sigs": {"fog": 0, "night": 0, "override": 1}, "expected": {"lvl1": 1, "lvl0": 1}}]}, {"id": 9, "topic": "Safety & Interlock Circuits", "title": "Elevator Overload + Direction Lockout", "difficulty": "easy", "desc": "Build gate-level lockout logic: the elevator cannot move up if it is overloaded OR the top floor has been reached, and cannot move down if it is overloaded OR the ground floor has been reached.", "signals": [["overload", "1 when weight exceeds limit"], ["topFloor", "1 when at the top floor"], ["groundFloor", "1 when at the ground floor"], ["lockUp", "1 blocks upward motion"], ["lockDown", "1 blocks downward motion"]], "outWidths": {"lockUp": 1, "lockDown": 1}, "template": "module lockout(input overload, input topFloor, input groundFloor, output lockUp, output lockDown);\n  // instantiate basic gates only\n\nendmodule", "solutionB64": "bW9kdWxlIGxvY2tvdXQoaW5wdXQgb3ZlcmxvYWQsIGlucHV0IHRvcEZsb29yLCBpbnB1dCBncm91bmRGbG9vciwgb3V0cHV0IGxvY2tVcCwgb3V0cHV0IGxvY2tEb3duKTsKICBvciBvMShsb2NrVXAsIG92ZXJsb2FkLCB0b3BGbG9vcik7CiAgb3IgbzIobG9ja0Rvd24sIG92ZXJsb2FkLCBncm91bmRGbG9vcik7CmVuZG1vZHVsZQ==", "whyB64": "Qm90aCBsb2Nrb3V0IGNvbmRpdGlvbnMgYXJlIHB1cmUgT1JzOiBvdmVybG9hZCBhbG9uZSBzaG91bGQgYmxvY2sgZWl0aGVyIGRpcmVjdGlvbiwgYW5kIGVhY2ggZGlyZWN0aW9uIGlzIGFkZGl0aW9uYWxseSBibG9ja2VkIGJ5IGl0cyBvd24gZW5kLW9mLXRyYXZlbCBzZW5zb3IsIHNvIGEgc2luZ2xlIE9SIGdhdGUgcGVyIG91dHB1dCBjb3ZlcnMgdGhlIGZ1bGwgcmVxdWlyZW1lbnQu", "tests": [{"name": "normal, mid-shaft", "sigs": {"overload": 0, "topFloor": 0, "groundFloor": 0}, "expected": {"lockUp": 0, "lockDown": 0}}, {"name": "overloaded", "sigs": {"overload": 1, "topFloor": 0, "groundFloor": 0}, "expected": {"lockUp": 1, "lockDown": 1}}, {"name": "at top floor", "sigs": {"overload": 0, "topFloor": 1, "groundFloor": 0}, "expected": {"lockUp": 1, "lockDown": 0}}, {"name": "at ground floor", "sigs": {"overload": 0, "topFloor": 0, "groundFloor": 1}, "expected": {"lockUp": 0, "lockDown": 1}}]}, {"id": 10, "topic": "Voting & Decision Logic", "title": "Voting Machine Tie-Breaker Circuit", "difficulty": "medium", "desc": "3 candidates each get a thresholded 'has-majority' line <code class='inline'>majA, majB, majC</code>. Build gate-level priority logic so that if two or more show majority simultaneously (a glitch), Candidate A wins over B, and B wins over C.", "signals": [["majA", "candidate A majority flag"], ["majB", "candidate B majority flag"], ["majC", "candidate C majority flag"], ["winA", "A declared winner"], ["winB", "B declared winner"], ["winC", "C declared winner"]], "outWidths": {"winA": 1, "winB": 1, "winC": 1}, "template": "module vote_tiebreak(input majA, input majB, input majC, output winA, output winB, output winC);\n  // instantiate basic gates only\n\nendmodule", "solutionB64": "bW9kdWxlIHZvdGVfdGllYnJlYWsoaW5wdXQgbWFqQSwgaW5wdXQgbWFqQiwgaW5wdXQgbWFqQywgb3V0cHV0IHdpbkEsIG91dHB1dCB3aW5CLCBvdXRwdXQgd2luQyk7CiAgd2lyZSBuQSwgbkIsIHQxOwogIG5vdCBuMShuQSwgbWFqQSk7CiAgbm90IG4yKG5CLCBtYWpCKTsKICBidWYgYjEod2luQSwgbWFqQSk7CiAgYW5kIGExKHdpbkIsIG5BLCBtYWpCKTsKICBhbmQgYTIodDEsIG5BLCBuQik7CiAgYW5kIGEzKHdpbkMsIHQxLCBtYWpDKTsKZW5kbW9kdWxl", "whyB64": "QSBhbHdheXMgd2lucyBvdXRyaWdodCB3aGVuIG1hakEgaXMgc2V0LiBCIGNhbiBvbmx5IHdpbiB3aGVuIEEgaXMgTk9UIHNldC4gQyBjYW4gb25seSB3aW4gd2hlbiBuZWl0aGVyIEEgbm9yIEIgaXMgc2V0LCBzbyBlYWNoIGxvd2VyLXByaW9yaXR5IHdpbm5lciBpcyBnYXRlZCBieSB0aGUgaW52ZXJ0ZWQgZmxhZ3Mgb2YgZXZlcnkgaGlnaGVyLXByaW9yaXR5IGNhbmRpZGF0ZS4=", "tests": [{"name": "clean A win", "sigs": {"majA": 1, "majB": 0, "majC": 0}, "expected": {"winA": 1, "winB": 0, "winC": 0}}, {"name": "A and B glitch -> A wins", "sigs": {"majA": 1, "majB": 1, "majC": 0}, "expected": {"winA": 1, "winB": 0, "winC": 0}}, {"name": "B and C glitch -> B wins", "sigs": {"majA": 0, "majB": 1, "majC": 1}, "expected": {"winA": 0, "winB": 1, "winC": 0}}, {"name": "C alone", "sigs": {"majA": 0, "majB": 0, "majC": 1}, "expected": {"winA": 0, "winB": 0, "winC": 1}}, {"name": "all three glitch -> A wins", "sigs": {"majA": 1, "majB": 1, "majC": 1}, "expected": {"winA": 1, "winB": 0, "winC": 0}}]}, {"id": 11, "topic": "Comparators & Merge Logic", "title": "Automatic Room Light + Fan Controller", "difficulty": "easy", "desc": "Based on a PIR <code class='inline'>motion</code> sensor, a <code class='inline'>dark</code> flag from the light sensor, and a <code class='inline'>hot</code> flag from the temperature sensor, build gate-level logic that independently decides <code class='inline'>light</code> ON (motion AND dark) and <code class='inline'>fan</code> ON (motion AND hot).", "signals": [["motion", "PIR motion detected"], ["dark", "1 when ambient light is low"], ["hot", "1 when temperature is high"], ["light", "1-bit light-relay output"], ["fan", "1-bit fan-relay output"]], "outWidths": {"light": 1, "fan": 1}, "template": "module room_ctrl(input motion, input dark, input hot, output light, output fan);\n  // instantiate basic gates only\n\nendmodule", "solutionB64": "bW9kdWxlIHJvb21fY3RybChpbnB1dCBtb3Rpb24sIGlucHV0IGRhcmssIGlucHV0IGhvdCwgb3V0cHV0IGxpZ2h0LCBvdXRwdXQgZmFuKTsKICBhbmQgYTEobGlnaHQsIG1vdGlvbiwgZGFyayk7CiAgYW5kIGEyKGZhbiwgbW90aW9uLCBob3QpOwplbmRtb2R1bGU=", "whyB64": "Qm90aCBvdXRwdXRzIHNoYXJlIHRoZSBzYW1lIG1vdGlvbiByZXF1aXJlbWVudCBidXQgYnJhbmNoIG9uIGEgZGlmZmVyZW50IHNlY29uZCBjb25kaXRpb24sIHNvIGVhY2ggaXMganVzdCBhIDItaW5wdXQgQU5EIGdhdGU6IG9uZSBwYWlyZWQgd2l0aCBkYXJrLCB0aGUgb3RoZXIgd2l0aCBob3Qu", "tests": [{"name": "motion+dark -> light only", "sigs": {"motion": 1, "dark": 1, "hot": 0}, "expected": {"light": 1, "fan": 0}}, {"name": "motion+hot -> fan only", "sigs": {"motion": 1, "dark": 0, "hot": 1}, "expected": {"light": 0, "fan": 1}}, {"name": "motion+dark+hot -> both", "sigs": {"motion": 1, "dark": 1, "hot": 1}, "expected": {"light": 1, "fan": 1}}, {"name": "no motion -> both off", "sigs": {"motion": 0, "dark": 1, "hot": 1}, "expected": {"light": 0, "fan": 0}}]}, {"id": 12, "topic": "Comparators & Merge Logic", "title": "Elevator Call Button Debounce/Merge Logic", "difficulty": "medium", "desc": "Each floor has separate Up and Down call buttons, merged into one 'Floor Requested' line per floor. Build gate-level OR-merge logic across 2 floors -- <code class='inline'>up0,down0,up1,down1</code> -- producing <code class='inline'>req0, req1</code> per floor, plus a global <code class='inline'>anyReq</code> signal.", "signals": [["up0", "floor 0 up button"], ["down0", "floor 0 down button"], ["up1", "floor 1 up button"], ["down1", "floor 1 down button"], ["req0", "floor 0 merged request"], ["req1", "floor 1 merged request"], ["anyReq", "1 if any floor has a pending request"]], "outWidths": {"req0": 1, "req1": 1, "anyReq": 1}, "template": "module call_merge(input up0, input down0, input up1, input down1, output req0, output req1, output anyReq);\n  // instantiate basic gates only\n\nendmodule", "solutionB64": "bW9kdWxlIGNhbGxfbWVyZ2UoaW5wdXQgdXAwLCBpbnB1dCBkb3duMCwgaW5wdXQgdXAxLCBpbnB1dCBkb3duMSwgb3V0cHV0IHJlcTAsIG91dHB1dCByZXExLCBvdXRwdXQgYW55UmVxKTsKICBvciBvMShyZXEwLCB1cDAsIGRvd24wKTsKICBvciBvMihyZXExLCB1cDEsIGRvd24xKTsKICBvciBvMyhhbnlSZXEsIHJlcTAsIHJlcTEpOwplbmRtb2R1bGU=", "whyB64": "RWFjaCBmbG9vcidzIG1lcmdlZCByZXF1ZXN0IGlzIHNpbXBseSB0aGUgT1Igb2YgaXRzIG93biB1cC9kb3duIGJ1dHRvbnMsIGFuZCB0aGUgZ2xvYmFsIGZsYWcgaXMgdGhlbiB0aGUgT1Igb2YgZXZlcnkgZmxvb3IncyBhbHJlYWR5LW1lcmdlZCByZXF1ZXN0IGxpbmUsIHNvIG5vIGdhdGUgbmVlZHMgdG8gbG9vayBhdCB0aGUgb3JpZ2luYWwgNCBidXR0b25zIGRpcmVjdGx5Lg==", "tests": [{"name": "only up0 pressed", "sigs": {"up0": 1, "down0": 0, "up1": 0, "down1": 0}, "expected": {"req0": 1, "req1": 0, "anyReq": 1}}, {"name": "only down1 pressed", "sigs": {"up0": 0, "down0": 0, "up1": 0, "down1": 1}, "expected": {"req0": 0, "req1": 1, "anyReq": 1}}, {"name": "nothing pressed", "sigs": {"up0": 0, "down0": 0, "up1": 0, "down1": 0}, "expected": {"req0": 0, "req1": 0, "anyReq": 0}}, {"name": "both floors pressed", "sigs": {"up0": 1, "down0": 1, "up1": 1, "down1": 0}, "expected": {"req0": 1, "req1": 1, "anyReq": 1}}]}, {"id": 13, "topic": "Voting & Decision Logic", "title": "Bank Vault Dual-Authorization Lock", "difficulty": "hard", "desc": "Build a gate-level authorization circuit: the vault opens if (Manager Key AND Guard Key) OR (Manager Key AND the 3-bit Override Code matches the fixed pattern 101). The override bits are <code class='inline'>ovr2,ovr1,ovr0</code>.", "signals": [["mgr", "manager key inserted"], ["guard", "guard key inserted"], ["ovr2", "override code bit 2"], ["ovr1", "override code bit 1"], ["ovr0", "override code bit 0"], ["unlock", "1-bit output, vault opens"]], "outWidths": {"unlock": 1}, "template": "module vault_auth(input mgr, input guard, input ovr2, input ovr1, input ovr0, output unlock);\n  // instantiate basic gates only\n\nendmodule", "solutionB64": "bW9kdWxlIHZhdWx0X2F1dGgoaW5wdXQgbWdyLCBpbnB1dCBndWFyZCwgaW5wdXQgb3ZyMiwgaW5wdXQgb3ZyMSwgaW5wdXQgb3ZyMCwgb3V0cHV0IHVubG9jayk7CiAgd2lyZSBuT3ZyMSwgY29kZU1hdGNoLCBwYXRoMSwgcGF0aDIsIHQxOwogIG5vdCBuMShuT3ZyMSwgb3ZyMSk7CiAgYW5kIGExKHQxLCBvdnIyLCBuT3ZyMSk7CiAgYW5kIGEyKGNvZGVNYXRjaCwgdDEsIG92cjApOwogIGFuZCBhMyhwYXRoMSwgbWdyLCBndWFyZCk7CiAgYW5kIGE0KHBhdGgyLCBtZ3IsIGNvZGVNYXRjaCk7CiAgb3IgIG8xKHVubG9jaywgcGF0aDEsIHBhdGgyKTsKZW5kbW9kdWxl", "whyB64": "Y29kZU1hdGNoIGlzIGEgbWludGVybSBkZXRlY3RvciBmb3IgZXhhY3RseSAxMDEgKG92cjIgQU5EIE5PVCBvdnIxIEFORCBvdnIwKS4gVGhlIHZhdWx0IHRoZW4gdW5sb2NrcyBhbG9uZyBlaXRoZXIgb2YgdHdvIGluZGVwZW5kZW50IEFORCBwYXRocyAtLSBtYW5hZ2VyK2d1YXJkLCBvciBtYW5hZ2VyK2NvcnJlY3QgY29kZSAtLSBjb21iaW5lZCB3aXRoIGEgZmluYWwgT1IgZ2F0ZS4=", "tests": [{"name": "manager+guard", "sigs": {"mgr": 1, "guard": 1, "ovr2": 0, "ovr1": 0, "ovr0": 0}, "expected": {"unlock": 1}}, {"name": "manager+correct override 101", "sigs": {"mgr": 1, "guard": 0, "ovr2": 1, "ovr1": 0, "ovr0": 1}, "expected": {"unlock": 1}}, {"name": "manager+wrong override", "sigs": {"mgr": 1, "guard": 0, "ovr2": 1, "ovr1": 1, "ovr0": 1}, "expected": {"unlock": 0}}, {"name": "guard only, no manager", "sigs": {"mgr": 0, "guard": 1, "ovr2": 1, "ovr1": 0, "ovr0": 1}, "expected": {"unlock": 0}}]}, {"id": 14, "topic": "Encoders & Selectors", "title": "Digital Dice Segment Driver", "difficulty": "hard", "desc": "Given a 3-bit roll value <code class='inline'>b2,b1,b0</code> (binary 1 through 6), build gate-level logic driving 5 LED pip positions of a die face: Top-Left and Bottom-Right light for any roll of 2 or more; Top-Right and Bottom-Left light for rolls 4-6; Center lights for the odd rolls 1, 3, 5.", "signals": [["b2", "roll value bit 2 (MSB)"], ["b1", "roll value bit 1"], ["b0", "roll value bit 0 (LSB)"], ["tl", "top-left pip"], ["tr", "top-right pip"], ["c", "center pip"], ["bl", "bottom-left pip"], ["br", "bottom-right pip"]], "outWidths": {"tl": 1, "tr": 1, "c": 1, "bl": 1, "br": 1}, "template": "module dice_driver(input b2, input b1, input b0, output tl, output tr, output c, output bl, output br);\n  // instantiate basic gates only\n\nendmodule", "solutionB64": "bW9kdWxlIGRpY2VfZHJpdmVyKGlucHV0IGIyLCBpbnB1dCBiMSwgaW5wdXQgYjAsIG91dHB1dCB0bCwgb3V0cHV0IHRyLCBvdXRwdXQgYywgb3V0cHV0IGJsLCBvdXRwdXQgYnIpOwogIG9yICBvMSh0bCwgYjIsIGIxKTsKICBidWYgYl8xKGJyLCB0bCk7CiAgYnVmIGJfMih0ciwgYjIpOwogIGJ1ZiBiXzMoYmwsIGIyKTsKICBidWYgYl80KGMsIGIwKTsKZW5kbW9kdWxl", "whyB64": "V3JpdGluZyBvdXQgcm9sbHMgMS02IGluIGJpbmFyeSAoMDAxLi4xMTApIHNob3dzIHRsL2JyIG5lZWQgdG8gYmUgMCBvbmx5IGZvciByb2xsIDEgKDAwMSksIGkuZS4gMSBmb3IgZXZlcnkgdmFsdWUgd2hlcmUgYjIgb3IgYjEgaXMgc2V0IC0tIGFuIE9SIGdhdGUuIHRyL2JsIGFyZSAxIG9ubHkgZm9yIHJvbGxzIDQtNiAoMXh4KSwgaS5lLiBleGFjdGx5IGIyLiBUaGUgY2VudGVyIHBpcCBsaWdodHMgZm9yIHRoZSBvZGQgcm9sbHMgMSwzLDUsIHdoaWNoIGFyZSBleGFjdGx5IHRoZSB2YWx1ZXMgd2l0aCBiMD0xIGluIHRoaXMgcmFuZ2UsIHNvIGMgaXMgc2ltcGx5IGIwLg==", "tests": [{"name": "roll 1 (001)", "sigs": {"b2": 0, "b1": 0, "b0": 1}, "expected": {"tl": 0, "tr": 0, "c": 1, "bl": 0, "br": 0}}, {"name": "roll 2 (010)", "sigs": {"b2": 0, "b1": 1, "b0": 0}, "expected": {"tl": 1, "tr": 0, "c": 0, "bl": 0, "br": 1}}, {"name": "roll 4 (100)", "sigs": {"b2": 1, "b1": 0, "b0": 0}, "expected": {"tl": 1, "tr": 1, "c": 0, "bl": 1, "br": 1}}, {"name": "roll 5 (101)", "sigs": {"b2": 1, "b1": 0, "b0": 1}, "expected": {"tl": 1, "tr": 1, "c": 1, "bl": 1, "br": 1}}, {"name": "roll 6 (110)", "sigs": {"b2": 1, "b1": 1, "b0": 0}, "expected": {"tl": 1, "tr": 1, "c": 0, "bl": 1, "br": 1}}]}, {"id": 15, "topic": "Safety & Interlock Circuits", "title": "Elevator Emergency Priority Override", "difficulty": "medium", "desc": "Build gate-level override logic: normal operation is <code class='inline'>allowMove</code> = move command active AND no fire AND no emergency stop. If Fire Alarm is active (and Emergency Stop is not), <code class='inline'>forceGround</code> should assert to send the car to the ground floor. Emergency Stop overrides everything and blocks allowMove regardless of fire.", "signals": [["fire", "fire alarm active"], ["estop", "emergency stop pressed"], ["moveCmd", "normal move command"], ["allowMove", "1-bit, permit normal movement"], ["forceGround", "1-bit, force descent to ground floor"]], "outWidths": {"allowMove": 1, "forceGround": 1}, "template": "module emerg_override(input fire, input estop, input moveCmd, output allowMove, output forceGround);\n  // instantiate basic gates only\n\nendmodule", "solutionB64": "bW9kdWxlIGVtZXJnX292ZXJyaWRlKGlucHV0IGZpcmUsIGlucHV0IGVzdG9wLCBpbnB1dCBtb3ZlQ21kLCBvdXRwdXQgYWxsb3dNb3ZlLCBvdXRwdXQgZm9yY2VHcm91bmQpOwogIHdpcmUgbkZpcmUsIG5Fc3RvcCwgdDE7CiAgbm90IG4xKG5GaXJlLCBmaXJlKTsKICBub3QgbjIobkVzdG9wLCBlc3RvcCk7CiAgYW5kIGExKHQxLCBtb3ZlQ21kLCBuRmlyZSk7CiAgYW5kIGEyKGFsbG93TW92ZSwgdDEsIG5Fc3RvcCk7CiAgYW5kIGEzKGZvcmNlR3JvdW5kLCBmaXJlLCBuRXN0b3ApOwplbmRtb2R1bGU=", "whyB64": "YWxsb3dNb3ZlIG5lZWRzIGFsbCB0aHJlZSBjb25kaXRpb25zIHRydWUgYXQgb25jZSAobW92ZSByZXF1ZXN0ZWQsIG5vIGZpcmUsIG5vIGUtc3RvcCkgc28gaXQgaXMgYSBzdHJhaWdodCAzLWlucHV0IEFORCB3aXRoIGZpcmUgYW5kIGVzdG9wIGludmVydGVkLiBmb3JjZUdyb3VuZCBvbmx5IG5lZWRzIGZpcmUgYXNzZXJ0ZWQgd2hpbGUgZXN0b3AgaXMgbm90LCBzaW5jZSBhIGZ1bGwgc3RvcCB0YWtlcyBwcmlvcml0eSBldmVuIG92ZXIgdGhlIGZpcmUtdG8tZ3JvdW5kIHJvdXRpbmUu", "tests": [{"name": "normal move", "sigs": {"fire": 0, "estop": 0, "moveCmd": 1}, "expected": {"allowMove": 1, "forceGround": 0}}, {"name": "fire alarm, no estop", "sigs": {"fire": 1, "estop": 0, "moveCmd": 1}, "expected": {"allowMove": 0, "forceGround": 1}}, {"name": "estop overrides fire", "sigs": {"fire": 1, "estop": 1, "moveCmd": 1}, "expected": {"allowMove": 0, "forceGround": 0}}, {"name": "estop alone", "sigs": {"fire": 0, "estop": 1, "moveCmd": 1}, "expected": {"allowMove": 0, "forceGround": 0}}]}, {"id": 16, "topic": "Encoders & Selectors", "title": "Conveyor Belt Object Sorting Gate", "difficulty": "medium", "desc": "An object is sensed by <code class='inline'>tall</code>, <code class='inline'>heavy</code>, and <code class='inline'>red</code> flags. Build gate-level logic selecting exactly one of 4 sorting bins: any red object always goes to <code class='inline'>gateRed</code> regardless of size/weight; otherwise sort by tall/heavy combination into <code class='inline'>gateA</code> (tall & heavy), <code class='inline'>gateB</code> (tall & light), or <code class='inline'>gateC</code> (short, either weight).", "signals": [["tall", "tall object flag"], ["heavy", "heavy object flag"], ["red", "red-colored object flag"], ["gateRed", "red-bin gate"], ["gateA", "tall+heavy bin gate"], ["gateB", "tall+light bin gate"], ["gateC", "short bin gate"]], "outWidths": {"gateRed": 1, "gateA": 1, "gateB": 1, "gateC": 1}, "template": "module sort_gate(input tall, input heavy, input red, output gateRed, output gateA, output gateB, output gateC);\n  // instantiate basic gates only\n\nendmodule", "solutionB64": "bW9kdWxlIHNvcnRfZ2F0ZShpbnB1dCB0YWxsLCBpbnB1dCBoZWF2eSwgaW5wdXQgcmVkLCBvdXRwdXQgZ2F0ZVJlZCwgb3V0cHV0IGdhdGVBLCBvdXRwdXQgZ2F0ZUIsIG91dHB1dCBnYXRlQyk7CiAgd2lyZSBuUmVkLCBuVGFsbCwgbkhlYXZ5LCB0MSwgdDI7CiAgbm90IG4xKG5SZWQsIHJlZCk7CiAgbm90IG4yKG5UYWxsLCB0YWxsKTsKICBub3QgbjMobkhlYXZ5LCBoZWF2eSk7CiAgYnVmIGIxKGdhdGVSZWQsIHJlZCk7CiAgYW5kIGExKHQxLCBuUmVkLCB0YWxsKTsKICBhbmQgYTIoZ2F0ZUEsIHQxLCBoZWF2eSk7CiAgYW5kIGEzKHQyLCBuUmVkLCB0YWxsKTsKICBhbmQgYTQoZ2F0ZUIsIHQyLCBuSGVhdnkpOwogIGFuZCBhNShnYXRlQywgblJlZCwgblRhbGwpOwplbmRtb2R1bGU=", "whyB64": "Z2F0ZVJlZCBqdXN0IG1pcnJvcnMgdGhlIHJlZCBmbGFnIHNpbmNlIGl0IHdpbnMgb3V0cmlnaHQuIEV2ZXJ5IG90aGVyIGdhdGUgaXMgZmlyc3QgbWFza2VkIGJ5IE5PVCByZWQsIHRoZW4gc3BsaXQgb24gdGFsbC9oZWF2eTogZ2F0ZUEgbmVlZHMgdGFsbCBBTkQgaGVhdnksIGdhdGVCIG5lZWRzIHRhbGwgQU5EIE5PVCBoZWF2eSwgYW5kIGdhdGVDIGNhdGNoZXMgZXZlcnl0aGluZyBzaG9ydCByZWdhcmRsZXNzIG9mIHdlaWdodC4=", "tests": [{"name": "red wins over everything", "sigs": {"tall": 1, "heavy": 1, "red": 1}, "expected": {"gateRed": 1, "gateA": 0, "gateB": 0, "gateC": 0}}, {"name": "tall+heavy, not red", "sigs": {"tall": 1, "heavy": 1, "red": 0}, "expected": {"gateRed": 0, "gateA": 1, "gateB": 0, "gateC": 0}}, {"name": "tall+light, not red", "sigs": {"tall": 1, "heavy": 0, "red": 0}, "expected": {"gateRed": 0, "gateA": 0, "gateB": 1, "gateC": 0}}, {"name": "short object, not red", "sigs": {"tall": 0, "heavy": 1, "red": 0}, "expected": {"gateRed": 0, "gateA": 0, "gateB": 0, "gateC": 1}}]}, {"id": 17, "topic": "Voting & Decision Logic", "title": "Multi-Zone Home Security Arming Logic", "difficulty": "medium", "desc": "4 zone sensors -- <code class='inline'>door,window,garage,backyard</code> -- plus a <code class='inline'>masterArm</code> switch. Build gate-level logic for <code class='inline'>triggerAlarm</code> = masterArm AND (any zone breach), where the garage zone is excluded from the breach OR whenever <code class='inline'>garageOverride</code> is active.", "signals": [["door", "door zone breach"], ["window", "window zone breach"], ["garage", "garage zone breach"], ["backyard", "backyard zone breach"], ["masterArm", "system armed"], ["garageOverride", "garage zone excluded"], ["triggerAlarm", "1-bit alarm trigger output"]], "outWidths": {"triggerAlarm": 1}, "template": "module security_arm(input door, input window, input garage, input backyard, input masterArm, input garageOverride, output triggerAlarm);\n  // instantiate basic gates only\n\nendmodule", "solutionB64": "bW9kdWxlIHNlY3VyaXR5X2FybShpbnB1dCBkb29yLCBpbnB1dCB3aW5kb3csIGlucHV0IGdhcmFnZSwgaW5wdXQgYmFja3lhcmQsIGlucHV0IG1hc3RlckFybSwgaW5wdXQgZ2FyYWdlT3ZlcnJpZGUsIG91dHB1dCB0cmlnZ2VyQWxhcm0pOwogIHdpcmUgbk92ciwgZ2FyYWdlRWZmLCBicmVhY2gsIHQxLCB0MjsKICBub3QgbjEobk92ciwgZ2FyYWdlT3ZlcnJpZGUpOwogIGFuZCBhMShnYXJhZ2VFZmYsIGdhcmFnZSwgbk92cik7CiAgb3IgIG8xKHQxLCBkb29yLCB3aW5kb3cpOwogIG9yICBvMih0MiwgdDEsIGdhcmFnZUVmZik7CiAgb3IgIG8zKGJyZWFjaCwgdDIsIGJhY2t5YXJkKTsKICBhbmQgYTIodHJpZ2dlckFsYXJtLCBtYXN0ZXJBcm0sIGJyZWFjaCk7CmVuZG1vZHVsZQ==", "whyB64": "VGhlIGdhcmFnZSBzZW5zb3IgaXMgZmlyc3QgQU5EZWQgd2l0aCB0aGUgaW52ZXJ0ZWQgb3ZlcnJpZGUgc28gaXQgb25seSBjb250cmlidXRlcyB0byB0aGUgYnJlYWNoIE9SIHdoZW4gb3ZlcnJpZGUgaXMgb2ZmLiBUaGUgZnVsbCBicmVhY2ggaXMgdGhlIE9SIG9mIGRvb3IsIHdpbmRvdywgdGhhdCBnYXRlZCBnYXJhZ2Ugc2lnbmFsLCBhbmQgYmFja3lhcmQsIGFuZCB0aGUgYWxhcm0gb25seSBmaXJlcyB3aGVuIG1hc3RlckFybSBpcyBhZGRpdGlvbmFsbHkgc2V0Lg==", "tests": [{"name": "door breach, armed", "sigs": {"door": 1, "window": 0, "garage": 0, "backyard": 0, "masterArm": 1, "garageOverride": 0}, "expected": {"triggerAlarm": 1}}, {"name": "garage breach, override active", "sigs": {"door": 0, "window": 0, "garage": 1, "backyard": 0, "masterArm": 1, "garageOverride": 1}, "expected": {"triggerAlarm": 0}}, {"name": "garage breach, no override", "sigs": {"door": 0, "window": 0, "garage": 1, "backyard": 0, "masterArm": 1, "garageOverride": 0}, "expected": {"triggerAlarm": 1}}, {"name": "breach but not armed", "sigs": {"door": 1, "window": 1, "garage": 0, "backyard": 0, "masterArm": 0, "garageOverride": 0}, "expected": {"triggerAlarm": 0}}]}, {"id": 18, "topic": "Comparators & Merge Logic", "title": "Elevator Floor Arrival Bell + Indicator", "difficulty": "easy", "desc": "Given a 2-bit Current Floor <code class='inline'>curr1,curr0</code> and 2-bit Target Floor <code class='inline'>tgt1,tgt0</code>, build a gate-level equality comparator using XNOR gates that outputs <code class='inline'>arrived=1</code> exactly when the car has reached its target floor.", "signals": [["curr1", "current floor bit 1"], ["curr0", "current floor bit 0"], ["tgt1", "target floor bit 1"], ["tgt0", "target floor bit 0"], ["arrived", "1-bit output, current == target"]], "outWidths": {"arrived": 1}, "template": "module floor_arrival(input curr1, input curr0, input tgt1, input tgt0, output arrived);\n  // instantiate basic gates only (use xnor for bitwise equality)\n\nendmodule", "solutionB64": "bW9kdWxlIGZsb29yX2Fycml2YWwoaW5wdXQgY3VycjEsIGlucHV0IGN1cnIwLCBpbnB1dCB0Z3QxLCBpbnB1dCB0Z3QwLCBvdXRwdXQgYXJyaXZlZCk7CiAgd2lyZSBlcTEsIGVxMDsKICB4bm9yIHgxKGVxMSwgY3VycjEsIHRndDEpOwogIHhub3IgeDIoZXEwLCBjdXJyMCwgdGd0MCk7CiAgYW5kICBhMShhcnJpdmVkLCBlcTEsIGVxMCk7CmVuZG1vZHVsZQ==", "whyB64": "WE5PUiBpcyAxIGV4YWN0bHkgd2hlbiBpdHMgdHdvIGlucHV0cyBtYXRjaCwgc28gb25lIFhOT1IgcGVyIGJpdCBwb3NpdGlvbiBjaGVja3MgdGhhdCBiaXQgZm9yIGVxdWFsaXR5OyBBTkRpbmcgdGhlIHR3byBwZXItYml0IGVxdWFsaXR5IHJlc3VsdHMgdG9nZXRoZXIgZ2l2ZXMgMSBvbmx5IHdoZW4gYm90aCBiaXRzIG1hdGNoIHNpbXVsdGFuZW91c2x5LCBpLmUuIGN1cnJlbnQgZmxvb3IgZXF1YWxzIHRhcmdldCBmbG9vci4=", "tests": [{"name": "equal floors (10==10)", "sigs": {"curr1": 1, "curr0": 0, "tgt1": 1, "tgt0": 0}, "expected": {"arrived": 1}}, {"name": "differ in LSB", "sigs": {"curr1": 1, "curr0": 0, "tgt1": 1, "tgt0": 1}, "expected": {"arrived": 0}}, {"name": "differ in MSB", "sigs": {"curr1": 0, "curr0": 1, "tgt1": 1, "tgt0": 1}, "expected": {"arrived": 0}}, {"name": "equal floors (00==00)", "sigs": {"curr1": 0, "curr0": 0, "tgt1": 0, "tgt0": 0}, "expected": {"arrived": 1}}]}, {"id": 19, "topic": "Safety & Interlock Circuits", "title": "Gas Pump Authorization Interlock", "difficulty": "easy", "desc": "Build a gate-level interlock: the pump enables fuel flow only if the nozzle is inserted AND payment is approved AND NOT emergency-stop AND the tank is not yet full.", "signals": [["nozzle", "nozzle inserted"], ["payment", "payment approved"], ["estop", "emergency stop active"], ["tankNotFull", "1 while tank has room"], ["enable", "1-bit output, fuel flow enabled"]], "outWidths": {"enable": 1}, "template": "module gas_pump(input nozzle, input payment, input estop, input tankNotFull, output enable);\n  // instantiate basic gates only\n\nendmodule", "solutionB64": "bW9kdWxlIGdhc19wdW1wKGlucHV0IG5venpsZSwgaW5wdXQgcGF5bWVudCwgaW5wdXQgZXN0b3AsIGlucHV0IHRhbmtOb3RGdWxsLCBvdXRwdXQgZW5hYmxlKTsKICB3aXJlIG5Fc3RvcCwgdDEsIHQyOwogIG5vdCBuMShuRXN0b3AsIGVzdG9wKTsKICBhbmQgYTEodDEsIG5venpsZSwgcGF5bWVudCk7CiAgYW5kIGEyKHQyLCB0MSwgbkVzdG9wKTsKICBhbmQgYTMoZW5hYmxlLCB0MiwgdGFua05vdEZ1bGwpOwplbmRtb2R1bGU=", "whyB64": "QWxsIGZvdXIgY29uZGl0aW9ucyBtdXN0IGhvbGQgYXQgb25jZSwgc28gYSBjaGFpbiBvZiB0aHJlZSAyLWlucHV0IEFORCBnYXRlcyBBTkRzIG5venpsZSwgcGF5bWVudCwgdGhlIGludmVydGVkIGUtc3RvcCBmbGFnLCBhbmQgdGFua05vdEZ1bGwgdG9nZXRoZXIgaW4gc2VxdWVuY2UsIGVuYWJsaW5nIGZsb3cgb25seSB3aGVuIGV2ZXJ5IHN0YWdlIHBhc3Nlcy4=", "tests": [{"name": "all conditions met", "sigs": {"nozzle": 1, "payment": 1, "estop": 0, "tankNotFull": 1}, "expected": {"enable": 1}}, {"name": "no nozzle", "sigs": {"nozzle": 0, "payment": 1, "estop": 0, "tankNotFull": 1}, "expected": {"enable": 0}}, {"name": "emergency stop active", "sigs": {"nozzle": 1, "payment": 1, "estop": 1, "tankNotFull": 1}, "expected": {"enable": 0}}, {"name": "tank full", "sigs": {"nozzle": 1, "payment": 1, "estop": 0, "tankNotFull": 0}, "expected": {"enable": 0}}]}, {"id": 20, "topic": "Priority & Arbitration Logic", "title": "Elevator Multi-Car Dispatch Selector (2 Elevators)", "difficulty": "hard", "desc": "Given each car's Busy status (<code class='inline'>busyA,busyB</code>) and Near-caller flags (<code class='inline'>nearA,nearB</code>), build gate-level dispatch logic that selects the free AND nearer car for a new call, defaulting to Car A on any tie or ambiguous case.", "signals": [["busyA", "Car A currently busy"], ["busyB", "Car B currently busy"], ["nearA", "Car A is near the caller"], ["nearB", "Car B is near the caller"], ["selectA", "dispatch Car A"], ["selectB", "dispatch Car B"]], "outWidths": {"selectA": 1, "selectB": 1}, "template": "module dispatch2(input busyA, input busyB, input nearA, input nearB, output selectA, output selectB);\n  // instantiate basic gates only\n\nendmodule", "solutionB64": "bW9kdWxlIGRpc3BhdGNoMihpbnB1dCBidXN5QSwgaW5wdXQgYnVzeUIsIGlucHV0IG5lYXJBLCBpbnB1dCBuZWFyQiwgb3V0cHV0IHNlbGVjdEEsIG91dHB1dCBzZWxlY3RCKTsKICB3aXJlIG5CdXN5Qiwgbk5lYXJBLCBjb25kLCB0MTsKICBub3QgbjIobkJ1c3lCLCBidXN5Qik7CiAgbm90IG4zKG5OZWFyQSwgbmVhckEpOwogIG9yICBvMShjb25kLCBidXN5QSwgbk5lYXJBKTsKICBhbmQgYTEodDEsIG5CdXN5QiwgbmVhckIpOwogIGFuZCBhMihzZWxlY3RCLCB0MSwgY29uZCk7CiAgbm90IG40KHNlbGVjdEEsIHNlbGVjdEIpOwplbmRtb2R1bGU=", "whyB64": "Q2FyIEIgaXMgb25seSBjaG9zZW4gd2hlbiBCIGlzIGZyZWUgQU5EIEIgaXMgbmVhciB0aGUgY2FsbGVyIEFORCBhZGRpdGlvbmFsbHkgZWl0aGVyIEEgaXMgYnVzeSBvciBBIGlzIG5vdCBuZWFyIChjYXB0dXJlZCBieSBhbiBPUiBnYXRlKSAtLSBvdGhlcndpc2UgQSBkZWZhdWx0cyB0byBiZWluZyBzZWxlY3RlZCwgd2hpY2ggYSBzaW5nbGUgaW52ZXJ0ZXIgb3ZlciBzZWxlY3RCIGd1YXJhbnRlZXMgc2luY2UgZXhhY3RseSBvbmUgY2FyIGlzIGFsd2F5cyBkaXNwYXRjaGVkLg==", "tests": [{"name": "both free, only A near -> A", "sigs": {"busyA": 0, "busyB": 0, "nearA": 1, "nearB": 0}, "expected": {"selectA": 1, "selectB": 0}}, {"name": "both free, only B near -> B", "sigs": {"busyA": 0, "busyB": 0, "nearA": 0, "nearB": 1}, "expected": {"selectA": 0, "selectB": 1}}, {"name": "A busy, B free+near -> B", "sigs": {"busyA": 1, "busyB": 0, "nearA": 0, "nearB": 1}, "expected": {"selectA": 0, "selectB": 1}}, {"name": "both near, both free -> tie default A", "sigs": {"busyA": 0, "busyB": 0, "nearA": 1, "nearB": 1}, "expected": {"selectA": 1, "selectB": 0}}, {"name": "B busy -> A wins regardless", "sigs": {"busyA": 0, "busyB": 1, "nearA": 0, "nearB": 1}, "expected": {"selectA": 1, "selectB": 0}}]}];
+
+let current = 0;
+
+/* ══════════════════════════════════════════
+   STORAGE — persist solved problems across
+   reloads (separate keyspace from other modules).
+══════════════════════════════════════════ */
+const BANK_KEY = 'vlsiVerilogM1GateLevelProgress';
+
+function loadBankProgress() {
+  try {
+    const p = JSON.parse(localStorage.getItem(BANK_KEY));
+    return p && Array.isArray(p.solvedIds) ? p : { solvedIds: [] };
+  } catch(e) { return { solvedIds: [] }; }
+}
+function saveBankProgress(prog) {
+  prog.lastUpdated = new Date().toISOString();
+  try { localStorage.setItem(BANK_KEY, JSON.stringify(prog)); } catch(e) {}
+}
+
+const solved = new Set(loadBankProgress().solvedIds);
+
+function markSolved(qId) {
+  if (solved.has(qId)) return;
+  solved.add(qId);
+  const bankProg = loadBankProgress();
+  const bankSet = new Set(bankProg.solvedIds);
+  bankSet.add(qId);
+  bankProg.solvedIds = [...bankSet];
+  saveBankProgress(bankProg);
+}
+
+// Allow deep-linking to a specific question via ?id=N (matches Q[].id)
+(function initFromQuery(){
+  const params = new URLSearchParams(window.location.search);
+  const reqId = parseInt(params.get('id'), 10);
+  if (!isNaN(reqId)) {
+    const found = Q.findIndex(q => q.id === reqId);
+    if (found !== -1) current = found;
+  }
+})();
+
+function renderSidebar(){
+  const groups = ["Priority & Arbitration Logic","Safety & Interlock Circuits","Voting & Decision Logic","Encoders & Selectors","Comparators & Merge Logic"];
+  let html = '';
+  groups.forEach(topic => {
+    const items = Q.filter(q=>q.topic===topic);
+    if(!items.length) return;
+    html += `<div class="grp-label">${topic}</div>`;
+    items.forEach(q=>{
+      const idx = q.id-1;
+      html += `<div class="qitem ${idx===current?'active':''} ${solved.has(q.id)?'solved':''}" data-idx="${idx}">
+        <span class="st">${solved.has(q.id)?'✓':'○'}</span>
+        <span class="qn">${String(q.id).padStart(2,'0')}</span>
+        <span class="qt">${q.title}</span>
+        <span class="bd ${q.difficulty}">${q.difficulty}</span>
+      </div>`;
+    });
+  });
+  document.getElementById('sidebar').innerHTML = html;
+  document.querySelectorAll('.qitem').forEach(el=>{
+    el.addEventListener('click',()=>{ current = parseInt(el.dataset.idx); render(); });
+  });
+  document.getElementById('solvedCount').textContent = solved.size;
+}
+
+function renderMain(){
+  const q = Q[current];
+  const sigRows = q.signals.map(([n,d])=>`<tr><td class="name">${n}</td><td>${d}</td></tr>`).join('');
+  document.getElementById('main').innerHTML = `
+    <div class="crumb">${q.topic} · Question ${q.id} of ${Q.length}</div>
+    <div class="qhead">
+      <h1>${q.title}</h1>
+      <span class="badge ${q.difficulty}">${q.difficulty}</span>
+    </div>
+    <p class="desc">${q.desc}</p>
+    <div class="signals"><table class="siglist">${sigRows}</table></div>
+    <div class="editor-wrap">
+      <div class="editor-head"><span>your_module.v</span></div>
+      <textarea id="answerBox" spellcheck="false">${q.template}</textarea>
+      <div class="editor-actions">
+        <button class="reveal" id="revealBtn">Show solution</button>
+        <button class="run" id="runBtn">▶ Run</button>
+      </div>
+    </div>
+    <div class="console" id="consoleBox"></div>
+    <div class="solution" id="solutionBox"></div>
+  `;
+  document.getElementById('runBtn').addEventListener('click', ()=>runCheck(q));
+  document.getElementById('revealBtn').addEventListener('click', ()=>{
+    const box = document.getElementById('solutionBox');
+    const isShown = box.classList.contains('show');
+    if(isShown){
+      box.classList.remove('show');
+      return;
+    }
+    // Solution/why text is only decoded into the DOM at the moment the
+    // user explicitly asks for it — it is not present in the page
+    // markup before this click (see solutionB64/whyB64 in the Q array).
+    const solutionText = atob(q.solutionB64);
+    const whyText = atob(q.whyB64);
+    box.innerHTML = `
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Reference solution</div>
+      <div class="snippet"></div>
+      <div class="why"></div>
+    `;
+    box.querySelector('.snippet').textContent = solutionText;
+    box.querySelector('.why').textContent = whyText;
+    box.classList.add('show');
+  });
+}
+
+function runCheck(q){
+  const raw = document.getElementById('answerBox').value;
+  const outNames = Object.keys(q.outWidths);
+  const results = q.tests.map(tv => {
+    const evalRes = evalGateLevel(raw, outNames, tv.sigs);
+    if(!evalRes.ok) return { name: tv.name, pass:false, note: evalRes.reason };
+    const mismatches = [];
+    outNames.forEach(n=>{
+      if(evalRes.values[n] !== tv.expected[n]) mismatches.push(`${n}=${evalRes.values[n]} (expected ${tv.expected[n]})`);
+    });
+    const pass = mismatches.length === 0;
+    const note = pass
+      ? outNames.map(n=>`${n}=${evalRes.values[n]}`).join(', ') + ' — matches expected output'
+      : mismatches.join(', ');
+    return { name: tv.name, pass, note };
+  });
+
+  const allPass = results.every(r => r.pass);
+  if(allPass) markSolved(q.id);
+
+  const rows = results.map(r=>`
+    <div class="result-row ${r.pass?'pass':'fail'}">
+      <span class="mark">${r.pass?'✓':'✗'}</span>
+      <span class="case">${r.name}</span>
+      <span class="note">${r.note}</span>
+    </div>`).join('');
+
+  const summary = allPass
+    ? `<div class="summary good">${results.length} / ${results.length} test vectors passed — logic accepted.</div>`
+    : `<div class="summary bad">${results.filter(r=>r.pass).length} / ${results.length} test vectors passed.</div>`;
+
+  const box = document.getElementById('consoleBox');
+  box.classList.add('show');
+  box.innerHTML = `
+    <div class="console-head">Console · ${new Date().toLocaleTimeString()}</div>
+    <div class="console-body">
+      ${rows}
+      ${summary}
+      <div class="disclaimer">Your gate instances are wired into a netlist and simulated directly against each input combination — this is genuine structural simulation, not a comparison to a stored answer.</div>
+    </div>`;
+
+  renderSidebar();
+}
+
+function render(){ renderSidebar(); renderMain(); }
+render();
+</script>
+
+</body>
+</html>
