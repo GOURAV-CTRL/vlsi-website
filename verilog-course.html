@@ -734,26 +734,31 @@ const COURSE = [
 ];
 
 /* ══════════════════════════════════════════
-   PRACTICE DATA — Module 1: Foundations
-   LeetCode-style bank questions, backed by
-   verilog_bank_module1.html (ids 1-15).
+   PRACTICE DATA — Module 1: Gate Level Modeling
+   Scenario-driven bank questions, backed by
+   verilog_bank_module1.html (ids 1-20).
 ══════════════════════════════════════════ */
 const PRACTICE = [
-  { id: 'vp01', title: 'Simple Buffer', difficulty: 'Easy', topics: ['wire', 'assign'], url: 'verilog_bank_module1.html?id=1' },
-  { id: 'vp02', title: '2-Input AND', difficulty: 'Easy', topics: ['gate level', '&'], url: 'verilog_bank_module1.html?id=2' },
-  { id: 'vp03', title: '2-Input OR', difficulty: 'Easy', topics: ['gate level', '|'], url: 'verilog_bank_module1.html?id=3' },
-  { id: 'vp04', title: 'Inverter (NOT)', difficulty: 'Easy', topics: ['gate level', '~'], url: 'verilog_bank_module1.html?id=4' },
-  { id: 'vp05', title: '2-Input NAND', difficulty: 'Easy', topics: ['gate level', 'universal gate'], url: 'verilog_bank_module1.html?id=5' },
-  { id: 'vp06', title: '2-Input NOR', difficulty: 'Easy', topics: ['gate level', 'universal gate'], url: 'verilog_bank_module1.html?id=6' },
-  { id: 'vp07', title: '2-Input XOR', difficulty: 'Medium', topics: ['gate level', '^'], url: 'verilog_bank_module1.html?id=7' },
-  { id: 'vp08', title: '2-Input XNOR', difficulty: 'Medium', topics: ['gate level', '~^'], url: 'verilog_bank_module1.html?id=8' },
-  { id: 'vp09', title: '3-Input AND', difficulty: 'Medium', topics: ['data types', 'operators'], url: 'verilog_bank_module1.html?id=9' },
-  { id: 'vp10', title: 'Equality Comparator', difficulty: 'Medium', topics: ['operators', '=='], url: 'verilog_bank_module1.html?id=10' },
-  { id: 'vp11', title: '2-to-1 Multiplexer', difficulty: 'Medium', topics: ['operators', 'ternary'], url: 'verilog_bank_module1.html?id=11' },
-  { id: 'vp12', title: 'Majority-of-3 Voter', difficulty: 'Hard', topics: ['operators', 'combinational'], url: 'verilog_bank_module1.html?id=12' },
-  { id: 'vp13', title: '3-Bit Odd Parity', difficulty: 'Hard', topics: ['operators', 'xor chain'], url: 'verilog_bank_module1.html?id=13' },
-  { id: 'vp14', title: 'Enable-Gated Comparator', difficulty: 'Hard', topics: ['operators', 'qualified compare'], url: 'verilog_bank_module1.html?id=14' },
-  { id: 'vp15', title: 'Full-Adder Sum Bit', difficulty: 'Hard', topics: ['operators', 'adder'], url: 'verilog_bank_module1.html?id=15' }
+  { id: 'vp01', title: 'Elevator Direction Controller', difficulty: 'Easy', topics: ['Priority & Arbitration Logic'], url: 'verilog_bank_module1.html?id=1' },
+  { id: 'vp02', title: 'Traffic Junction Priority Logic', difficulty: 'Medium', topics: ['Priority & Arbitration Logic'], url: 'verilog_bank_module1.html?id=2' },
+  { id: 'vp03', title: 'Washing Machine Mode Selector', difficulty: 'Medium', topics: ['Encoders & Selectors'], url: 'verilog_bank_module1.html?id=3' },
+  { id: 'vp04', title: 'Smart Parking Slot Allocator (4 slots)', difficulty: 'Hard', topics: ['Priority & Arbitration Logic'], url: 'verilog_bank_module1.html?id=4' },
+  { id: 'vp05', title: 'Fire Alarm Multi-Sensor Voting System', difficulty: 'Medium', topics: ['Voting & Decision Logic'], url: 'verilog_bank_module1.html?id=5' },
+  { id: 'vp06', title: 'Elevator Door Safety Interlock', difficulty: 'Easy', topics: ['Safety & Interlock Circuits'], url: 'verilog_bank_module1.html?id=6' },
+  { id: 'vp07', title: 'Digital Combination Lock (4-bit)', difficulty: 'Easy', topics: ['Comparators & Merge Logic'], url: 'verilog_bank_module1.html?id=7' },
+  { id: 'vp08', title: 'Airport Runway Light Controller', difficulty: 'Medium', topics: ['Encoders & Selectors'], url: 'verilog_bank_module1.html?id=8' },
+  { id: 'vp09', title: 'Elevator Overload + Direction Lockout', difficulty: 'Easy', topics: ['Safety & Interlock Circuits'], url: 'verilog_bank_module1.html?id=9' },
+  { id: 'vp10', title: 'Voting Machine Tie-Breaker Circuit', difficulty: 'Medium', topics: ['Voting & Decision Logic'], url: 'verilog_bank_module1.html?id=10' },
+  { id: 'vp11', title: 'Automatic Room Light + Fan Controller', difficulty: 'Easy', topics: ['Comparators & Merge Logic'], url: 'verilog_bank_module1.html?id=11' },
+  { id: 'vp12', title: 'Elevator Call Button Debounce/Merge Logic', difficulty: 'Medium', topics: ['Comparators & Merge Logic'], url: 'verilog_bank_module1.html?id=12' },
+  { id: 'vp13', title: 'Bank Vault Dual-Authorization Lock', difficulty: 'Hard', topics: ['Voting & Decision Logic'], url: 'verilog_bank_module1.html?id=13' },
+  { id: 'vp14', title: 'Digital Dice Segment Driver', difficulty: 'Hard', topics: ['Encoders & Selectors'], url: 'verilog_bank_module1.html?id=14' },
+  { id: 'vp15', title: 'Elevator Emergency Priority Override', difficulty: 'Medium', topics: ['Safety & Interlock Circuits'], url: 'verilog_bank_module1.html?id=15' },
+  { id: 'vp16', title: 'Conveyor Belt Object Sorting Gate', difficulty: 'Medium', topics: ['Encoders & Selectors'], url: 'verilog_bank_module1.html?id=16' },
+  { id: 'vp17', title: 'Multi-Zone Home Security Arming Logic', difficulty: 'Medium', topics: ['Voting & Decision Logic'], url: 'verilog_bank_module1.html?id=17' },
+  { id: 'vp18', title: 'Elevator Floor Arrival Bell + Indicator', difficulty: 'Easy', topics: ['Comparators & Merge Logic'], url: 'verilog_bank_module1.html?id=18' },
+  { id: 'vp19', title: 'Gas Pump Authorization Interlock', difficulty: 'Easy', topics: ['Safety & Interlock Circuits'], url: 'verilog_bank_module1.html?id=19' },
+  { id: 'vp20', title: 'Elevator Multi-Car Dispatch Selector (2 Elevators)', difficulty: 'Hard', topics: ['Priority & Arbitration Logic'], url: 'verilog_bank_module1.html?id=20' }
 ];
 
 /* ══════════════════════════════════════════
@@ -978,12 +983,12 @@ function updateStats(completedCount) {
 /* ══════════════════════════════════════════
    RENDER — PRACTICE
    Progress here is read from the same
-   vlsiVerilogM1BankProgress key that
+   vlsiVerilogM1GateLevelProgress key that
    verilog_bank_module1.html writes to, so a
    solved checkmark shows up as soon as the
    bank page marks a question solved.
 ══════════════════════════════════════════ */
-const VERILOG_BANK_KEY = 'vlsiVerilogM1BankProgress';
+const VERILOG_BANK_KEY = 'vlsiVerilogM1GateLevelProgress';
 
 function loadVerilogBankProgress() {
   try {
@@ -992,7 +997,7 @@ function loadVerilogBankProgress() {
   } catch(e) { return { solvedIds: [] }; }
 }
 
-// PRACTICE ids vp01..vp15 map 1:1 to bank question ids 1-15.
+// PRACTICE ids vp01..vp20 map 1:1 to bank question ids 1-20.
 function practiceIdToBankId(id) {
   return parseInt(id.replace('vp', ''), 10);
 }
