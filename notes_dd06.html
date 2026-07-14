@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Notes — Logic Gates and Universal Gates</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#fdfaf3; --line:#cfe0e8; --margin:#f2a5a5;
+    --ink:#1b2a4a; --ink-soft:#2c3e63; --teal:#0e7490;
+    --amber:#b45309; --purple:#6d28d9; --highlight:#fff2a8;
+    --warn-bg:#fff0e0; --warn-border:#e3922f;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#e9edf0;font-family:'Patrick Hand', cursive;color:var(--ink);display:flex;justify-content:center;padding:40px 16px;}
+  .page{max-width:840px;width:100%;background:repeating-linear-gradient(to bottom,var(--paper) 0px,var(--paper) 35px,var(--line) 36px);background-color:var(--paper);border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,0.18),0 2px 6px rgba(0,0,0,0.1);position:relative;padding:50px 46px 60px 72px;border-left:3px solid var(--margin);}
+  .page::before{content:"";position:absolute;left:56px;top:0;bottom:0;width:1px;background:var(--margin);opacity:0.55;}
+  h1.title{font-family:'Caveat', cursive;font-weight:700;font-size:2.6rem;color:var(--teal);margin:0 0 4px 0;line-height:1.1;}
+  .subtitle{font-family:'Caveat', cursive;font-size:1.3rem;color:var(--ink-soft);margin-bottom:22px;display:inline-block;border-bottom:2px dashed var(--margin);padding-bottom:6px;}
+  h2{font-family:'Caveat', cursive;font-weight:700;font-size:2rem;color:var(--purple);margin:34px 0 10px 0;display:flex;align-items:center;gap:10px;}
+  h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:var(--purple);color:#fff;font-family:'Patrick Hand', cursive;font-size:1.05rem;flex:none;}
+  h3{font-family:'Caveat', cursive;font-weight:700;font-size:1.55rem;color:var(--amber);margin:18px 0 6px 0;}
+  p{font-size:1.28rem;line-height:1.65;margin:8px 0;color:var(--ink);}
+  ul{margin:8px 0 8px 0;padding-left:28px;}
+  li{font-size:1.28rem;line-height:1.6;margin-bottom:8px;}
+  .hi{background:var(--highlight);padding:0 5px;border-radius:3px;}
+  .teal{color:var(--teal);font-weight:700;} .amber{color:var(--amber);font-weight:700;} .purple{color:var(--purple);font-weight:700;}
+  .codebox{border:2px dashed var(--teal);background:#f4fbfc;border-radius:10px;padding:14px 18px;margin:16px 0;font-family:'Patrick Hand', cursive;font-size:1.2rem;color:var(--ink-soft);}
+  .codebox .label{font-family:'Caveat', cursive;font-weight:700;font-size:1.25rem;color:var(--teal);display:block;margin-bottom:6px;}
+  .codebox .step{margin:4px 0;}
+  .arrow{color:var(--amber);font-weight:700;}
+  .warn{background:var(--warn-bg);border-left:4px solid var(--warn-border);border-radius:6px;padding:12px 16px;margin:18px 0;font-size:1.22rem;color:#7a4415;}
+  .warn .label{font-family:'Caveat', cursive;font-weight:700;font-size:1.3rem;color:var(--warn-border);display:block;margin-bottom:4px;}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:1.2rem;}
+  th,td{border:1.5px solid #a9c3cf;padding:8px 12px;text-align:center;}
+  th{background:#e4f2f5;color:var(--teal);font-family:'Caveat', cursive;font-size:1.35rem;}
+  .doodle{position:absolute;right:34px;top:44px;font-family:'Caveat', cursive;font-size:1rem;color:var(--margin);transform:rotate(6deg);}
+  .footer-note{margin-top:40px;text-align:center;font-family:'Caveat', cursive;font-size:1.2rem;color:#8a99b3;}
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="doodle">✎ All About VLSI</div>
+    <h1 class="title">Logic Gates & Universal Gates</h1>
+    <span class="subtitle">Digital Design — Module 02, Video 06</span>
+
+    <p>Logic gates are the physical building blocks that implement Boolean operations in silicon. Understanding their truth tables — and why <span class="teal">NAND</span> and <span class="teal">NOR</span> are called <span class="hi">universal gates</span> — is essential before moving into combinational circuit design.</p>
+
+    <h2><span class="num">1</span>Basic Gates</h2>
+    <table>
+      <tr><th>Gate</th><th>Symbol</th><th>Output is 1 when</th></tr>
+      <tr><td>AND</td><td>A · B</td><td>all inputs are 1</td></tr>
+      <tr><td>OR</td><td>A + B</td><td>at least one input is 1</td></tr>
+      <tr><td>NOT</td><td>A'</td><td>input is 0</td></tr>
+      <tr><td>NAND</td><td>(A · B)'</td><td>not all inputs are 1</td></tr>
+      <tr><td>NOR</td><td>(A + B)'</td><td>all inputs are 0</td></tr>
+      <tr><td>XOR</td><td>A ⊕ B</td><td>inputs differ</td></tr>
+      <tr><td>XNOR</td><td>(A ⊕ B)'</td><td>inputs are equal</td></tr>
+    </table>
+
+    <h2><span class="num">2</span>Why NAND and NOR are "Universal"</h2>
+    <p>A gate is called <span class="purple">universal</span> if it can be used, all by itself, to construct <span class="hi">every other basic gate</span> — AND, OR, and NOT included. NAND and NOR are the only two gates with this property.</p>
+    <div class="codebox">
+      <span class="label">NOT using NAND</span>
+      <div class="step">Tie both inputs of a NAND gate together: (A · A)' = A'</div>
+    </div>
+    <div class="codebox">
+      <span class="label">AND using NAND</span>
+      <div class="step">NAND followed by a NOT (itself built from NAND): (A·B)' then invert again → A·B</div>
+    </div>
+    <div class="codebox">
+      <span class="label">OR using NAND</span>
+      <div class="step">Invert both inputs first, then NAND them: A' NAND B' = (A'·B')' = A + B &nbsp;(De Morgan's)</div>
+    </div>
+    <p>The same three constructions apply symmetrically with <span class="teal">NOR</span> gates — invert-and-combine patterns built entirely from NOR give NOT, OR, and AND.</p>
+
+    <div class="warn">
+      <span class="label">Why it matters in real chips —</span>
+      Fabricating a chip using only one type of gate simplifies the manufacturing library and standard-cell design. This is exactly why NAND/NOR-based logic is so common in real ASIC standard cell libraries.
+    </div>
+
+    <h2><span class="num">3</span>XOR & XNOR</h2>
+    <p><span class="amber">XOR</span> behaves like a "difference detector" — it's 1 only when its inputs disagree — making it the core building block of adders and parity checkers. <span class="amber">XNOR</span> is simply its complement, acting as an equality checker.</p>
+    <div class="codebox">
+      <span class="label">Expressions</span>
+      <div class="step">A ⊕ B = A·B' + A'·B</div>
+      <div class="step">(A ⊕ B)' = A·B + A'·B'</div>
+    </div>
+
+    <div class="warn">
+      <span class="label">Key takeaway —</span>
+      NAND and NOR are the workhorses of real digital hardware because any circuit — no matter how complex — can be built entirely out of just one of these gates, which is a huge advantage for fabrication and standard-cell libraries.
+    </div>
+
+    <p class="footer-note">— end of notes —</p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Notes — SOP and POS Forms of Representation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#fdfaf3; --line:#cfe0e8; --margin:#f2a5a5;
+    --ink:#1b2a4a; --ink-soft:#2c3e63; --teal:#0e7490;
+    --amber:#b45309; --purple:#6d28d9; --highlight:#fff2a8;
+    --warn-bg:#fff0e0; --warn-border:#e3922f;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#e9edf0;font-family:'Patrick Hand', cursive;color:var(--ink);display:flex;justify-content:center;padding:40px 16px;}
+  .page{max-width:840px;width:100%;background:repeating-linear-gradient(to bottom,var(--paper) 0px,var(--paper) 35px,var(--line) 36px);background-color:var(--paper);border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,0.18),0 2px 6px rgba(0,0,0,0.1);position:relative;padding:50px 46px 60px 72px;border-left:3px solid var(--margin);}
+  .page::before{content:"";position:absolute;left:56px;top:0;bottom:0;width:1px;background:var(--margin);opacity:0.55;}
+  h1.title{font-family:'Caveat', cursive;font-weight:700;font-size:2.6rem;color:var(--teal);margin:0 0 4px 0;line-height:1.1;}
+  .subtitle{font-family:'Caveat', cursive;font-size:1.3rem;color:var(--ink-soft);margin-bottom:22px;display:inline-block;border-bottom:2px dashed var(--margin);padding-bottom:6px;}
+  h2{font-family:'Caveat', cursive;font-weight:700;font-size:2rem;color:var(--purple);margin:34px 0 10px 0;display:flex;align-items:center;gap:10px;}
+  h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:var(--purple);color:#fff;font-family:'Patrick Hand', cursive;font-size:1.05rem;flex:none;}
+  h3{font-family:'Caveat', cursive;font-weight:700;font-size:1.55rem;color:var(--amber);margin:18px 0 6px 0;}
+  p{font-size:1.28rem;line-height:1.65;margin:8px 0;color:var(--ink);}
+  ul{margin:8px 0 8px 0;padding-left:28px;}
+  li{font-size:1.28rem;line-height:1.6;margin-bottom:8px;}
+  .hi{background:var(--highlight);padding:0 5px;border-radius:3px;}
+  .teal{color:var(--teal);font-weight:700;} .amber{color:var(--amber);font-weight:700;} .purple{color:var(--purple);font-weight:700;}
+  .codebox{border:2px dashed var(--teal);background:#f4fbfc;border-radius:10px;padding:14px 18px;margin:16px 0;font-family:'Patrick Hand', cursive;font-size:1.2rem;color:var(--ink-soft);}
+  .codebox .label{font-family:'Caveat', cursive;font-weight:700;font-size:1.25rem;color:var(--teal);display:block;margin-bottom:6px;}
+  .codebox .step{margin:4px 0;}
+  .arrow{color:var(--amber);font-weight:700;}
+  .warn{background:var(--warn-bg);border-left:4px solid var(--warn-border);border-radius:6px;padding:12px 16px;margin:18px 0;font-size:1.22rem;color:#7a4415;}
+  .warn .label{font-family:'Caveat', cursive;font-weight:700;font-size:1.3rem;color:var(--warn-border);display:block;margin-bottom:4px;}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:1.2rem;}
+  th,td{border:1.5px solid #a9c3cf;padding:8px 12px;text-align:center;}
+  th{background:#e4f2f5;color:var(--teal);font-family:'Caveat', cursive;font-size:1.35rem;}
+  .doodle{position:absolute;right:34px;top:44px;font-family:'Caveat', cursive;font-size:1rem;color:var(--margin);transform:rotate(6deg);}
+  .footer-note{margin-top:40px;text-align:center;font-family:'Caveat', cursive;font-size:1.2rem;color:#8a99b3;}
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="doodle">✎ All About VLSI</div>
+    <h1 class="title">SOP & POS Forms</h1>
+    <span class="subtitle">Digital Design — Module 02, Video 09</span>
+
+    <p>Once a truth table is known, a Boolean function can be written in two <span class="hi">standard forms</span> — <span class="teal">Sum of Products (SOP)</span> and <span class="teal">Product of Sums (POS)</span>. These canonical forms are the direct bridge between a truth table and a real gate-level circuit.</p>
+
+    <h2><span class="num">1</span>Minterms and Maxterms</h2>
+    <p>For a function of <span class="amber">n</span> variables, each row of the truth table corresponds to one specific combination of inputs:</p>
+    <ul>
+      <li><b>Minterm</b> — a product (AND) term that is 1 for exactly one input combination. A variable appears un-complemented if it's 1 in that row, complemented if it's 0.</li>
+      <li><b>Maxterm</b> — a sum (OR) term that is 0 for exactly one input combination. A variable appears un-complemented if it's 0 in that row, complemented if it's 1 (the opposite convention of minterms).</li>
+    </ul>
+
+    <h2><span class="num">2</span>Sum of Products (SOP)</h2>
+    <p>SOP expresses a function as the <span class="purple">OR of AND terms</span> — literally, a "sum" of "products". It's built by <span class="hi">OR-ing together every minterm</span> where the output is 1.</p>
+    <div class="codebox">
+      <span class="label">How to build it</span>
+      <div class="step">1. Find every row in the truth table where F = 1.</div>
+      <div class="step">2. Write the minterm for each such row.</div>
+      <div class="step">3. OR all those minterms together.</div>
+    </div>
+    <div class="codebox">
+      <span class="label">Example</span>
+      <div class="step">F(A,B) = 1 for rows A=0,B=1 and A=1,B=1</div>
+      <div class="step">F = A'B + AB</div>
+    </div>
+    <p>Circuit-wise, SOP maps directly onto an <span class="amber">AND-OR</span> two-level structure — a set of AND gates feeding a single OR gate.</p>
+
+    <h2><span class="num">3</span>Product of Sums (POS)</h2>
+    <p>POS expresses a function as the <span class="purple">AND of OR terms</span> — built by <span class="hi">AND-ing together every maxterm</span> where the output is 0.</p>
+    <div class="codebox">
+      <span class="label">How to build it</span>
+      <div class="step">1. Find every row in the truth table where F = 0.</div>
+      <div class="step">2. Write the maxterm for each such row.</div>
+      <div class="step">3. AND all those maxterms together.</div>
+    </div>
+    <div class="codebox">
+      <span class="label">Example</span>
+      <div class="step">F(A,B) = 0 only for row A=0,B=0</div>
+      <div class="step">F = (A + B)</div>
+    </div>
+    <p>Circuit-wise, POS maps onto an <span class="amber">OR-AND</span> two-level structure — a set of OR gates feeding a single AND gate.</p>
+
+    <h2><span class="num">4</span>Choosing Between Them</h2>
+    <div class="warn">
+      <span class="label">Rule of thumb —</span>
+      Use SOP when the output is 1 for <b>fewer</b> rows of the truth table, and POS when the output is 0 for <b>fewer</b> rows — whichever gives the shorter expression usually leads to a smaller circuit.
+    </div>
+
+    <div class="warn">
+      <span class="label">Key takeaway —</span>
+      SOP and POS are just two mirror-image ways of reading the same truth table — one built from the 1s, the other from the 0s — and both are the standard starting point before applying simplification techniques like K-maps.
+    </div>
+
+    <p class="footer-note">— end of notes —</p>
+  </div>
+</body>
+</html>

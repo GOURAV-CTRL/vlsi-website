@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Notes — Number System Conversions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#fdfaf3;
+    --line:#cfe0e8;
+    --margin:#f2a5a5;
+    --ink:#1b2a4a;
+    --ink-soft:#2c3e63;
+    --teal:#0e7490;
+    --amber:#b45309;
+    --purple:#6d28d9;
+    --highlight:#fff2a8;
+    --warn-bg:#fff0e0;
+    --warn-border:#e3922f;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:#e9edf0;
+    font-family:'Patrick Hand', cursive;
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+    padding:40px 16px;
+  }
+  .page{
+    max-width:840px;
+    width:100%;
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        var(--paper) 0px,
+        var(--paper) 35px,
+        var(--line) 36px
+      );
+    background-color:var(--paper);
+    border-radius:6px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.1);
+    position:relative;
+    padding:50px 46px 60px 72px;
+    border-left:3px solid var(--margin);
+  }
+  .page::before{
+    content:"";
+    position:absolute;
+    left:56px;
+    top:0;
+    bottom:0;
+    width:1px;
+    background:var(--margin);
+    opacity:0.55;
+  }
+  h1.title{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:2.6rem;
+    color:var(--teal);
+    margin:0 0 4px 0;
+    line-height:1.1;
+  }
+  .subtitle{
+    font-family:'Caveat', cursive;
+    font-size:1.3rem;
+    color:var(--ink-soft);
+    margin-bottom:22px;
+    display:inline-block;
+    border-bottom:2px dashed var(--margin);
+    padding-bottom:6px;
+  }
+  h2{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:2rem;
+    color:var(--purple);
+    margin:34px 0 10px 0;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  h2 .num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    background:var(--purple);
+    color:#fff;
+    font-family:'Patrick Hand', cursive;
+    font-size:1.05rem;
+    flex:none;
+  }
+  p{
+    font-size:1.28rem;
+    line-height:1.65;
+    margin:8px 0;
+    color:var(--ink);
+  }
+  ul{
+    margin:8px 0 8px 0;
+    padding-left:28px;
+  }
+  li{
+    font-size:1.28rem;
+    line-height:1.6;
+    margin-bottom:8px;
+  }
+  .hi{
+    background:var(--highlight);
+    padding:0 5px;
+    border-radius:3px;
+  }
+  .teal{color:var(--teal); font-weight:700;}
+  .amber{color:var(--amber); font-weight:700;}
+  .purple{color:var(--purple); font-weight:700;}
+
+  .codebox{
+    border:2px dashed var(--teal);
+    background:#f4fbfc;
+    border-radius:10px;
+    padding:14px 18px;
+    margin:16px 0;
+    font-family:'Patrick Hand', cursive;
+    font-size:1.2rem;
+    color:var(--ink-soft);
+  }
+  .codebox .label{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:1.25rem;
+    color:var(--teal);
+    display:block;
+    margin-bottom:6px;
+  }
+  .codebox .step{ margin:4px 0; }
+  .arrow{ color:var(--amber); font-weight:700; }
+
+  .warn{
+    background:var(--warn-bg);
+    border-left:4px solid var(--warn-border);
+    border-radius:6px;
+    padding:12px 16px;
+    margin:18px 0;
+    font-size:1.22rem;
+    color:#7a4415;
+  }
+  .warn .label{
+    font-family:'Caveat', cursive;
+    font-weight:700;
+    font-size:1.3rem;
+    color:var(--warn-border);
+    display:block;
+    margin-bottom:4px;
+  }
+
+  table{
+    border-collapse:collapse;
+    width:100%;
+    margin:14px 0;
+    font-size:1.2rem;
+  }
+  th,td{
+    border:1.5px solid #a9c3cf;
+    padding:8px 12px;
+    text-align:center;
+  }
+  th{
+    background:#e4f2f5;
+    color:var(--teal);
+    font-family:'Caveat', cursive;
+    font-size:1.35rem;
+  }
+
+  .doodle{
+    position:absolute;
+    right:34px;
+    top:44px;
+    font-family:'Caveat', cursive;
+    font-size:1rem;
+    color:var(--margin);
+    transform:rotate(6deg);
+  }
+
+  .footer-note{
+    margin-top:40px;
+    text-align:center;
+    font-family:'Caveat', cursive;
+    font-size:1.2rem;
+    color:#8a99b3;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="doodle">✎ All About VLSI</div>
+    <h1 class="title">Number System Conversions</h1>
+    <span class="subtitle">Digital Design — Module 01, Video 01</span>
+
+    <p>Digital systems understand only two voltage levels — <span class="hi">low</span> and <span class="hi">high</span> — written as <span class="teal">0</span> and <span class="teal">1</span>. Everything a chip does is built on top of this two-symbol language, so before touching gates or circuits we need to be fluent in the number systems used to represent data.</p>
+
+    <h2><span class="num">1</span>The Four Number Systems</h2>
+    <p>There are four systems we work with constantly in digital design, each defined by its <span class="amber">radix</span> (the number of unique digits it uses):</p>
+    <table>
+      <tr><th>System</th><th>Radix</th><th>Digits Used</th></tr>
+      <tr><td>Binary</td><td>2</td><td>0, 1</td></tr>
+      <tr><td>Octal</td><td>8</td><td>0 – 7</td></tr>
+      <tr><td>Decimal</td><td>10</td><td>0 – 9</td></tr>
+      <tr><td>Hexadecimal</td><td>16</td><td>0 – 9, A – F</td></tr>
+    </table>
+    <p>Binary is the <span class="hi">native language of digital machines</span> because a transistor can only cleanly represent two states — on or off. Octal and hexadecimal exist mainly as shorthand, letting humans write long binary strings more compactly.</p>
+
+    <h2><span class="num">2</span>Octal ⇄ Binary</h2>
+    <p>Since <span class="teal">8 = 2³</span>, every octal digit maps neatly onto exactly <span class="amber">3 bits</span> of binary. This clean relationship is what makes octal conversions so mechanical.</p>
+
+    <div class="codebox">
+      <span class="label">Octal → Binary</span>
+      <div class="step">Replace each octal digit with its 3-bit binary equivalent.</div>
+      <div class="step">Example: <b>5 2 7</b><span class="arrow"> → </span>101 010 111</div>
+    </div>
+
+    <div class="codebox">
+      <span class="label">Binary → Octal</span>
+      <div class="step">Starting from the binary point, group bits into sets of 3 (pad with zeros if needed).</div>
+      <div class="step">Convert each group to its octal digit.</div>
+    </div>
+
+    <div class="warn">
+      <span class="label">Watch out —</span>
+      For fractional numbers, grouping starts from the binary point and moves outward in both directions — group left of the point toward the MSB, and right of the point toward the LSB, padding zeros wherever a group is incomplete.
+    </div>
+
+    <h2><span class="num">3</span>Octal ⇄ Hexadecimal</h2>
+    <p>There's no direct shortcut digit-to-digit relationship here, so <span class="purple">binary is used as the middleman</span>:</p>
+    <div class="codebox">
+      <span class="label">Octal → Hexadecimal</span>
+      <div class="step">Octal → Binary (groups of 3) <span class="arrow">→</span> regroup the same bit string into groups of 4 <span class="arrow">→</span> Hexadecimal.</div>
+    </div>
+    <div class="codebox">
+      <span class="label">Hexadecimal → Octal</span>
+      <div class="step">Hex → Binary (groups of 4) <span class="arrow">→</span> regroup into sets of 3 <span class="arrow">→</span> Octal.</div>
+    </div>
+    <p>The only thing that changes between the two directions is the <span class="hi">grouping size</span> — 3 bits for octal, 4 bits for hex — since <span class="teal">16 = 2⁴</span>.</p>
+
+    <h2><span class="num">4</span>Decimal ⇄ Binary</h2>
+    <div class="codebox">
+      <span class="label">Decimal → Binary</span>
+      <div class="step">Repeatedly divide the number by 2, recording each remainder.</div>
+      <div class="step">Read the remainders <b>bottom-to-top</b> to get the binary result.</div>
+      <div class="step">For fractional parts, repeatedly <b>multiply</b> by 2 instead, and read the integer part generated at each step top-to-bottom.</div>
+    </div>
+    <div class="codebox">
+      <span class="label">Binary → Decimal</span>
+      <div class="step">Multiply each bit by its positional weight (powers of 2) and sum the results.</div>
+      <div class="step">Example: <b>1011</b> = 1·2³ + 0·2² + 1·2¹ + 1·2⁰ = 8 + 0 + 2 + 1 = <b>11</b></div>
+    </div>
+
+    <div class="warn">
+      <span class="label">Key takeaway —</span>
+      Every conversion in this video boils down to the same idea: match up group sizes to the radix relationship between two systems, and use binary as the universal translator when there's no direct shortcut.
+    </div>
+
+    <p class="footer-note">— end of notes —</p>
+  </div>
+</body>
+</html>
