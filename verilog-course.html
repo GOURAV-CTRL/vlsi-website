@@ -739,26 +739,39 @@ const COURSE = [
    verilog_bank_module1.html (ids 1-20).
 ══════════════════════════════════════════ */
 const PRACTICE = [
-  { id: 'vp01', title: 'Elevator Direction Controller', difficulty: 'Easy', topics: ['Priority & Arbitration Logic'], url: 'verilog_bank_module1.html?id=1' },
-  { id: 'vp02', title: 'Traffic Junction Priority Logic', difficulty: 'Medium', topics: ['Priority & Arbitration Logic'], url: 'verilog_bank_module1.html?id=2' },
-  { id: 'vp03', title: 'Washing Machine Mode Selector', difficulty: 'Medium', topics: ['Encoders & Selectors'], url: 'verilog_bank_module1.html?id=3' },
-  { id: 'vp04', title: 'Smart Parking Slot Allocator (4 slots)', difficulty: 'Hard', topics: ['Priority & Arbitration Logic'], url: 'verilog_bank_module1.html?id=4' },
-  { id: 'vp05', title: 'Fire Alarm Multi-Sensor Voting System', difficulty: 'Medium', topics: ['Voting & Decision Logic'], url: 'verilog_bank_module1.html?id=5' },
-  { id: 'vp06', title: 'Elevator Door Safety Interlock', difficulty: 'Easy', topics: ['Safety & Interlock Circuits'], url: 'verilog_bank_module1.html?id=6' },
-  { id: 'vp07', title: 'Digital Combination Lock (4-bit)', difficulty: 'Easy', topics: ['Comparators & Merge Logic'], url: 'verilog_bank_module1.html?id=7' },
-  { id: 'vp08', title: 'Airport Runway Light Controller', difficulty: 'Medium', topics: ['Encoders & Selectors'], url: 'verilog_bank_module1.html?id=8' },
-  { id: 'vp09', title: 'Elevator Overload + Direction Lockout', difficulty: 'Easy', topics: ['Safety & Interlock Circuits'], url: 'verilog_bank_module1.html?id=9' },
-  { id: 'vp10', title: 'Voting Machine Tie-Breaker Circuit', difficulty: 'Medium', topics: ['Voting & Decision Logic'], url: 'verilog_bank_module1.html?id=10' },
-  { id: 'vp11', title: 'Automatic Room Light + Fan Controller', difficulty: 'Easy', topics: ['Comparators & Merge Logic'], url: 'verilog_bank_module1.html?id=11' },
-  { id: 'vp12', title: 'Elevator Call Button Debounce/Merge Logic', difficulty: 'Medium', topics: ['Comparators & Merge Logic'], url: 'verilog_bank_module1.html?id=12' },
-  { id: 'vp13', title: 'Bank Vault Dual-Authorization Lock', difficulty: 'Hard', topics: ['Voting & Decision Logic'], url: 'verilog_bank_module1.html?id=13' },
-  { id: 'vp14', title: 'Digital Dice Segment Driver', difficulty: 'Hard', topics: ['Encoders & Selectors'], url: 'verilog_bank_module1.html?id=14' },
-  { id: 'vp15', title: 'Elevator Emergency Priority Override', difficulty: 'Medium', topics: ['Safety & Interlock Circuits'], url: 'verilog_bank_module1.html?id=15' },
-  { id: 'vp16', title: 'Conveyor Belt Object Sorting Gate', difficulty: 'Medium', topics: ['Encoders & Selectors'], url: 'verilog_bank_module1.html?id=16' },
-  { id: 'vp17', title: 'Multi-Zone Home Security Arming Logic', difficulty: 'Medium', topics: ['Voting & Decision Logic'], url: 'verilog_bank_module1.html?id=17' },
-  { id: 'vp18', title: 'Elevator Floor Arrival Bell + Indicator', difficulty: 'Easy', topics: ['Comparators & Merge Logic'], url: 'verilog_bank_module1.html?id=18' },
-  { id: 'vp19', title: 'Gas Pump Authorization Interlock', difficulty: 'Easy', topics: ['Safety & Interlock Circuits'], url: 'verilog_bank_module1.html?id=19' },
-  { id: 'vp20', title: 'Elevator Multi-Car Dispatch Selector (2 Elevators)', difficulty: 'Hard', topics: ['Priority & Arbitration Logic'], url: 'verilog_bank_module1.html?id=20' }
+  { id: 'vp01', title: 'Elevator Direction Controller', difficulty: 'Easy', topics: ['Priority & Arbitration Logic'], bank: 'm1', bankId: 1, url: 'verilog_bank_module1.html?id=1' },
+  { id: 'vp02', title: 'Traffic Junction Priority Logic', difficulty: 'Medium', topics: ['Priority & Arbitration Logic'], bank: 'm1', bankId: 2, url: 'verilog_bank_module1.html?id=2' },
+  { id: 'vp03', title: 'Washing Machine Mode Selector', difficulty: 'Medium', topics: ['Encoders & Selectors'], bank: 'm1', bankId: 3, url: 'verilog_bank_module1.html?id=3' },
+  { id: 'vp04', title: 'Smart Parking Slot Allocator (4 slots)', difficulty: 'Hard', topics: ['Priority & Arbitration Logic'], bank: 'm1', bankId: 4, url: 'verilog_bank_module1.html?id=4' },
+  { id: 'vp05', title: 'Fire Alarm Multi-Sensor Voting System', difficulty: 'Medium', topics: ['Voting & Decision Logic'], bank: 'm1', bankId: 5, url: 'verilog_bank_module1.html?id=5' },
+  { id: 'vp06', title: 'Elevator Door Safety Interlock', difficulty: 'Easy', topics: ['Safety & Interlock Circuits'], bank: 'm1', bankId: 6, url: 'verilog_bank_module1.html?id=6' },
+  { id: 'vp07', title: 'Digital Combination Lock (4-bit)', difficulty: 'Easy', topics: ['Comparators & Merge Logic'], bank: 'm1', bankId: 7, url: 'verilog_bank_module1.html?id=7' },
+  { id: 'vp08', title: 'Airport Runway Light Controller', difficulty: 'Medium', topics: ['Encoders & Selectors'], bank: 'm1', bankId: 8, url: 'verilog_bank_module1.html?id=8' },
+  { id: 'vp09', title: 'Elevator Overload + Direction Lockout', difficulty: 'Easy', topics: ['Safety & Interlock Circuits'], bank: 'm1', bankId: 9, url: 'verilog_bank_module1.html?id=9' },
+  { id: 'vp10', title: 'Voting Machine Tie-Breaker Circuit', difficulty: 'Medium', topics: ['Voting & Decision Logic'], bank: 'm1', bankId: 10, url: 'verilog_bank_module1.html?id=10' },
+  { id: 'vp11', title: 'Automatic Room Light + Fan Controller', difficulty: 'Easy', topics: ['Comparators & Merge Logic'], bank: 'm1', bankId: 11, url: 'verilog_bank_module1.html?id=11' },
+  { id: 'vp12', title: 'Elevator Call Button Debounce/Merge Logic', difficulty: 'Medium', topics: ['Comparators & Merge Logic'], bank: 'm1', bankId: 12, url: 'verilog_bank_module1.html?id=12' },
+  { id: 'vp13', title: 'Bank Vault Dual-Authorization Lock', difficulty: 'Hard', topics: ['Voting & Decision Logic'], bank: 'm1', bankId: 13, url: 'verilog_bank_module1.html?id=13' },
+  { id: 'vp14', title: 'Digital Dice Segment Driver', difficulty: 'Hard', topics: ['Encoders & Selectors'], bank: 'm1', bankId: 14, url: 'verilog_bank_module1.html?id=14' },
+  { id: 'vp15', title: 'Elevator Emergency Priority Override', difficulty: 'Medium', topics: ['Safety & Interlock Circuits'], bank: 'm1', bankId: 15, url: 'verilog_bank_module1.html?id=15' },
+  { id: 'vp16', title: 'Conveyor Belt Object Sorting Gate', difficulty: 'Medium', topics: ['Encoders & Selectors'], bank: 'm1', bankId: 16, url: 'verilog_bank_module1.html?id=16' },
+  { id: 'vp17', title: 'Multi-Zone Home Security Arming Logic', difficulty: 'Medium', topics: ['Voting & Decision Logic'], bank: 'm1', bankId: 17, url: 'verilog_bank_module1.html?id=17' },
+  { id: 'vp18', title: 'Elevator Floor Arrival Bell + Indicator', difficulty: 'Easy', topics: ['Comparators & Merge Logic'], bank: 'm1', bankId: 18, url: 'verilog_bank_module1.html?id=18' },
+  { id: 'vp19', title: 'Gas Pump Authorization Interlock', difficulty: 'Easy', topics: ['Safety & Interlock Circuits'], bank: 'm1', bankId: 19, url: 'verilog_bank_module1.html?id=19' },
+  { id: 'vp20', title: 'Elevator Multi-Car Dispatch Selector (2 Elevators)', difficulty: 'Hard', topics: ['Priority & Arbitration Logic'], bank: 'm1', bankId: 20, url: 'verilog_bank_module1.html?id=20' },
+
+  /* ── Module 2: Behavioral Modeling — Blocking vs Non-Blocking ──
+     Backed by verilog_bank_module2_behavioral.html (ids 1-10). */
+  { id: 'vp21', title: '3-Stage Shift Register (Non-Blocking)', difficulty: 'Easy', topics: ['Blocking & Non-Blocking Assignments'], bank: 'm2', bankId: 1, url: 'verilog_bank_module2_behavioral.html?id=1' },
+  { id: 'vp22', title: 'Same-Cycle Register Swap', difficulty: 'Medium', topics: ['Blocking & Non-Blocking Assignments'], bank: 'm2', bankId: 2, url: 'verilog_bank_module2_behavioral.html?id=2' },
+  { id: 'vp23', title: 'Fix the Broken Combinational AOI Gate', difficulty: 'Easy', topics: ['Blocking & Non-Blocking Assignments'], bank: 'm2', bankId: 3, url: 'verilog_bank_module2_behavioral.html?id=3' },
+  { id: 'vp24', title: 'Cross-Coupled Parallel Register Update', difficulty: 'Hard', topics: ['Blocking & Non-Blocking Assignments'], bank: 'm2', bankId: 4, url: 'verilog_bank_module2_behavioral.html?id=4' },
+  { id: 'vp25', title: 'Correct Ordering: Mixed Blocking + Non-Blocking', difficulty: 'Hard', topics: ['Blocking & Non-Blocking Assignments'], bank: 'm2', bankId: 5, url: 'verilog_bank_module2_behavioral.html?id=5' },
+  { id: 'vp26', title: 'Two-Stage Debug Snapshot Register', difficulty: 'Medium', topics: ['Blocking & Non-Blocking Assignments'], bank: 'm2', bankId: 6, url: 'verilog_bank_module2_behavioral.html?id=6' },
+  { id: 'vp27', title: '2-Stage Metastability Synchronizer', difficulty: 'Medium', topics: ['Blocking & Non-Blocking Assignments'], bank: 'm2', bankId: 7, url: 'verilog_bank_module2_behavioral.html?id=7' },
+  { id: 'vp28', title: '3-State FSM: One Transition Per Clock', difficulty: 'Hard', topics: ['Blocking & Non-Blocking Assignments'], bank: 'm2', bankId: 8, url: 'verilog_bank_module2_behavioral.html?id=8' },
+  { id: 'vp29', title: 'Synchronous T Flip-Flop', difficulty: 'Medium', topics: ['Blocking & Non-Blocking Assignments'], bank: 'm2', bankId: 9, url: 'verilog_bank_module2_behavioral.html?id=9' },
+  { id: 'vp30', title: 'Debug: Fix the Broken All-Blocking Pipeline', difficulty: 'Medium', topics: ['Blocking & Non-Blocking Assignments'], bank: 'm2', bankId: 10, url: 'verilog_bank_module2_behavioral.html?id=10' }
 ];
 
 /* ══════════════════════════════════════════
@@ -982,33 +995,38 @@ function updateStats(completedCount) {
 
 /* ══════════════════════════════════════════
    RENDER — PRACTICE
-   Progress here is read from the same
-   vlsiVerilogM1GateLevelProgress key that
-   verilog_bank_module1.html writes to, so a
-   solved checkmark shows up as soon as the
-   bank page marks a question solved.
+   Progress is read from each bank page's own
+   localStorage key, so a solved checkmark shows
+   up as soon as that bank page marks a question
+   solved. Each PRACTICE entry declares which
+   bank it belongs to via `bank` ('m1' / 'm2').
 ══════════════════════════════════════════ */
-const VERILOG_BANK_KEY = 'vlsiVerilogM1GateLevelProgress';
+const VERILOG_BANK_KEYS = {
+  m1: 'vlsiVerilogM1GateLevelProgress',        // verilog_bank_module1.html
+  m2: 'vlsiVerilogM2BehavioralProgress'        // verilog_bank_module2_behavioral.html
+};
 
-function loadVerilogBankProgress() {
+function loadVerilogBankProgress(bank) {
   try {
-    const p = JSON.parse(localStorage.getItem(VERILOG_BANK_KEY));
+    const key = VERILOG_BANK_KEYS[bank];
+    const p = JSON.parse(localStorage.getItem(key));
     return p && Array.isArray(p.solvedIds) ? p : { solvedIds: [] };
   } catch(e) { return { solvedIds: [] }; }
 }
 
-// PRACTICE ids vp01..vp20 map 1:1 to bank question ids 1-20.
-function practiceIdToBankId(id) {
-  return parseInt(id.replace('vp', ''), 10);
+function isPracticeSolved(p) {
+  const solved = loadVerilogBankProgress(p.bank).solvedIds;
+  return solved.includes(p.bankId);
 }
 
 function renderPractice() {
-  const solvedBankIds = new Set(loadVerilogBankProgress().solvedIds);
   const container = document.getElementById('practiceContent');
   container.innerHTML = '';
+  let solvedCount = 0;
 
   PRACTICE.forEach((p, idx) => {
-    const isSolved = solvedBankIds.has(practiceIdToBankId(p.id));
+    const isSolved = isPracticeSolved(p);
+    if (isSolved) solvedCount++;
     const diffClass = p.difficulty === 'Easy' ? 'diff-easy' : (p.difficulty === 'Medium' ? 'diff-medium' : 'diff-hard');
 
     const card = document.createElement('a');
@@ -1024,13 +1042,13 @@ function renderPractice() {
       <span class="pcard-arrow">↗</span>
     `;
     // NOTE: we don't mark a problem "solved" just by clicking into it.
-    // verilog_bank_module1.html writes to the shared VERILOG_BANK_KEY
-    // storage itself, only after the user's code actually passes all
-    // test vectors there.
+    // Each bank page writes to its own VERILOG_BANK_KEYS storage entry
+    // itself, only after the user's code actually passes all test
+    // vectors there.
     container.appendChild(card);
   });
 
-  document.getElementById('practiceSolvedCount').textContent = solvedBankIds.size;
+  document.getElementById('practiceSolvedCount').textContent = solvedCount;
   document.getElementById('practiceTotalCount').textContent = PRACTICE.length;
 }
 
